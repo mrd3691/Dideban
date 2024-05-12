@@ -59,7 +59,7 @@ class LoginScreen extends StatelessWidget {
                         ..add(
                           FetchAllDevices(authResult.id),
                         ),
-                      child: Home(data.name),
+                      child: Home(data.name,authResult.id),
                     ),
               ),
             );

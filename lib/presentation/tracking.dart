@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'package:dideban/presentation/tracking.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,19 +6,16 @@ import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
-
 import 'login.dart';
 
-class Home extends StatelessWidget {
-  Home(this.username,this.id ,{ super.key});
+class Tracking extends StatelessWidget {
+  Tracking(this.username,this.id ,{ super.key});
   String username = "";
   String id = "";
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
   final PopupController _popupLayerController = PopupController();
   TextEditingController searchedValueController = TextEditingController();
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -154,21 +148,7 @@ class Home extends StatelessWidget {
                 icon: const Icon(
                   Icons.track_changes,
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          BlocProvider(
-                            create: (context) =>
-                            DevicesBloc()
-                              ..add(
-                                FetchAllDevices(id),
-                              ),
-                            child: Tracking(username,id),
-                          ),
-                    ),
-                  );
-                },
+                onPressed: () {},
               ),
               IconButton(
                 tooltip: "setting",
@@ -209,7 +189,14 @@ class Home extends StatelessWidget {
                 urlTemplate:
                 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
               ),
-
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45)],
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
               BlocBuilder<DevicesBloc, DevicesState>(
                 builder: (context, state) {
                   if(state is GetDevicesLocationSuccess){
@@ -241,16 +228,14 @@ class Home extends StatelessWidget {
 
             ],
           ),
-
-
           drawer: Drawer(
             child: drawerItems,
           ),
-          onDrawerChanged: (isOpened) {
-            if (!isOpened) {
-              //context.read<DevicesBloc>().add(SearchDevices(treeNode, ""),);
-            }
-          },
+          bottomNavigationBar: Row(
+            children: [
+              TextButton(onPressed: (){}, child: Text("Track"))
+            ],
+          ),
         ));
   }
 }
