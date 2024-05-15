@@ -37,7 +37,7 @@ class Util{
 
   static String georgianToJalali(String input) {
     try{
-      if(input.isEmpty || input.length<8 || input.length>10) {
+      if(input.isEmpty || input.length<8) {
         return "";
       }
       var splitted = input.split('-');
@@ -45,8 +45,8 @@ class Util{
         return "";
       }
       var yearGeorgian = int.parse(splitted[0].trim());
-      var monthGeorgian = int.parse(splitted[2].trim());
-      var dayGeorgian = int.parse(splitted[1].trim());
+      var monthGeorgian = int.parse(splitted[1].trim());
+      var dayGeorgian = int.parse(splitted[2].trim());
       Gregorian georgian = Gregorian(yearGeorgian, monthGeorgian, dayGeorgian);
       Jalali jalali = georgian.toJalali();
       String yearJalali = jalali.year.toString();
