@@ -115,4 +115,31 @@ class API{
       return null;
     }
   }
+
+  static Future<List<DeviceLocation>?> fetchTrackingPoints(String deviceName, String startDateTime,String endDateTime) async{
+    try {
+
+      var req = Map<String , dynamic>();
+      req["deviceName"] = deviceName;
+      req["startDateTime"] = startDateTime;
+      req["endDateTime"] = endDateTime;
+
+      final response = await http.post(
+          Uri.parse('http://80.210.21.35/getTrackingPoints.php'),
+          body: req
+      );
+      if (response.statusCode == 200) {
+        final parsed = json.decode(response.body).cast<Map<String , dynamic>>();
+        List<DeviceLocation> deviceLocation = parsed.map<DeviceLocation>( (json) =>  DeviceLocation.fromMap(json)).toList();
+        return deviceLocation;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      return null;
+    }
+  }
 }

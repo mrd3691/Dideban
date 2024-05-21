@@ -3,10 +3,19 @@ part of 'tracking_bloc.dart';
 @immutable
 sealed class TrackingEvent {}
 
-final class FetchPoints extends TrackingEvent {
-  final String deviceId;
-  final String startDateTime;
-  final String endDateTime;
+final class FetchTrackingPoints extends TrackingEvent {
+  final String deviceName;
+  final String startDate;
+  final String startTime;
+  final String endDate;
+  final String endTime;
 
-  FetchPoints(this.deviceId,this.startDateTime,this.endDateTime);
+  FetchTrackingPoints(this.deviceName,this.startDate,this.startTime,this.endDate,this.endTime);
+}
+
+final class SliderChanged extends TrackingEvent {
+  List<Marker> markers = [];
+  double sliderValue ;
+
+  SliderChanged(this.markers,this.sliderValue);
 }

@@ -16,3 +16,9 @@ final class TrackingFailure extends TrackingState {
   final String? message;
   TrackingFailure(this.message);
 }
+
+final class SliderNewState extends TrackingState {
+  final double value;
+  List<Marker> markers = [];
+  SliderNewState(this.value, this.markers);
+}

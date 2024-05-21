@@ -1,4 +1,3 @@
-
 import 'package:shamsi_date/shamsi_date.dart';
 
 class DeviceLocation{

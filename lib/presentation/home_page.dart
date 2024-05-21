@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:dideban/blocs/devices/devices_bloc.dart';
+import 'package:dideban/blocs/tracking/tracking_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
@@ -50,14 +51,18 @@ class Home extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) =>
-                          BlocProvider(
+                          MultiBlocProvider(providers: [
+                            BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(id))),
+                            BlocProvider(create: (context) => TrackingBloc())
+                          ], child: Tracking(username,id)),
+                          /*BlocProvider(
                             create: (context) =>
                             DevicesBloc()
                               ..add(
                                 FetchAllDevices(id),
                               ),
                             child: Tracking(username,id),
-                          ),
+                          ),*/
                     ),
                   );
                 },

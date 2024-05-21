@@ -8,16 +8,24 @@ import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
+import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
 import 'login.dart';
 
-
-class Tracking extends StatelessWidget {
-  Tracking(this.username,this.id ,{ super.key});
+class Tracking extends StatefulWidget {
+  Tracking(this.username,this.id,{super.key});
   String username = "";
   String id = "";
+  @override
+  State<Tracking> createState() => _TrackingState();
+}
+
+class _TrackingState extends State<Tracking> {
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
+  List<String> selectedDevices =[];
+  double sliderValue=0;
+  int i=0;
   final PopupController _popupLayerController = PopupController();
   TextEditingController searchedValueController = TextEditingController();
 
@@ -31,10 +39,10 @@ class Tracking extends StatelessWidget {
   void getInitDateTime(){
     DateTime dt = DateTime.now();
     String currentDateJalali = Util.georgianToJalali("${dt.year}-${dt.month}-${dt.day}");
-    _startDateController.text = currentDateJalali;
+    _endDateController.text = currentDateJalali;
 
     String yesterdayDateJalali = Util.georgianToJalali("${dt.year}-${dt.month}-${dt.day-1}");
-    _endDateController.text = yesterdayDateJalali;
+    _startDateController.text = yesterdayDateJalali;
     String currentTimeJalali = "${dt.hour}:${dt.minute}";
     _startTimeController.text = currentTimeJalali;
     _endTimeController.text = currentTimeJalali;
@@ -58,7 +66,7 @@ class Tracking extends StatelessWidget {
         ),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("user:$username  id:$id"),
+            title: Text("user:${widget.username}  id:${widget.id}"),
             actions: [
 
               IconButton(
@@ -108,8 +116,6 @@ class Tracking extends StatelessWidget {
     );
   }
 
-
-
   Widget drawer(BuildContext context){
     return Drawer(
       child: Column(
@@ -158,16 +164,24 @@ class Tracking extends StatelessWidget {
             if (state is SearchDevicesLoadSuccess){
               return Column(children: [
                 Container(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
                       if(searchedValueController.text.isEmpty){
-                        context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
-                      }else{
-                        context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
+                        for (var element in newNodes) {
+                          for (var element1 in element.children) {
+                            if(element1.isSelected){
+                              selectedDevices.add(element1.title);
+                            }
+                          }
+                        }
+                      }
+                      else{
+                        for (var element in newNodes) {
+                          if(element.isSelected){
+                            selectedDevices.add(element.title);
+                          }
+                        }
                       }
                     },
                     nodes: state.searchedTreeNode,
@@ -175,38 +189,26 @@ class Tracking extends StatelessWidget {
                 ),
               ]);
             }
-            if (state is GetDevicesLocationSuccess){
-              return Column(children: [
-                Container(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.9,
-                  child: TreeView(
-                    onChanged: (newNodes) {
-                      if(searchedValueController.text.isEmpty){
-                        context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
-                      }else{
-                        context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
-                      }
-                    },
-                    nodes: state.treeNode,
-                  ),
-                ),
-              ]);
-            }
             return Column(children: [
               Container(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.9,
+                height: MediaQuery.of(context).size.height * 0.9,
                 child: TreeView(
                   onChanged: (newNodes) {
                     if(searchedValueController.text.isEmpty){
-                      context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
-                    }else{
-                      context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
+                      for (var element in newNodes) {
+                        for (var element1 in element.children) {
+                          if(element1.isSelected){
+                            selectedDevices.add(element1.title);
+                          }
+                        }
+                      }
+                    }
+                    else{
+                      for (var element in newNodes) {
+                        if(element.isSelected){
+                          selectedDevices.add(element.title);
+                        }
+                      }
                     }
                   },
                   nodes: treeNode,
@@ -214,7 +216,6 @@ class Tracking extends StatelessWidget {
               ),
             ]);
           }),
-
         ],
       ),
     );
@@ -296,15 +297,58 @@ class Tracking extends StatelessWidget {
                 ],
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+              BlocBuilder<TrackingBloc, TrackingState>(
+                builder: (context, state) {
+                  if(state is TrackingSuccess){
+                    sliderValue = 1;
+                    return Slider(
+                      value: sliderValue,
+                      //min: 0,
+                      max: state.markers.length as double,
+                      divisions: state.markers.length,
+                      label: sliderValue.toString(),
+                      //label: (markers is CarMarker)? markers[0].car : "",
+                      onChanged:(val){
+                        context.read<TrackingBloc>().add(SliderChanged(markers, val),);
+                      },
+                    );
+                  }else if(state is SliderNewState){
+                    return Slider(
+                      value: state.value,
+                      //min: 0,
+                      max: state.markers.length as double,
+                      divisions: state.markers.length,
+                      label: state.value.toString(),
+                      //label: (markers is CarMarker)? markers[0].car : "",
+                      onChanged:(val){
+                        context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
+                      },
+                    );
+                  }
+                  return Container();
+                },
+              )
             ],
-
           ),
         ),
-
         Flexible(
-          flex: 5,
+            flex: 5,
             child: TextButton(
-              onPressed: (){}, child: Text("Track"),
+              onPressed: (){
+                if(selectedDevices.isEmpty){
+                  print("no device selected");
+                }else if(selectedDevices.length > 1){
+                  print("more than one device is selected");
+                }else{
+                  context.read<TrackingBloc>().add(FetchTrackingPoints(
+                      selectedDevices[0],
+                      _startDateController.text,
+                      _startTimeController.text,
+                      _endDateController.text,
+                      _endTimeController.text
+                  ),);
+                }
+              },
               style: TextButton.styleFrom(
                   foregroundColor: Colors.white, shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -312,11 +356,10 @@ class Tracking extends StatelessWidget {
                   fixedSize: Size(MediaQuery.of(context).size.width * 0.4,
                       MediaQuery.of(context).size.height * 0.075),
                   backgroundColor: Colors.deepPurple,
-                  //textStyle: buttonTextStyle,
-                  elevation: 5),)),
-        Spacer(flex: 1,)
+                  elevation: 5),
+              child: const Text("Track"),)),
+        const Spacer(flex: 1,)
       ],
-
     );
   }
 
@@ -335,26 +378,53 @@ class Tracking extends StatelessWidget {
           urlTemplate:
           'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
         ),
-        PolylineLayer(
-          polylines: [
-            Polyline(
-              points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45)],
-              color: Colors.blue,
-            ),
-          ],
-        ),
-        BlocBuilder<DevicesBloc, DevicesState>(
+        BlocBuilder<TrackingBloc, TrackingState>(
           builder: (context, state) {
-            if(state is GetDevicesLocationSuccess){
+            if(state is TrackingSuccess){
               markers = state.markers;
-            }
-            if(state is GetLocationLoadingInProgress){
+              List<LatLng> position=[];
+              markers.forEach((element) {
+                position.add(LatLng(element.point.latitude, element.point.longitude));
+              });
 
+              return PolylineLayer(
+                polylines: [
+                  Polyline(
+                      points: position,
+                      color: Colors.blue,
+                      //borderStrokeWidth: 30,
+                      strokeWidth: 15
+                  ),
+                ],
+              );
             }
+            return PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: [],
+                  color: Colors.blue,
+                ),
+              ],
+            );
+          },
+        ),
+        BlocBuilder<TrackingBloc, TrackingState>(
+          builder: (context, state) {
+            List<Marker> currentMarker=[];
+            if(state is SliderNewState){
+              int index = state.value as int;
+              if(index == markers.length){
+                currentMarker.add(state.markers[index-1]);
+              }else{
+                currentMarker.add(state.markers[index]);
+              }
 
+              //markers = state.markers;
+            }
             return PopupMarkerLayer(
               options: PopupMarkerLayerOptions(
-                markers: markers,
+                markers: currentMarker,
+
                 popupController: _popupLayerController,
                 popupDisplayOptions: PopupDisplayOptions(
                   builder: (_, Marker marker) {
@@ -365,7 +435,6 @@ class Tracking extends StatelessWidget {
                     //return  Card(child: marker.child);
                   },
                 ),
-
               ),
             );
 
@@ -376,4 +445,10 @@ class Tracking extends StatelessWidget {
     );
 
   }
+
+
 }
+
+
+
+
