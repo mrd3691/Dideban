@@ -11,20 +11,18 @@ import 'package:dideban/presentation/widgets/car_position.dart';
 import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
 import 'login.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'widgets/car_position.dart';
 
-class Tracking extends StatefulWidget {
-  Tracking(this.username,this.id,{super.key});
-  String username = "";
-  String id = "";
-  @override
-  State<Tracking> createState() => _TrackingState();
-}
 
-class _TrackingState extends State<Tracking> {
+
+class Tracking extends StatelessWidget {
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
   List<String> selectedDevices =[];
   double sliderValue=0;
+  String username = "";
+  String id = "";
   int i=0;
   final PopupController _popupLayerController = PopupController();
   TextEditingController searchedValueController = TextEditingController();
@@ -46,16 +44,25 @@ class _TrackingState extends State<Tracking> {
     String currentTimeJalali = "${dt.hour}:${dt.minute}";
     _startTimeController.text = currentTimeJalali;
     _endTimeController.text = currentTimeJalali;
+  }
 
+  void easyLoadingInit(){
+    EasyLoading.instance
+      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+      ..userInteractions = false
+      ..dismissOnTap = false;
+  }
 
-
+  void init(){
+    getInitDateTime();
+    easyLoadingInit();
   }
 
   @override
   Widget build(BuildContext context) {
 
     WidgetsBinding.instance
-        .addPostFrameCallback((_)=>getInitDateTime());
+        .addPostFrameCallback((_)=>init());
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -66,7 +73,7 @@ class _TrackingState extends State<Tracking> {
         ),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("user:${widget.username}  id:${widget.id}"),
+            title: Text("user:${username}  id:${id}"),
             actions: [
 
               IconButton(
@@ -112,7 +119,8 @@ class _TrackingState extends State<Tracking> {
           drawer: drawer(context),
           bottomNavigationBar: bottomBar(context),
 
-        )
+        ),
+        builder: EasyLoading.init(),
     );
   }
 
@@ -167,6 +175,7 @@ class _TrackingState extends State<Tracking> {
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
+                      selectedDevices.clear();
                       if(searchedValueController.text.isEmpty){
                         for (var element in newNodes) {
                           for (var element1 in element.children) {
@@ -194,6 +203,7 @@ class _TrackingState extends State<Tracking> {
                 height: MediaQuery.of(context).size.height * 0.9,
                 child: TreeView(
                   onChanged: (newNodes) {
+                    selectedDevices.clear();
                     if(searchedValueController.text.isEmpty){
                       for (var element in newNodes) {
                         for (var element1 in element.children) {
@@ -300,27 +310,37 @@ class _TrackingState extends State<Tracking> {
               BlocBuilder<TrackingBloc, TrackingState>(
                 builder: (context, state) {
                   if(state is TrackingSuccess){
+                    if(state.markers.isEmpty){
+                      return Container();
+                    }
                     sliderValue = 1;
                     return Slider(
                       value: sliderValue,
-                      //min: 0,
                       max: state.markers.length as double,
                       divisions: state.markers.length,
-                      label: sliderValue.toString(),
-                      //label: (markers is CarMarker)? markers[0].car : "",
+                      label: "",
                       onChanged:(val){
+                        _popupLayerController.hideAllPopups();
                         context.read<TrackingBloc>().add(SliderChanged(markers, val),);
                       },
                     );
-                  }else if(state is SliderNewState){
+                  }
+                  if(state is SliderNewState){
+                    Marker cm =  state.markers[state.value as int];
+                    String dateTime="";
+                    if(cm is CarMarker){
+                      dateTime = cm.car.dateTime;
+                    }
+                    if(state.value >= markers.length){
+                      var t=0;
+                    }
                     return Slider(
                       value: state.value,
-                      //min: 0,
-                      max: state.markers.length as double,
+                      max: state.markers.length-1 as double,
                       divisions: state.markers.length,
-                      label: state.value.toString(),
-                      //label: (markers is CarMarker)? markers[0].car : "",
+                      label: dateTime,
                       onChanged:(val){
+                        _popupLayerController.hideAllPopups();
                         context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
                       },
                     );
@@ -336,10 +356,11 @@ class _TrackingState extends State<Tracking> {
             child: TextButton(
               onPressed: (){
                 if(selectedDevices.isEmpty){
-                  print("no device selected");
+                  EasyLoading.showError("No device selected");
                 }else if(selectedDevices.length > 1){
-                  print("more than one device is selected");
+                  EasyLoading.showError("More than one device is selected");
                 }else{
+                  EasyLoading.show(status: 'Please wait');
                   context.read<TrackingBloc>().add(FetchTrackingPoints(
                       selectedDevices[0],
                       _startDateController.text,
@@ -381,6 +402,31 @@ class _TrackingState extends State<Tracking> {
         BlocBuilder<TrackingBloc, TrackingState>(
           builder: (context, state) {
             if(state is TrackingSuccess){
+              EasyLoading.dismiss();
+              markers = state.markers;
+              if(markers.isEmpty){
+                EasyLoading.showError("No data available",duration: Duration(seconds: 3));
+              }else{
+                EasyLoading.showInfo("${markers.length} points found");
+              }
+              List<LatLng> position=[];
+              markers.forEach((element) {
+                position.add(LatLng(element.point.latitude, element.point.longitude));
+              });
+
+              return PolylineLayer(
+                polylines: [
+                  Polyline(
+                      points: position,
+                      color: Colors.blue,
+                      //borderStrokeWidth: 30,
+                      strokeWidth: 15
+                  ),
+                ],
+              );
+            }
+            if(state is SliderNewState){
+              EasyLoading.dismiss();
               markers = state.markers;
               List<LatLng> position=[];
               markers.forEach((element) {
@@ -398,6 +444,9 @@ class _TrackingState extends State<Tracking> {
                 ],
               );
             }
+            if(state is TrackingFailure){
+              EasyLoading.showError(state.message!);
+            }
             return PolylineLayer(
               polylines: [
                 Polyline(
@@ -412,6 +461,7 @@ class _TrackingState extends State<Tracking> {
           builder: (context, state) {
             List<Marker> currentMarker=[];
             if(state is SliderNewState){
+              EasyLoading.dismiss();
               int index = state.value as int;
               if(index == markers.length){
                 currentMarker.add(state.markers[index-1]);

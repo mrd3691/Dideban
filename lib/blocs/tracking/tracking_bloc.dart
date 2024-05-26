@@ -13,36 +13,39 @@ part 'tracking_state.dart';
 class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
   TrackingBloc() : super(TrackingInitial()) {
     on<FetchTrackingPoints>((event, emit) async {
-      emit(TrackingInProgress());
-      String deviceName = event.deviceName;
-      String startDate = Util.jalaliToGeorgian(event.startDate);
-      String startTime = event.startTime;
-      String endDate = Util.jalaliToGeorgian(event.endDate);
-      String endTime = event.endTime;
-      String startDateTime = "$startDate $startTime";
-      String endDateTime = "$endDate $endTime";
+      try{
+        emit(TrackingInProgress());
+        String deviceName = event.deviceName;
+        String startDate = Util.jalaliToGeorgian(event.startDate);
+        String startTime = event.startTime;
+        String endDate = Util.jalaliToGeorgian(event.endDate);
+        String endTime = event.endTime;
+        String startDateTime = "$startDate $startTime";
+        String endDateTime = "$endDate $endTime";
 
-      final points =await API.fetchTrackingPoints(deviceName, startDateTime, endDateTime);
-      List<Marker> carMarkers = [];
-      if(points!.isEmpty){
+        final points =await API.fetchTrackingPoints(deviceName, startDateTime, endDateTime);
+        List<Marker> carMarkers = [];
+        if(points!.isEmpty){
+          emit(TrackingSuccess(markers: carMarkers));
+        }
+        points?.forEach((element) {
+          carMarkers.add(
+              CarMarker(
+                  car: Car(
+                    name: deviceName,
+                    speed:  "speed: ${element.speed}",
+                    dateTime:  element.fixTime,
+                    acc:   "ignition: ${_getIgnitionFromAttributes(element.attributes)}" ,
+                    driver: "driver: ${element.driver}",
+                    lat: double.parse(element.latitude),
+                    long: double.parse(element.longitude),
+                  )
+              ));
+        });
         emit(TrackingSuccess(markers: carMarkers));
+      }catch(e){
+        emit(TrackingFailure(e.toString()));
       }
-      points?.forEach((element) {
-        carMarkers.add(
-            CarMarker(
-                car: Car(
-                  name: deviceName,
-                speed:  "speed: ${element.speed}",
-                dateTime:  element.fixTime,
-                acc:   "ignition: ${_getIgnitionFromAttributes(element.attributes)}" ,
-                driver: "driver: ${element.driver}",
-                lat: double.parse(element.latitude),
-                long: double.parse(element.longitude),
-              )
-            ));
-      });
-      emit(TrackingSuccess(markers: carMarkers));
-      var t=0;
     });
     on<SliderChanged>((event, emit) async {
       double newValue = event.sliderValue;
