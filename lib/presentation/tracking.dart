@@ -17,6 +17,7 @@ import 'widgets/car_position.dart';
 
 
 class Tracking extends StatelessWidget {
+  Tracking(this.username,this.id ,{ super.key});
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
   List<String> selectedDevices =[];

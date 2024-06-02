@@ -68,7 +68,7 @@ class Home extends StatelessWidget {
                           MultiBlocProvider(providers: [
                             BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(id))),
                             BlocProvider(create: (context) => TrackingBloc())
-                          ], child: Tracking()),
+                          ], child: Tracking(username,id)),
                           /*BlocProvider(
                             create: (context) =>
                             DevicesBloc()
@@ -167,6 +167,7 @@ class Home extends StatelessWidget {
                       .height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
+                      _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
                         context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                       }else{
@@ -187,6 +188,7 @@ class Home extends StatelessWidget {
                       .height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
+                      _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
                         context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                       }else{
@@ -206,6 +208,7 @@ class Home extends StatelessWidget {
                     .height * 0.9,
                 child: TreeView(
                   onChanged: (newNodes) {
+                    _popupLayerController.hideAllPopups();
                     if(searchedValueController.text.isEmpty){
                       context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                     }else{

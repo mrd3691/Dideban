@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:dideban/blocs/login/login_bloc.dart';
 import '../blocs/devices/devices_bloc.dart';
 import '../data/api.dart';
 import 'home_page.dart';
@@ -37,7 +36,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlutterLogin(
-
       userType: LoginUserType.name,
       userValidator: (username) {
         if (username!.isEmpty) {
@@ -48,10 +46,8 @@ class LoginScreen extends StatelessWidget {
       title: 'Dideban',
       logo: const AssetImage('images/logo.png'),
       onLogin: (data) async {
-        //final authResult = await API.userAuthenticate(data.name,data.password);
-        final authResult = await API.userAuthenticate("admin","D33DCA55ABD4CC5BC76F2BC0B4E603FE2C6F61F4C1EF2D47");
+        final authResult = await API.userAuthenticate(data.name,data.password);
         if(authResult != null){
-          if(authResult.error == false){
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) =>
@@ -59,23 +55,16 @@ class LoginScreen extends StatelessWidget {
                       create: (context) =>
                       DevicesBloc()
                         ..add(
-                          FetchAllDevices(authResult.id),
+                          FetchAllDevices(authResult.id.toString()),
                         ),
-                      child: Home(data.name,authResult.id),
+                      child: Home(data.name,authResult.id.toString()),
                     ),
               ),
             );
-          }else{
-            return authResult.message;
-          }
         }
+        return "user name or password is incorrect";
       },
       onSignup: _signupUser,
-      onSubmitAnimationCompleted: () {
-        /*Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context) => const DashboardScreen(),
-      ));*/
-      },
       onRecoverPassword: _recoverPassword,
     );
   }

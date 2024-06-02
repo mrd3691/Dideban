@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:dideban/blocs/login/login_bloc.dart';
-import 'package:dideban/presentation/home_page.dart';
-
 import 'package:dideban/presentation/login.dart';
 
 void main() {
@@ -20,10 +16,7 @@ class DidebanApp extends StatelessWidget {
       theme: ThemeData(
         //primaryColor: Colors.grey,
       ),
-      home: BlocProvider (
-        create: (context) => LoginBloc(),
-        child: LoginScreen(),
-      ),
+      home: LoginScreen(),
       /*routes:{
         "/":(context) => LoginScreen(),
       } ,*/

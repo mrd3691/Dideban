@@ -92,7 +92,7 @@ class API{
     }
   }
 
-  static Future<AuthStatus?> userAuthenticate(String userName,String password) async{
+  static Future<AuthStatus?> userAuthenticate_old(String userName,String password) async{
     try {
 
       var req = Map<String , dynamic>();
@@ -101,6 +101,38 @@ class API{
 
       final response = await http.post(
           Uri.parse('http://80.210.21.35/userAuthenticate.php'),
+          body: req
+      );
+
+      if (response.statusCode == 200) {
+        final parsed = json.decode(response.body);
+        AuthStatus as = AuthStatus.fromMap(parsed);
+        return as;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<AuthStatus?> userAuthenticate(String userName,String password) async{
+    try {
+      var basicAuth = base64.encode(utf8.encode( "$userName:$password"));
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic $basicAuth',
+        'Cookie': 'JSESSIONID=node016fa0smer30xe178wumbnfnwgy89.node0'
+      };
+
+      var req = <String , dynamic>{};
+      req["email"] = userName;
+      req["password"] = password;
+
+
+      final response = await http.post(
+          Uri.parse('http://80.210.21.35:8082/api/session'),
+          headers: headers,
           body: req
       );
 
