@@ -1,3 +1,4 @@
+import 'package:dideban/presentation/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -26,6 +27,7 @@ class Tracking extends StatelessWidget {
   String id = "";
   int i=0;
   final PopupController _popupLayerController = PopupController();
+  final MapController _mapController = MapController();
   TextEditingController searchedValueController = TextEditingController();
 
   final _startDateController = TextEditingController();
@@ -74,39 +76,63 @@ class Tracking extends StatelessWidget {
         ),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("user:${username}  id:${id}"),
+            title: Text("user:${username} "),
             actions: [
 
               IconButton(
-                tooltip: "report",
+                tooltip: "Home",
+                icon: const Icon(
+                  Icons.home,
+                ),
+                onPressed: () {
+                  //Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  Home(username, id)));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          BlocProvider(
+                            create: (context) =>
+                            DevicesBloc()
+                              ..add(
+                                FetchAllDevices(id),
+                              ),
+                            child: Home(username,id),
+                          ),
+                    ),
+                  );
+                  //Navigator.pop(context);
+                  //Navigator.popUntil(context, ModalRoute.withName('/home'));
+                },
+              ),
+              IconButton(
+                tooltip: "Report",
                 icon: const Icon(
                   Icons.report_gmailerrorred_rounded,
                 ),
                 onPressed: () {},
               ),
               IconButton(
-                tooltip: "tracking",
+                tooltip: "Tracking",
                 icon: const Icon(
                   Icons.track_changes,
                 ),
                 onPressed: () {},
               ),
               IconButton(
-                tooltip: "setting",
+                tooltip: "Setting",
                 icon: const Icon(
                   Icons.settings,
                 ),
                 onPressed: () {},
               ),
               IconButton(
-                tooltip: "account",
+                tooltip: "Account",
                 icon: const Icon(
                   Icons.account_circle,
                 ),
                 onPressed: () {},
               ),
               IconButton(
-                tooltip: "logout",
+                tooltip: "Logout",
                 icon: const Icon(
                   Icons.logout,
                 ),
@@ -356,6 +382,7 @@ class Tracking extends StatelessWidget {
             flex: 5,
             child: TextButton(
               onPressed: (){
+                _popupLayerController.hideAllPopups();
                 if(selectedDevices.isEmpty){
                   EasyLoading.showError("No device selected");
                 }else if(selectedDevices.length > 1){
@@ -387,6 +414,7 @@ class Tracking extends StatelessWidget {
 
   Widget trackingBody(BuildContext context){
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         initialCenter: const LatLng(33.81275, 51.52094),
         initialZoom: 5.0,
@@ -414,6 +442,10 @@ class Tracking extends StatelessWidget {
               markers.forEach((element) {
                 position.add(LatLng(element.point.latitude, element.point.longitude));
               });
+
+              LatLng newCenter = LatLng(position[0].latitude, position[0].longitude); // New center (e.g., Paris)
+              double newZoom = 12.0; // New zoom level
+              _mapController.move(newCenter, newZoom);
 
               return PolylineLayer(
                 polylines: [

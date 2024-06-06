@@ -56,7 +56,8 @@ class CarMarkerPopup extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(car.name),
+              Directionality(textDirection: TextDirection.rtl,
+              child: Text(car.name)),
               Align(
                   alignment: Alignment.topLeft,
                   child: Text(car.dateTime)),

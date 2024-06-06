@@ -31,6 +31,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
     List<Marker> markers;
     markers = await _makeLocationList(treeNodes);
     emit(GetDevicesLocationSuccess(markers: markers,treeNode: treeNodes));
+
   }
 
   FutureOr<void> getDevicesLocationFromSearchedNodes(
@@ -63,26 +64,32 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
     List<Marker> carMarkers = [];
     try{
       int i, j;
+      int selectedDevices = 0 ;
       for (i = 0; i < treeNode.length; i++) {
         for (j = 0; j < treeNode[i].children.length; j++) {
           TreeNode child = treeNode[i].children[j];
           if (child.checkBoxState == CheckBoxState.selected) {
+            selectedDevices ++;
             final deviceLocation = await API.fetchDeviceLocation(child.title);
-            carMarkers.add(
-                CarMarker(car: Car(
-                  name: child.title,
-                  speed:  "speed: ${deviceLocation![0].speed}",
-                  dateTime:  deviceLocation![0].fixTime,
-                  acc:   "ignition: ${_getIgnitionFromAttributes(deviceLocation![0].attributes)}" ,
-                  driver: "driver: ${deviceLocation![0].driver}",
-                  lat: double.parse(deviceLocation![0].latitude),
-                  long: double.parse(deviceLocation![0].longitude),
-                )
-            ));
+            if(deviceLocation!.isNotEmpty){
+              carMarkers.add(
+                  CarMarker(car: Car(
+                    name: child.title,
+                    speed:  "speed: ${deviceLocation![0].speed}",
+                    dateTime:  deviceLocation![0].fixTime,
+                    acc:   "ignition: ${_getIgnitionFromAttributes(deviceLocation![0].attributes)}" ,
+                    driver: "driver: ${deviceLocation![0].driver}",
+                    lat: double.parse(deviceLocation![0].latitude),
+                    long: double.parse(deviceLocation![0].longitude),
+                  )
+                  ));
+            }else{
+              print("device ${child.title} has no position");
+            }
+
           }
         }
       }
-
       return carMarkers;
     }catch(e){
       print(e);

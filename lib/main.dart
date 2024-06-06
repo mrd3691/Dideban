@@ -1,3 +1,5 @@
+import 'package:dideban/presentation/home_page.dart';
+import 'package:dideban/presentation/tracking.dart';
 import 'package:flutter/material.dart';
 import 'package:dideban/presentation/login.dart';
 
@@ -17,9 +19,7 @@ class DidebanApp extends StatelessWidget {
         //primaryColor: Colors.grey,
       ),
       home: LoginScreen(),
-      /*routes:{
-        "/":(context) => LoginScreen(),
-      } ,*/
+
     );
   }
 }

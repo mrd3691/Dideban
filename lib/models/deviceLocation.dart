@@ -35,7 +35,7 @@ class DeviceLocation{
       longitude: (json["longitude"] ?? ""),
       latitude: (json["latitude"] ?? ""),
       speed: (speed ?? ""),
-      driver: (json["driver"] ?? ""),
+      driver: (json["driver"] ?? "نامشخص"),
       attributes: (json["attributes"] ?? ""),
     );
   }

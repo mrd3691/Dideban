@@ -45,6 +45,7 @@ dependencies:
   crypto: ^3.0.3
   cryptography: ^2.7.0
   flutter_easyloading: ^3.0.5
+  flutter_map_cancellable_tile_provider: ^2.0.0
 
 dev_dependencies:
   flutter_test:

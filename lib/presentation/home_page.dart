@@ -20,6 +20,7 @@ class Home extends StatelessWidget {
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
   final PopupController _popupLayerController = PopupController();
+  final MapController _mapController = MapController();
   TextEditingController searchedValueController = TextEditingController();
 
   void easyLoadingInit(){
@@ -46,7 +47,7 @@ class Home extends StatelessWidget {
         builder: EasyLoading.init(),
         home: Scaffold(
           appBar: AppBar(
-            title: Text("user:$username  id:$id"),
+            title: Text("user:$username"),
             actions: [
 
               IconButton(
@@ -108,10 +109,32 @@ class Home extends StatelessWidget {
           ),
           body:homeBody(context),
           drawer: drawer(context)
-        ));
+        ),
+        /*routes:{
+          //"/":(context) => LoginScreen(),
+          '/home': (context) => Home(username,id),
+        } ,*/
+    );
+
 
   }
 
+
+  bool isAnyDeviceSelected(List<TreeNode> treeNode){
+    int i, j;
+    for (i = 0; i < treeNode.length; i++) {
+      if(treeNode[i].checkBoxState == CheckBoxState.selected ){
+        return true;
+      }
+      for (j = 0; j < treeNode[i].children.length; j++) {
+        TreeNode child = treeNode[i].children[j];
+        if (child.checkBoxState == CheckBoxState.selected) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   Widget drawer(BuildContext context){
     return Drawer(
@@ -169,8 +192,10 @@ class Home extends StatelessWidget {
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
+                        EasyLoading.show(status: "Please Wait");
                         context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                       }else{
+                        EasyLoading.show(status: "Please Wait");
                         context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
                       }
                     },
@@ -190,16 +215,20 @@ class Home extends StatelessWidget {
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
+                        EasyLoading.show(status: "Please Wait");
                         context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                       }else{
+                        EasyLoading.show(status: "Please Wait");
                         context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
                       }
+
                     },
                     nodes: state.treeNode,
                   ),
                 ),
               ]);
             }
+
             return Column(children: [
               Container(
                 height: MediaQuery
@@ -210,8 +239,10 @@ class Home extends StatelessWidget {
                   onChanged: (newNodes) {
                     _popupLayerController.hideAllPopups();
                     if(searchedValueController.text.isEmpty){
+                      EasyLoading.show(status: "Please Wait");
                       context.read<DevicesBloc>().add(GetDevicesLocation(newNodes),);
                     }else{
+                      EasyLoading.show(status: "Please Wait");
                       context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
                     }
                   },
@@ -227,7 +258,60 @@ class Home extends StatelessWidget {
   }
 
   Widget homeBody(BuildContext context){
+    return BlocBuilder<DevicesBloc, DevicesState>(
+    builder: (context, state) {
+    if(state is GetDevicesLocationSuccess){
+
+      EasyLoading.dismiss();
+      markers = state.markers;
+      LatLng newCenter =LatLng(33.81275, 51.52094);
+      double newZoom =5.0;
+      if(markers.length==1){
+        newCenter = LatLng(markers[0].point.latitude, markers[0].point.longitude); // New center (e.g., Paris)
+        newZoom = 12.0; // New zoom level
+        _mapController.move(newCenter, newZoom);
+      }
+      _mapController.move(newCenter, newZoom);
+      if(markers.isEmpty &&  isAnyDeviceSelected(state.treeNode)){
+        EasyLoading.showError("status");
+      }
+      return FlutterMap(
+        mapController: _mapController,
+        options: MapOptions(
+          initialCenter:  newCenter,
+          initialZoom: newZoom,
+          interactionOptions: const InteractionOptions(
+            flags: InteractiveFlag.all,
+          ),
+          onTap: (_, __) => _popupLayerController.hideAllPopups(),
+        ),
+        children: <Widget>[
+          TileLayer(
+            urlTemplate:
+            'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+          ),
+          PopupMarkerLayer(
+            options: PopupMarkerLayerOptions(
+              markers: markers,
+              popupController: _popupLayerController,
+              popupDisplayOptions: PopupDisplayOptions(
+                builder: (_, Marker marker) {
+                  if(marker is CarMarker) {
+                    return CarMarkerPopup(car: marker.car);
+                  }
+                  return const Card(child: Text('No data available'));
+                  //return  Card(child: marker.child);
+                },
+              ),
+
+            ),
+          )
+
+        ],
+      );
+    }
     return FlutterMap(
+      mapController: _mapController,
       options: MapOptions(
         initialCenter: const LatLng(33.81275, 51.52094),
         initialZoom: 5.0,
@@ -241,37 +325,27 @@ class Home extends StatelessWidget {
           urlTemplate:
           'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
         ),
+        PopupMarkerLayer(
+          options: PopupMarkerLayerOptions(
+            markers: markers,
+            popupController: _popupLayerController,
+            popupDisplayOptions: PopupDisplayOptions(
+              builder: (_, Marker marker) {
+                if(marker is CarMarker) {
+                  return CarMarkerPopup(car: marker.car);
+                }
+                return const Card(child: Text('No data available'));
+                //return  Card(child: marker.child);
+              },
+            ),
 
-        BlocBuilder<DevicesBloc, DevicesState>(
-          builder: (context, state) {
-            if(state is GetDevicesLocationSuccess){
-              markers = state.markers;
-            }
-            if(state is GetLocationLoadingInProgress){
-
-            }
-
-            return PopupMarkerLayer(
-              options: PopupMarkerLayerOptions(
-                markers: markers,
-                popupController: _popupLayerController,
-                popupDisplayOptions: PopupDisplayOptions(
-                  builder: (_, Marker marker) {
-                    if(marker is CarMarker) {
-                      return CarMarkerPopup(car: marker.car);
-                    }
-                    return const Card(child: Text('No data available'));
-                    //return  Card(child: marker.child);
-                  },
-                ),
-
-              ),
-            );
-
-          },
-        ),
+          ),
+        )
 
       ],
     );
+
+  },
+);
   }
 }
