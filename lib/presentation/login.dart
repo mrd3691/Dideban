@@ -52,11 +52,8 @@ class LoginScreen extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) =>
                     BlocProvider(
-                      create: (context) =>
-                      DevicesBloc()
-                        ..add(
-                          FetchAllDevices(authResult.id.toString()),
-                        ),
+                      create: (context) => DevicesBloc()
+                        ..add(FetchAllDevices(authResult.id.toString()),),
                       child: Home(data.name,authResult.id.toString()),
                     ),
               ),

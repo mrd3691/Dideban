@@ -1,7 +1,5 @@
 import 'package:dideban/presentation/home_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
@@ -13,7 +11,6 @@ import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
 import 'login.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'widgets/car_position.dart';
 
 
 
@@ -270,12 +267,12 @@ class Tracking extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Spacer(),
+                  const Spacer(),
                   Flexible(
                     flex: 14,
                     child: TextField(
                       controller: _startDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                           prefixIcon: Icon(Icons.date_range),
@@ -283,13 +280,13 @@ class Tracking extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Flexible(
                     flex: 9,
                     child: TextField(
                       controller: _startTimeController,
-                      style: TextStyle(fontSize: 15, fontFamily: 'irs',),
-                      decoration: InputDecoration(
+                      style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.timer),
                           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -297,19 +294,19 @@ class Tracking extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Spacer()
+                  const Spacer()
                 ],
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Spacer(),
+                  const Spacer(),
                   Flexible(
                     flex: 14,
                     child: TextField(
                       controller: _endDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                           prefixIcon: Icon(Icons.date_range),
@@ -317,12 +314,12 @@ class Tracking extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Flexible(
                     flex: 9,
                     child: TextField(
                       controller: _endTimeController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                           prefixIcon: Icon(Icons.timer),
@@ -330,7 +327,7 @@ class Tracking extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Spacer()
+                  const Spacer()
                 ],
               ),
               SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
@@ -413,101 +410,86 @@ class Tracking extends StatelessWidget {
   }
 
   Widget trackingBody(BuildContext context){
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(
-        initialCenter: const LatLng(33.81275, 51.52094),
-        initialZoom: 5.0,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all,
-        ),
-        onTap: (_, __) => _popupLayerController.hideAllPopups(),
-      ),
-      children: <Widget>[
-        TileLayer(
-          urlTemplate:
-          'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
-        ),
-        BlocBuilder<TrackingBloc, TrackingState>(
-          builder: (context, state) {
-            if(state is TrackingSuccess){
-              EasyLoading.dismiss();
-              markers = state.markers;
-              if(markers.isEmpty){
-                EasyLoading.showError("No data available",duration: Duration(seconds: 3));
-              }else{
-                EasyLoading.showInfo("${markers.length} points found");
-              }
-              List<LatLng> position=[];
-              markers.forEach((element) {
-                position.add(LatLng(element.point.latitude, element.point.longitude));
-              });
+    return BlocBuilder<TrackingBloc, TrackingState>(
+      builder: (context, state) {
+        List<Marker> currentMarker=[];
+        List<LatLng> position=[];
+        double newZoom = 12.0;
+        if(state is TrackingSuccess){
+          EasyLoading.dismiss();
+          markers = state.markers;
+          if(markers.isEmpty){
+            EasyLoading.showError("No data available",duration: Duration(seconds: 3));
+          }else{
+            EasyLoading.showInfo("${markers.length} points found");
+            markers.forEach((element) {
+              position.add(LatLng(element.point.latitude, element.point.longitude));
+            });
 
-              LatLng newCenter = LatLng(position[0].latitude, position[0].longitude); // New center (e.g., Paris)
-              double newZoom = 12.0; // New zoom level
-              _mapController.move(newCenter, newZoom);
+            LatLng newCenter = LatLng(position[0].latitude, position[0].longitude); // New center (e.g., Paris)
+            double newZoom = 12.0; // New zoom level
+            _mapController.move(newCenter, newZoom);
 
-              return PolylineLayer(
-                polylines: [
-                  Polyline(
-                      points: position,
-                      color: Colors.blue,
-                      //borderStrokeWidth: 30,
-                      strokeWidth: 15
-                  ),
-                ],
-              );
-            }
-            if(state is SliderNewState){
-              EasyLoading.dismiss();
-              markers = state.markers;
-              List<LatLng> position=[];
-              markers.forEach((element) {
-                position.add(LatLng(element.point.latitude, element.point.longitude));
-              });
+            currentMarker.add(state.markers[0]);
+          }
+        }
+        if(state is TrackingFailure){
+          EasyLoading.showError(state.message!);
+        }
+        if(state is SliderNewState){
+          EasyLoading.dismiss();
+          markers = state.markers;
+          if(markers.isEmpty){
+            EasyLoading.showError("No data available",duration: Duration(seconds: 3));
+          }else{
+            markers.forEach((element) {
+              position.add(LatLng(element.point.latitude, element.point.longitude));
+            });
 
-              return PolylineLayer(
-                polylines: [
-                  Polyline(
-                      points: position,
-                      color: Colors.blue,
-                      //borderStrokeWidth: 30,
-                      strokeWidth: 15
-                  ),
-                ],
-              );
+            int index = state.value as int;
+
+            LatLng newCenter = LatLng(position[index].latitude, position[index].longitude); // New center (e.g., Paris)
+
+            if(_mapController.camera.zoom != newZoom ){
+              newZoom = _mapController.camera.zoom;
             }
-            if(state is TrackingFailure){
-              EasyLoading.showError(state.message!);
+            _mapController.move(newCenter, newZoom);
+
+            if(index == markers.length){
+              currentMarker.add(state.markers[index-1]);
+            }else{
+              currentMarker.add(state.markers[index]);
             }
-            return PolylineLayer(
+          }
+
+        }
+        return FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: const LatLng(33.81275, 51.52094),
+            initialZoom: 5.0,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
+            ),
+            onTap: (_, __) => _popupLayerController.hideAllPopups(),
+          ),
+          children: <Widget>[
+            TileLayer(
+              urlTemplate:
+              'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+            ),
+            PolylineLayer(
               polylines: [
                 Polyline(
-                  points: [],
+                  points: position,
                   color: Colors.blue,
+                  strokeWidth: 15
                 ),
               ],
-            );
-          },
-        ),
-        BlocBuilder<TrackingBloc, TrackingState>(
-          builder: (context, state) {
-            List<Marker> currentMarker=[];
-            if(state is SliderNewState){
-              EasyLoading.dismiss();
-              int index = state.value as int;
-              if(index == markers.length){
-                currentMarker.add(state.markers[index-1]);
-              }else{
-                currentMarker.add(state.markers[index]);
-              }
-
-              //markers = state.markers;
-            }
-            return PopupMarkerLayer(
+            ),
+            PopupMarkerLayer(
               options: PopupMarkerLayerOptions(
                 markers: currentMarker,
-
                 popupController: _popupLayerController,
                 popupDisplayOptions: PopupDisplayOptions(
                   builder: (_, Marker marker) {
@@ -519,13 +501,11 @@ class Tracking extends StatelessWidget {
                   },
                 ),
               ),
-            );
-
-          },
-        ),
-
-      ],
-    );
+            ),
+          ],
+        );
+  },
+);
 
   }
 

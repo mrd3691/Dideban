@@ -33,7 +33,10 @@ class CarMarker extends Marker {
     height: Car.size,
     width: Car.size,
     point: LatLng(car.lat, car.long),
-    child: const Icon(Icons.car_crash),
+    //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
+    child: (int.parse(car.speed.substring(7))>100)?// substring remove speed: from the first
+      Icon(Icons.fire_truck, color: Colors.redAccent,):
+      Icon(Icons.fire_truck, color: Colors.greenAccent,),
   );
 
   final Car car;
@@ -56,8 +59,7 @@ class CarMarkerPopup extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Directionality(textDirection: TextDirection.rtl,
-              child: Text(car.name)),
+              Text(car.name),
               Align(
                   alignment: Alignment.topLeft,
                   child: Text(car.dateTime)),

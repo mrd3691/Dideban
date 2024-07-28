@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:dideban/presentation/tracking.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -24,7 +22,6 @@ class Home extends StatelessWidget {
   TextEditingController searchedValueController = TextEditingController();
 
   void easyLoadingInit(){
-
     EasyLoading.instance
       ..indicatorType = EasyLoadingIndicatorType.fadingCircle
       ..userInteractions = false
@@ -49,7 +46,6 @@ class Home extends StatelessWidget {
           appBar: AppBar(
             title: Text("user:$username"),
             actions: [
-
               IconButton(
                 tooltip: "report",
                 icon: const Icon(
@@ -70,14 +66,6 @@ class Home extends StatelessWidget {
                             BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(id))),
                             BlocProvider(create: (context) => TrackingBloc())
                           ], child: Tracking(username,id)),
-                          /*BlocProvider(
-                            create: (context) =>
-                            DevicesBloc()
-                              ..add(
-                                FetchAllDevices(id),
-                              ),
-                            child: Tracking(username,id),
-                          ),*/
                     ),
                   );
                 },
@@ -168,26 +156,23 @@ class Home extends StatelessWidget {
                     const CircularProgressIndicator(
                       color: Colors.red,
                     ),
-                    Text("Loading..."),
+                    const Text("Loading..."),
                   ],
                 ),
               );
             }
             if (state is DevicesLoadFailure) {
               return Center(
-                child: Text(state.message ?? "Some Error Occured"),
+                child: Text(state.message ?? "Some Error Occured in loading Devices list"),
               );
             }
             if (state is DevicesLoadSuccess) {
               treeNode = state.treeNode;
             }
-            if (state is SearchDevicesLoadSuccess){
+            if(state is SearchDevicesLoadSuccess){
               return Column(children: [
                 Container(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
@@ -204,13 +189,10 @@ class Home extends StatelessWidget {
                 ),
               ]);
             }
-            if (state is GetDevicesLocationSuccess){
+            if(state is GetDevicesLocationSuccess){
               return Column(children: [
                 Container(
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
@@ -221,20 +203,15 @@ class Home extends StatelessWidget {
                         EasyLoading.show(status: "Please Wait");
                         context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(newNodes),);
                       }
-
                     },
                     nodes: state.treeNode,
                   ),
                 ),
               ]);
             }
-
             return Column(children: [
               Container(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height * 0.9,
+                height: MediaQuery.of(context).size.height * 0.9,
                 child: TreeView(
                   onChanged: (newNodes) {
                     _popupLayerController.hideAllPopups();
@@ -251,7 +228,6 @@ class Home extends StatelessWidget {
               ),
             ]);
           }),
-
         ],
       ),
     );
@@ -259,38 +235,71 @@ class Home extends StatelessWidget {
 
   Widget homeBody(BuildContext context){
     return BlocBuilder<DevicesBloc, DevicesState>(
-    builder: (context, state) {
-    if(state is GetDevicesLocationSuccess){
+      builder: (context, state) {
+        if(state is GetDevicesLocationSuccess){
+          EasyLoading.dismiss();
+          markers = state.markers;
+          LatLng newCenter =const LatLng(33.81275, 51.52094);
+          double newZoom =5.0;
+          if(markers.length==1){
+            newCenter = LatLng(markers[0].point.latitude, markers[0].point.longitude); // New center (e.g., Paris)
+            newZoom = 12.0; // New zoom level
+            //_mapController.move(newCenter, newZoom);
+          }
+          _mapController.move(newCenter, newZoom);
+          if(markers.isEmpty &&  isAnyDeviceSelected(state.treeNode)){
+            EasyLoading.showError("No data available");
+          }
+          return FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter:  newCenter,
+              initialZoom: newZoom,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all,
+              ),
+              onTap: (_, __) => _popupLayerController.hideAllPopups(),
+            ),
+            children: <Widget>[
+              TileLayer(
+                urlTemplate:
+                'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+              ),
+              PopupMarkerLayer(
+              options: PopupMarkerLayerOptions(
+                markers: markers,
+                popupController: _popupLayerController,
+                popupDisplayOptions: PopupDisplayOptions(
+                  builder: (_, Marker marker) {
+                    if(marker is CarMarker) {
+                      return CarMarkerPopup(car: marker.car);
+                    }
+                    return const Card(child: Text('No data available'));
+                    //return  Card(child: marker.child);
+                  },
+                ),
 
-      EasyLoading.dismiss();
-      markers = state.markers;
-      LatLng newCenter =LatLng(33.81275, 51.52094);
-      double newZoom =5.0;
-      if(markers.length==1){
-        newCenter = LatLng(markers[0].point.latitude, markers[0].point.longitude); // New center (e.g., Paris)
-        newZoom = 12.0; // New zoom level
-        _mapController.move(newCenter, newZoom);
-      }
-      _mapController.move(newCenter, newZoom);
-      if(markers.isEmpty &&  isAnyDeviceSelected(state.treeNode)){
-        EasyLoading.showError("status");
-      }
-      return FlutterMap(
-        mapController: _mapController,
-        options: MapOptions(
-          initialCenter:  newCenter,
-          initialZoom: newZoom,
-          interactionOptions: const InteractionOptions(
-            flags: InteractiveFlag.all,
+              ),
+            )
+            ],
+          );
+        }
+        return FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: const LatLng(33.81275, 51.52094),
+            initialZoom: 5.0,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
+            ),
+            onTap: (_, __) => _popupLayerController.hideAllPopups(),
           ),
-          onTap: (_, __) => _popupLayerController.hideAllPopups(),
-        ),
-        children: <Widget>[
-          TileLayer(
-            urlTemplate:
-            'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
-          ),
-          PopupMarkerLayer(
+          children: <Widget>[
+            TileLayer(
+              urlTemplate:
+              'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+            ),
+            PopupMarkerLayer(
             options: PopupMarkerLayerOptions(
               markers: markers,
               popupController: _popupLayerController,
@@ -306,46 +315,9 @@ class Home extends StatelessWidget {
 
             ),
           )
-
-        ],
-      );
-    }
-    return FlutterMap(
-      mapController: _mapController,
-      options: MapOptions(
-        initialCenter: const LatLng(33.81275, 51.52094),
-        initialZoom: 5.0,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all,
-        ),
-        onTap: (_, __) => _popupLayerController.hideAllPopups(),
-      ),
-      children: <Widget>[
-        TileLayer(
-          urlTemplate:
-          'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
-        ),
-        PopupMarkerLayer(
-          options: PopupMarkerLayerOptions(
-            markers: markers,
-            popupController: _popupLayerController,
-            popupDisplayOptions: PopupDisplayOptions(
-              builder: (_, Marker marker) {
-                if(marker is CarMarker) {
-                  return CarMarkerPopup(car: marker.car);
-                }
-                return const Card(child: Text('No data available'));
-                //return  Card(child: marker.child);
-              },
-            ),
-
-          ),
-        )
-
-      ],
+          ],
+        );
+      },
     );
-
-  },
-);
   }
 }

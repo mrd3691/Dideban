@@ -25,24 +25,6 @@ class API{
     }
   }
 
-  /*static Future<List<DeviceShow>?> fetchAllDevices() async{
-    try {
-      final response = await http.post(Uri.parse('http://80.210.21.35/getAllDevices.php'));
-      if (response.statusCode == 200) {
-        final parsed = json.decode(response.body).cast<Map<String , dynamic>>();
-        List<DeviceShow> devices = parsed.map<DeviceShow>( (json) =>  DeviceShow.fromMap(json) ).toList();
-        return devices;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      return null;
-    }
-  }*/
-
   static Future<List<DeviceShow>?> fetchAllUserDevices(String userId) async{
     try {
       var req = Map<String , dynamic>();
@@ -88,30 +70,6 @@ class API{
       if (kDebugMode) {
         print(e);
       }
-      return null;
-    }
-  }
-
-  static Future<AuthStatus?> userAuthenticate_old(String userName,String password) async{
-    try {
-
-      var req = Map<String , dynamic>();
-      req["userName"] = userName;
-      req["password"] = password;
-
-      final response = await http.post(
-          Uri.parse('http://80.210.21.35/userAuthenticate.php'),
-          body: req
-      );
-
-      if (response.statusCode == 200) {
-        final parsed = json.decode(response.body);
-        AuthStatus as = AuthStatus.fromMap(parsed);
-        return as;
-      } else {
-        return null;
-      }
-    } catch (e) {
       return null;
     }
   }

@@ -244,5 +244,4 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
     return searchedTreeNode;
   }
 
-
 }
