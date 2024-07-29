@@ -429,7 +429,7 @@ class Tracking extends StatelessWidget {
                     flex:20,
                     child: Slider(
                       value: sliderValue,
-                      max: state.markers.length as double,
+                      max: state.markers.length.toDouble(),
                       divisions: state.markers.length,
                       label: "",
                       onChanged:(val){
@@ -510,7 +510,7 @@ class Tracking extends StatelessWidget {
               );
             }
             if(state is SliderNewState){
-              Marker cm =  state.markers[state.value as int];
+              Marker cm =  state.markers[state.value.toInt()];
               String dateTime="";
               currentSliderValue = state.value;
               sliderLenght =state.markers.length;
@@ -526,7 +526,7 @@ class Tracking extends StatelessWidget {
                     flex: 20,
                     child: Slider(
                       value: state.value,
-                      max: state.markers.length-1 as double,
+                      max: (state.markers.length-1).toDouble(),
                       divisions: state.markers.length,
                       label: dateTime,
                       onChanged:(val){
@@ -558,7 +558,6 @@ class Tracking extends StatelessWidget {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
-
                               try{
                                 if(timer == null){
                                   timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
@@ -580,8 +579,7 @@ class Tracking extends StatelessWidget {
                                   }
                                 }
                               }catch(e){
-                                print(e);
-                               var t=0;
+                                //print(e);
                               }
                             },
                             //icon: (isPlayed)? Icon(Icons.pause):Icon(Icons.play_circle),
@@ -603,7 +601,8 @@ class Tracking extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
+                  ),
+
 
                 ],
               );
@@ -652,7 +651,7 @@ class Tracking extends StatelessWidget {
               position.add(LatLng(element.point.latitude, element.point.longitude));
             });
 
-            int index = state.value as int;
+            int index = state.value.toInt();
 
             LatLng newCenter = LatLng(position[index].latitude, position[index].longitude); // New center (e.g., Paris)
 

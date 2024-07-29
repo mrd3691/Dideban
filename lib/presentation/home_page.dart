@@ -59,6 +59,7 @@ class Home extends StatelessWidget {
                   Icons.track_changes,
                 ),
                 onPressed: () {
+
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) =>
@@ -68,6 +69,11 @@ class Home extends StatelessWidget {
                           ], child: Tracking(username,id)),
                     ),
                   );
+
+
+
+
+
                 },
               ),
               IconButton(

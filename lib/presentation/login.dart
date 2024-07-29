@@ -58,8 +58,10 @@ class LoginScreen extends StatelessWidget {
                     ),
               ),
             );
+        }else{
+          return "user name or password is incorrect";
         }
-        return "user name or password is incorrect";
+
       },
       onSignup: _signupUser,
       onRecoverPassword: _recoverPassword,
