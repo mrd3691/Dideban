@@ -50,6 +50,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
     on<SliderChanged>((event, emit) async {
       double newValue = event.sliderValue;
 
+
       emit(SliderNewState(newValue,event.markers));
     });
   }
