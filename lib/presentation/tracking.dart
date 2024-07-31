@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dideban/presentation/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,9 +22,14 @@ class Tracking extends StatelessWidget {
   List<Marker> markers = [];
   List<String> selectedDevices =[];
   double sliderValue=0;
+  double currentSliderValue=0;
+  int sliderLenght=0;
+  //bool isPlaying =false;
+  Timer? timer;
   String username = "";
   String id = "";
   int i=0;
+
   final PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
   TextEditingController searchedValueController = TextEditingController();
@@ -53,6 +60,9 @@ class Tracking extends StatelessWidget {
       ..dismissOnTap = false;
   }
 
+
+
+
   void init(){
     getInitDateTime();
     easyLoadingInit();
@@ -82,6 +92,10 @@ class Tracking extends StatelessWidget {
                   Icons.home,
                 ),
                 onPressed: () {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
+
                   //Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  Home(username, id)));
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -105,35 +119,55 @@ class Tracking extends StatelessWidget {
                 icon: const Icon(
                   Icons.report_gmailerrorred_rounded,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
+                },
               ),
               IconButton(
                 tooltip: "Tracking",
                 icon: const Icon(
                   Icons.track_changes,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
+                },
               ),
               IconButton(
                 tooltip: "Setting",
                 icon: const Icon(
                   Icons.settings,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
+                },
               ),
               IconButton(
                 tooltip: "Account",
                 icon: const Icon(
                   Icons.account_circle,
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
+                },
               ),
               IconButton(
                 tooltip: "Logout",
                 icon: const Icon(
                   Icons.logout,
                 ),
-                onPressed: () {
+                onPressed: (
+                    ) {
+                  if(timer!=null){
+                    timer!.cancel();
+                  }
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => const LoginScreen()));
                 },
               ),
@@ -256,155 +290,326 @@ class Tracking extends StatelessWidget {
   }
 
   Widget bottomBar(BuildContext context){
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Flexible(
-          flex: 20,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        Row(
+          children: [
+            Flexible(
+              flex: 20,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Spacer(),
-                  Flexible(
-                    flex: 14,
-                    child: TextField(
-                      controller: _startDateController,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          prefixIcon: Icon(Icons.date_range),
-                          labelText: "Start Date"
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Spacer(),
+                      Flexible(
+                        flex: 14,
+                        child: TextField(
+                          controller: _startDateController,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              prefixIcon: Icon(Icons.date_range),
+                              labelText: "Start Date"
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    flex: 9,
-                    child: TextField(
-                      controller: _startTimeController,
-                      style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.timer),
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          labelText: "Start Time"
+                      const Spacer(),
+                      Flexible(
+                        flex: 9,
+                        child: TextField(
+                          controller: _startTimeController,
+                          style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.timer),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              labelText: "Start Time"
+                          ),
+                        ),
                       ),
-                    ),
+                      const Spacer()
+                    ],
                   ),
-                  const Spacer()
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Spacer(),
+                      Flexible( //End date field
+                        flex: 14,
+                        child: TextField(
+                          controller: _endDateController,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              prefixIcon: Icon(Icons.date_range),
+                              labelText: "End Date"
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Flexible(
+                        flex: 9,
+                        child: TextField(
+                          controller: _endTimeController,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              prefixIcon: Icon(Icons.timer),
+                              labelText: "End Time"
+                          ),
+                        ),
+                      ),
+                      const Spacer()
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+
                 ],
               ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            ),
+            Flexible(
+                flex: 5,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: (){
+                        if(timer !=null){
+                          timer!.cancel();
+                        }
+                        _popupLayerController.hideAllPopups();
+                        if(selectedDevices.isEmpty){
+                          EasyLoading.showError("No device selected");
+                        }else if(selectedDevices.length > 1){
+                          EasyLoading.showError("More than one device is selected");
+                        }else{
+                          EasyLoading.show(status: 'Please wait');
+                          context.read<TrackingBloc>().add(FetchTrackingPoints(
+                              selectedDevices[0],
+                              _startDateController.text,
+                              _startTimeController.text,
+                              _endDateController.text,
+                              _endTimeController.text
+                          ),);
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                          foregroundColor: Colors.white, shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                          fixedSize: Size(MediaQuery.of(context).size.width * 0.4,
+                              MediaQuery.of(context).size.height * 0.075),
+                          backgroundColor: Colors.deepPurple,
+                          elevation: 5),
+                      child: const Text("Track"),),
+
+                  ],
+                )),
+            const Spacer(flex: 1,)
+          ],
+        ),
+        BlocBuilder<TrackingBloc, TrackingState>(
+          builder: (context, state) {
+            if(state is TrackingSuccess){
+              if(state.markers.isEmpty){
+                return Container();
+              }
+              sliderValue = 1;
+              currentSliderValue = 1;
+              sliderLenght =state.markers.length;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Spacer(),
                   Flexible(
-                    flex: 14,
-                    child: TextField(
-                      controller: _endDateController,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          prefixIcon: Icon(Icons.date_range),
-                          labelText: "End Date"
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    flex: 9,
-                    child: TextField(
-                      controller: _endTimeController,
-                      decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                          prefixIcon: Icon(Icons.timer),
-                          labelText: "End Time"
-                      ),
-                    ),
-                  ),
-                  const Spacer()
-                ],
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
-              BlocBuilder<TrackingBloc, TrackingState>(
-                builder: (context, state) {
-                  if(state is TrackingSuccess){
-                    if(state.markers.isEmpty){
-                      return Container();
-                    }
-                    sliderValue = 1;
-                    return Slider(
+                    flex:20,
+                    child: Slider(
                       value: sliderValue,
-                      max: state.markers.length as double,
+                      max: state.markers.length.toDouble(),
                       divisions: state.markers.length,
                       label: "",
                       onChanged:(val){
+                        currentSliderValue = val;
                         _popupLayerController.hideAllPopups();
                         context.read<TrackingBloc>().add(SliderChanged(markers, val),);
                       },
-                    );
-                  }
-                  if(state is SliderNewState){
-                    Marker cm =  state.markers[state.value as int];
-                    String dateTime="";
-                    if(cm is CarMarker){
-                      dateTime = cm.car.dateTime;
-                    }
-                    if(state.value >= markers.length){
-                      var t=0;
-                    }
-                    return Slider(
+                    ),
+                  ),
+                  Flexible(
+                    flex: 5,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          flex:2,
+                          child: IconButton(
+                            onPressed: (){
+                              if(currentSliderValue.roundToDouble()>0){
+                                _popupLayerController.hideAllPopups();
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1),);
+                              }
+                            },
+                            icon: const Icon(Icons.skip_previous),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: IconButton(
+                            onPressed: (){
+
+                              try{
+                                if(timer == null){
+                                  timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                    if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                      _popupLayerController.hideAllPopups();
+                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                    }
+                                  } );
+                                }else{
+                                  if(timer!.isActive){
+                                    timer!.cancel();
+                                  }else{
+                                    timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                      if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                        _popupLayerController.hideAllPopups();
+                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                      }
+                                    } );
+                                  }
+                                }
+                              }catch(e){
+                                //print(e);
+                              }
+                            },
+                            //icon: const Icon(Icons.play_circle),
+                            icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: IconButton(
+                            onPressed: (){
+                              if(currentSliderValue.roundToDouble()< sliderLenght-1){
+                                _popupLayerController.hideAllPopups();
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                              }
+                            },
+                            icon: const Icon(Icons.skip_next),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+
+                ],
+              );
+            }
+            if(state is SliderNewState){
+              Marker cm =  state.markers[state.value.toInt()];
+              String dateTime="";
+              currentSliderValue = state.value;
+              sliderLenght =state.markers.length;
+              if(cm is CarMarker){
+                dateTime = cm.car.dateTime;
+              }
+              if(state.value >= markers.length){
+              }
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    flex: 20,
+                    child: Slider(
                       value: state.value,
-                      max: state.markers.length-1 as double,
+                      max: (state.markers.length-1).toDouble(),
                       divisions: state.markers.length,
                       label: dateTime,
                       onChanged:(val){
+                        currentSliderValue = val;
                         _popupLayerController.hideAllPopups();
                         context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
                       },
-                    );
-                  }
-                  return Container();
-                },
-              )
-            ],
-          ),
-        ),
-        Flexible(
-            flex: 5,
-            child: TextButton(
-              onPressed: (){
-                _popupLayerController.hideAllPopups();
-                if(selectedDevices.isEmpty){
-                  EasyLoading.showError("No device selected");
-                }else if(selectedDevices.length > 1){
-                  EasyLoading.showError("More than one device is selected");
-                }else{
-                  EasyLoading.show(status: 'Please wait');
-                  context.read<TrackingBloc>().add(FetchTrackingPoints(
-                      selectedDevices[0],
-                      _startDateController.text,
-                      _startTimeController.text,
-                      _endDateController.text,
-                      _endTimeController.text
-                  ),);
-                }
-              },
-              style: TextButton.styleFrom(
-                  foregroundColor: Colors.white, shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-                  fixedSize: Size(MediaQuery.of(context).size.width * 0.4,
-                      MediaQuery.of(context).size.height * 0.075),
-                  backgroundColor: Colors.deepPurple,
-                  elevation: 5),
-              child: const Text("Track"),)),
-        const Spacer(flex: 1,)
+                    ),
+                  ),
+                  Flexible(
+                    flex:5,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          flex:2,
+                          child: IconButton(
+                            onPressed: (){
+                              if(currentSliderValue.roundToDouble()>0){
+                                _popupLayerController.hideAllPopups();
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1),);
+                              }
+                            },
+                            icon: const Icon(Icons.skip_previous),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: IconButton(
+                            onPressed: (){
+                              try{
+                                if(timer == null){
+                                  timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                    if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                      _popupLayerController.hideAllPopups();
+                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                    }
+                                  } );
+                                }else{
+                                  if(timer!.isActive){
+                                    timer!.cancel();
+                                  }else{
+                                    timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                      if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                        _popupLayerController.hideAllPopups();
+                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                      }
+                                    } );
+                                  }
+                                }
+                              }catch(e){
+                                //print(e);
+                              }
+                            },
+                            //icon: (isPlayed)? Icon(Icons.pause):Icon(Icons.play_circle),
+                            icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
+
+                          ),
+                        ),
+                        Flexible(
+                          flex: 2,
+                          child: IconButton(
+                            onPressed: (){
+                              if(currentSliderValue.roundToDouble()< sliderLenght-1){
+                                _popupLayerController.hideAllPopups();
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                              }
+                            },
+                            icon: const Icon(Icons.skip_next),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+
+                ],
+              );
+            }
+            return Container();
+          },
+        )
       ],
     );
   }
@@ -419,7 +624,7 @@ class Tracking extends StatelessWidget {
           EasyLoading.dismiss();
           markers = state.markers;
           if(markers.isEmpty){
-            EasyLoading.showError("No data available",duration: Duration(seconds: 3));
+            EasyLoading.showError("No data available",duration: const Duration(seconds: 3));
           }else{
             EasyLoading.showInfo("${markers.length} points found");
             markers.forEach((element) {
@@ -446,7 +651,7 @@ class Tracking extends StatelessWidget {
               position.add(LatLng(element.point.latitude, element.point.longitude));
             });
 
-            int index = state.value as int;
+            int index = state.value.toInt();
 
             LatLng newCenter = LatLng(position[index].latitude, position[index].longitude); // New center (e.g., Paris)
 
@@ -504,12 +709,9 @@ class Tracking extends StatelessWidget {
             ),
           ],
         );
-  },
-);
-
+      },
+    );
   }
-
-
 }
 
 
