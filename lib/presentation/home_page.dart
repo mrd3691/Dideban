@@ -286,8 +286,8 @@ class Home extends StatelessWidget {
             ),
             children: <Widget>[
               TileLayer(
-                urlTemplate:
-                'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                  //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                  urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
               ),
               PopupMarkerLayer(
               options: PopupMarkerLayerOptions(
@@ -320,8 +320,8 @@ class Home extends StatelessWidget {
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate:
-              'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
             ),
             PopupMarkerLayer(
             options: PopupMarkerLayerOptions(
