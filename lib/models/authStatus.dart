@@ -4,8 +4,8 @@ class AuthStatus{
 
   AuthStatus({
     required this.id,
-    required this.attributes,
     required this.name,
+    /*required this.attributes,
     required this.login,
     required this.email,
     required this.phone,
@@ -26,13 +26,13 @@ class AuthStatus{
     required this.disableReports,
     required this.fixedEmail,
     required this.poiLayer,
-    required this.password,
+    required this.password,*/
 
   });
 
   int id;
-  Attributes attributes;
   String name;
+  /*Attributes attributes;
   String? login;
   String email;
   String? phone;
@@ -53,17 +53,17 @@ class AuthStatus{
   bool disableReports;
   bool fixedEmail;
   String? poiLayer;
-  String? password;
+  String? password;*/
 
 
   factory AuthStatus.fromMap( Map<String , dynamic> json) {
     return AuthStatus(
       id: (json["id"] ?? ""),
-      attributes: Attributes.fromMap(json["attributes"]),
       name: (json["name"] ?? ""),
+      /*attributes: Attributes.fromMap(json["attributes"]),
       login: (json["login"]?? ""),
       email: json["email"],
-      phone: json["phone"],
+      phone: (json["phone"] ?? ""),
       readonly: json["readonly"],
       administrator: json["administrator"],
       map: json["map"],
@@ -81,7 +81,7 @@ class AuthStatus{
       disableReports: json["disableReports"],
       fixedEmail: json["fixedEmail"],
       poiLayer: json["poiLayer"],
-      password: json["password"],
+      password: json["password"],*/
     );
   }
 }

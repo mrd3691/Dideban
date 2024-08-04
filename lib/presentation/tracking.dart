@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:dideban/presentation/home_page.dart';
+import 'package:dideban/presentation/widgets/dideban_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -11,24 +10,25 @@ import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
 import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
-import 'login.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+class Tracking extends StatefulWidget {
+  const Tracking(this.username,this.userId, {super.key});
+  final String username;
+  final String userId;
 
+  @override
+  State<Tracking> createState() => _TrackingState();
+}
 
-class Tracking extends StatelessWidget {
-  Tracking(this.username,this.id ,{ super.key});
+class _TrackingState extends State<Tracking> {
   List<TreeNode> treeNode = [];
   List<Marker> markers = [];
   List<String> selectedDevices =[];
   double sliderValue=0;
   double currentSliderValue=0;
-  int sliderLenght=0;
-  //bool isPlaying =false;
+  int sliderLength=0;
   Timer? timer;
-  String username = "";
-  String id = "";
-  int i=0;
 
   final PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
@@ -39,8 +39,7 @@ class Tracking extends StatelessWidget {
   final _endDateController = TextEditingController();
   final _endTimeController = TextEditingController();
 
-
-
+  
   void getInitDateTime(){
     DateTime dt = DateTime.now();
     String currentDateJalali = Util.georgianToJalali("${dt.year}-${dt.month}-${dt.day}");
@@ -53,132 +52,49 @@ class Tracking extends StatelessWidget {
     _endTimeController.text = currentTimeJalali;
   }
 
-  void easyLoadingInit(){
-    EasyLoading.instance
-      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-      ..userInteractions = false
-      ..dismissOnTap = false;
-  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _popupLayerController.dispose();
+    _mapController.dispose();
+    searchedValueController.dispose();
+    _startDateController.dispose();
+    _startTimeController.dispose();
+    _endDateController.dispose();
+    _endTimeController.dispose();
+    if(timer != null){
+      timer!.cancel();
+    }
 
 
-
-
-  void init(){
-    getInitDateTime();
-    easyLoadingInit();
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getInitDateTime();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_)=>init());
-
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: "Dideban",
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text("user:${username} "),
-            actions: [
+      debugShowCheckedModeBanner: false,
+      title: "Dideban",
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: Scaffold(
+        appBar: DidebanAppBar.call(widget.username, widget.userId, context),
+        body: trackingBody(context),
+        drawer: drawer(context),
+        bottomNavigationBar: bottomBar(context),
 
-              IconButton(
-                tooltip: "Home",
-                icon: const Icon(
-                  Icons.home,
-                ),
-                onPressed: () {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-
-                  //Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  Home(username, id)));
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          BlocProvider(
-                            create: (context) =>
-                            DevicesBloc()
-                              ..add(
-                                FetchAllDevices(id),
-                              ),
-                            child: Home(username,id),
-                          ),
-                    ),
-                  );
-                  //Navigator.pop(context);
-                  //Navigator.popUntil(context, ModalRoute.withName('/home'));
-                },
-              ),
-              IconButton(
-                tooltip: "Report",
-                icon: const Icon(
-                  Icons.report_gmailerrorred_rounded,
-                ),
-                onPressed: () {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-                },
-              ),
-              IconButton(
-                tooltip: "Tracking",
-                icon: const Icon(
-                  Icons.track_changes,
-                ),
-                onPressed: () {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-                },
-              ),
-              IconButton(
-                tooltip: "Setting",
-                icon: const Icon(
-                  Icons.settings,
-                ),
-                onPressed: () {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-                },
-              ),
-              IconButton(
-                tooltip: "Account",
-                icon: const Icon(
-                  Icons.account_circle,
-                ),
-                onPressed: () {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-                },
-              ),
-              IconButton(
-                tooltip: "Logout",
-                icon: const Icon(
-                  Icons.logout,
-                ),
-                onPressed: (
-                    ) {
-                  if(timer!=null){
-                    timer!.cancel();
-                  }
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const LoginScreen()));
-                },
-              ),
-            ],
-          ),
-          body: trackingBody(context),
-          drawer: drawer(context),
-          bottomNavigationBar: bottomBar(context),
-
-        ),
-        builder: EasyLoading.init(),
+      ),
+      builder: EasyLoading.init(),
     );
   }
 
@@ -214,7 +130,7 @@ class Tracking extends StatelessWidget {
                     const CircularProgressIndicator(
                       color: Colors.red,
                     ),
-                    Text("Loading..."),
+                    const Text("Loading..."),
                   ],
                 ),
               );
@@ -421,7 +337,7 @@ class Tracking extends StatelessWidget {
               }
               sliderValue = 1;
               currentSliderValue = 1;
-              sliderLenght =state.markers.length;
+              sliderLength =state.markers.length;
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -465,7 +381,7 @@ class Tracking extends StatelessWidget {
                               try{
                                 if(timer == null){
                                   timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                    if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                    if(currentSliderValue.roundToDouble() < sliderLength-1){
                                       _popupLayerController.hideAllPopups();
                                       context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                                     }
@@ -475,7 +391,7 @@ class Tracking extends StatelessWidget {
                                     timer!.cancel();
                                   }else{
                                     timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                      if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                      if(currentSliderValue.roundToDouble() < sliderLength-1){
                                         _popupLayerController.hideAllPopups();
                                         context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                                       }
@@ -494,7 +410,7 @@ class Tracking extends StatelessWidget {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
-                              if(currentSliderValue.roundToDouble()< sliderLenght-1){
+                              if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
                                 context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                               }
@@ -513,7 +429,7 @@ class Tracking extends StatelessWidget {
               Marker cm =  state.markers[state.value.toInt()];
               String dateTime="";
               currentSliderValue = state.value;
-              sliderLenght =state.markers.length;
+              sliderLength =state.markers.length;
               if(cm is CarMarker){
                 dateTime = cm.car.dateTime;
               }
@@ -561,7 +477,7 @@ class Tracking extends StatelessWidget {
                               try{
                                 if(timer == null){
                                   timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                    if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                    if(currentSliderValue.roundToDouble() < sliderLength-1){
                                       _popupLayerController.hideAllPopups();
                                       context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                                     }
@@ -571,7 +487,7 @@ class Tracking extends StatelessWidget {
                                     timer!.cancel();
                                   }else{
                                     timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                      if(currentSliderValue.roundToDouble() < sliderLenght-1){
+                                      if(currentSliderValue.roundToDouble() < sliderLength-1){
                                         _popupLayerController.hideAllPopups();
                                         context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                                       }
@@ -591,7 +507,7 @@ class Tracking extends StatelessWidget {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
-                              if(currentSliderValue.roundToDouble()< sliderLenght-1){
+                              if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
                                 context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
                               }
@@ -645,7 +561,7 @@ class Tracking extends StatelessWidget {
           EasyLoading.dismiss();
           markers = state.markers;
           if(markers.isEmpty){
-            EasyLoading.showError("No data available",duration: Duration(seconds: 3));
+            EasyLoading.showError("No data available",duration: const Duration(seconds: 3));
           }else{
             markers.forEach((element) {
               position.add(LatLng(element.point.latitude, element.point.longitude));
@@ -686,9 +602,9 @@ class Tracking extends StatelessWidget {
             PolylineLayer(
               polylines: [
                 Polyline(
-                  points: position,
-                  color: Colors.blue,
-                  strokeWidth: 15
+                    points: position,
+                    color: Colors.blue,
+                    strokeWidth: 15
                 ),
               ],
             ),
@@ -713,6 +629,8 @@ class Tracking extends StatelessWidget {
     );
   }
 }
+
+
 
 
 

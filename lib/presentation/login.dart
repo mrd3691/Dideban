@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_login/flutter_login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/devices/devices_bloc.dart';
 import '../data/api.dart';
 import 'home_page.dart';
@@ -48,7 +49,8 @@ class LoginScreen extends StatelessWidget {
       onLogin: (data) async {
         final authResult = await API.userAuthenticate(data.name,data.password);
         if(authResult != null){
-            Navigator.of(context).push(
+
+            Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>
                     BlocProvider(
