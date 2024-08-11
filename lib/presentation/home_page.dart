@@ -1,4 +1,4 @@
-import 'package:dideban/presentation/widgets/dideban_app_bar.dart';
+import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -61,7 +61,8 @@ class _HomeState extends State<Home> {
       ),
       builder: EasyLoading.init(),
       home: Scaffold(
-          appBar: DidebanAppBar.call(widget.username,widget.userId,context),
+          //appBar: DidebanAppBar.call(widget.username,widget.userId,context),
+        appBar: AppBarDideban(widget.username,widget.userId),
           body: homeBody(context),
           drawer: drawer(context)
       ),

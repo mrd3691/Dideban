@@ -48,8 +48,11 @@ class LoginScreen extends StatelessWidget {
       logo: const AssetImage('images/logo.png'),
       onLogin: (data) async {
         final authResult = await API.userAuthenticate(data.name,data.password);
-        if(authResult != null){
 
+
+
+
+        if(authResult != null){
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>

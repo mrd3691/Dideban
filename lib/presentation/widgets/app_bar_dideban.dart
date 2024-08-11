@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../blocs/devices/devices_bloc.dart';
 import '../../blocs/groups/groups_bloc.dart';
 import '../../blocs/tracking/tracking_bloc.dart';
@@ -10,11 +8,16 @@ import '../home_page.dart';
 import '../login.dart';
 import '../tracking.dart';
 
+class AppBarDideban extends StatelessWidget implements  PreferredSizeWidget {
+  const AppBarDideban(this.username,this.userId,{super.key});
+  final String username;
+  final String userId;
 
-class DidebanAppBar {
-  const DidebanAppBar();
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
-  static AppBar call(String username,String userId, BuildContext context){
+  @override
+  Widget build(BuildContext context) {
     return AppBar(
       title: Text("user:$username"),
       actions: [
@@ -124,7 +127,7 @@ class DidebanAppBar {
     );
   }
 
-  static Text getSettingButton(int index){
+  Text getSettingButton(int index){
     if(index == 0){
       return const Text("Groups");
     }else if( index == 1){

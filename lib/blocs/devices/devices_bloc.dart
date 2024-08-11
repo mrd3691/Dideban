@@ -22,9 +22,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
   }
 
 
-  FutureOr<void> getDevicesLocation(
-      GetDevicesLocation event,
-      Emitter<DevicesState> emit,) async {
+  FutureOr<void> getDevicesLocation(GetDevicesLocation event, Emitter<DevicesState> emit,) async {
 
     emit(GetLocationLoadingInProgress());
     List<TreeNode> treeNodes = event.treeNode;
@@ -34,9 +32,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
 
   }
 
-  FutureOr<void> getDevicesLocationFromSearchedNodes(
-      GetDevicesLocationFromSearchedNodes event,
-      Emitter<DevicesState> emit,) async {
+  FutureOr<void> getDevicesLocationFromSearchedNodes(GetDevicesLocationFromSearchedNodes event, Emitter<DevicesState> emit,) async {
 
     emit(GetLocationLoadingInProgress());
     List<TreeNode> treeNodes = event.treeNode;
@@ -64,27 +60,25 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
     List<Marker> carMarkers = [];
     try{
       int i, j;
-      int selectedDevices = 0 ;
       for (i = 0; i < treeNode.length; i++) {
         for (j = 0; j < treeNode[i].children.length; j++) {
           TreeNode child = treeNode[i].children[j];
           if (child.checkBoxState == CheckBoxState.selected) {
-            selectedDevices ++;
             final deviceLocation = await API.fetchDeviceLocation(child.title);
             if(deviceLocation!.isNotEmpty){
               carMarkers.add(
                   CarMarker(car: Car(
                     name: child.title,
-                    speed:  "speed: ${deviceLocation![0].speed}",
-                    dateTime:  deviceLocation![0].fixTime,
-                    acc:   "ignition: ${_getIgnitionFromAttributes(deviceLocation![0].attributes)}" ,
-                    driver: "driver: ${deviceLocation![0].driver}",
-                    lat: double.parse(deviceLocation![0].latitude),
-                    long: double.parse(deviceLocation![0].longitude),
+                    speed:  "speed: ${deviceLocation[0].speed}",
+                    dateTime:  deviceLocation[0].fixTime,
+                    acc:   "ignition: ${_getIgnitionFromAttributes(deviceLocation[0].attributes)}" ,
+                    driver: "driver: ${deviceLocation[0].driver}",
+                    lat: double.parse(deviceLocation[0].latitude),
+                    long: double.parse(deviceLocation[0].longitude),
                   )
                   ));
             }else{
-              print("device ${child.title} has no position");
+              //print("device ${child.title} has no position");
             }
 
           }
@@ -92,7 +86,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
       }
       return carMarkers;
     }catch(e){
-      print(e);
+      //print(e);
       return carMarkers;
     }
   }
@@ -100,21 +94,23 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
   Future<List<Marker>> _makeLocationListFromSearchedNodes(List<TreeNode> treeNode)async{
     List<Marker> carMarkers = [];
     try{
-      int i, j;
-      for (i = 0; i < treeNode.length; i++) {
+      int i;
+      for (i = 0; i < treeNode.length-1; i++) {
           if (treeNode[i].checkBoxState == CheckBoxState.selected) {
             final deviceLocation = await API.fetchDeviceLocation(treeNode[i].title);
             carMarkers.add(
-                CarMarker(car: Car(
-                  name: treeNode[i].title,
-                  speed:  deviceLocation![0].speed,
-                  dateTime:  deviceLocation![0].fixTime,
-                  acc:  deviceLocation![0].attributes,
-                  driver: "",
-                  lat: double.parse(deviceLocation![0].latitude),
-                  long: double.parse(deviceLocation![0].longitude),
+                CarMarker(
+                    car: Car(
+                      name: treeNode[i].title,
+                      speed:  "speed: ${deviceLocation![0].speed}",
+                      dateTime:  deviceLocation[0].fixTime,
+                      acc:   "ignition: ${_getIgnitionFromAttributes(deviceLocation[0].attributes)}" ,
+                      driver: "driver: ${deviceLocation[0].driver}",
+                      lat: double.parse(deviceLocation[0].latitude),
+                      long: double.parse(deviceLocation[0].longitude),
+                    )
                 )
-                ));
+            );
           }
       }
       return carMarkers;
@@ -162,7 +158,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
       } else if (devicesShowList.isEmpty) {
         emit(DevicesLoadEmpty());
       } else {
-        List<TreeNode> totalNode = _makeNodes(devicesShowList!);
+        List<TreeNode> totalNode = _makeNodes(devicesShowList);
         emit(
           DevicesLoadSuccess(
             treeNode: totalNode,

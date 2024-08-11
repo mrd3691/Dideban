@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:dideban/presentation/widgets/dideban_app_bar.dart';
+import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -88,7 +88,7 @@ class _TrackingState extends State<Tracking> {
         useMaterial3: true,
       ),
       home: Scaffold(
-        appBar: DidebanAppBar.call(widget.username, widget.userId, context),
+        appBar: AppBarDideban(widget.username, widget.userId),
         body: trackingBody(context),
         drawer: drawer(context),
         bottomNavigationBar: bottomBar(context),

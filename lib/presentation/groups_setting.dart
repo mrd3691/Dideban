@@ -1,13 +1,10 @@
 import 'package:dideban/blocs/groups/groups_bloc.dart';
 import 'package:dideban/presentation/tracking.dart';
-import 'package:dideban/presentation/widgets/dideban_app_bar.dart';
+import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:dideban/blocs/devices/devices_bloc.dart';
-import 'package:dideban/blocs/tracking/tracking_bloc.dart';
-import 'home_page.dart';
-import 'login.dart';
+
 
 class GroupsSetting extends StatelessWidget {
   const GroupsSetting(this.username,this.userId ,{ super.key});
@@ -26,21 +23,10 @@ class GroupsSetting extends StatelessWidget {
       ),
       builder: EasyLoading.init(),
       home: Scaffold(
-          appBar: DidebanAppBar.call(username, userId, context),
+          appBar: AppBarDideban(username, userId),
           body:homeBody(context),
       ),
     );
-  }
-
-  Text getSettingButton(int index){
-    if(index == 0){
-      return const Text("Groups");
-    }else if( index == 1){
-      return const Text("Devices");
-    }else if( index == 2){
-      return const Text("Drivers");
-    }
-    return const Text("");
   }
 
 
@@ -50,13 +36,35 @@ class GroupsSetting extends StatelessWidget {
         if(state is GroupsLoadSuccess){
           EasyLoading.dismiss();
           return ListView.separated(
-            separatorBuilder: (context, index) => Divider(
+            separatorBuilder: (context, index) => const Divider(
               color: Colors.black,
             ),
             itemCount: state.groups!.length,
-            itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Center(child: Text(state.groups![index].name)),
+            itemBuilder: (context, index) => Directionality(
+              textDirection: TextDirection.rtl,
+              child: Row(
+                children: [
+                  Container(
+                      width: MediaQuery.of(context).size.width*0.5,
+                      child: Center(child: Text(state.groups![index].name))
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width*0.2,
+                    child: IconButton(
+                        onPressed: (){},
+                        icon: const Icon(Icons.edit),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width*0.2,
+                    child: IconButton(
+                      onPressed: (){},
+                      icon: const Icon(Icons.delete),
+                    ),
+                  )
+                ],
+              
+              ),
             ),
           );
         }
