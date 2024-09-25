@@ -1,14 +1,33 @@
-import 'package:dideban/presentation/home_page.dart';
-import 'package:dideban/presentation/tracking.dart';
 import 'package:flutter/material.dart';
 import 'package:dideban/presentation/login.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() {
-  runApp(const DidebanApp());
+  runApp( DidebanApp());
 }
 
-class DidebanApp extends StatelessWidget {
-  const DidebanApp({super.key});
+class DidebanApp extends StatefulWidget {
+   DidebanApp({super.key});
+
+  @override
+  State<DidebanApp> createState() => _DidebanAppState();
+}
+
+class _DidebanAppState extends State<DidebanApp> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    easyLoadingInit();
+  }
+
+  void easyLoadingInit(){
+    EasyLoading.instance
+      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+      ..userInteractions = false
+      ..dismissOnTap = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +35,11 @@ class DidebanApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Dideban application",
       theme: ThemeData(
-        //primaryColor: Colors.grey,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
       home: LoginScreen(),
-
+      builder: EasyLoading.init(),
     );
   }
 }

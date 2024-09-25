@@ -9,11 +9,12 @@ import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
-
+import 'package:shimmer/shimmer.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'dart:async';
 
 class Home extends StatefulWidget {
-  const Home(this.username,this.userId,{super.key});
-  final String username,userId;
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -21,17 +22,40 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<TreeNode> treeNode = [];
+  List<TreeNode> treeNodeForUpdate = [];
   List<Marker> markers = [];
   final PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
   TextEditingController searchedValueController = TextEditingController();
 
 
+
+  void update(){
+
+    Timer timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
+        int t = timer.tick;
+      _popupLayerController.hideAllPopups();
+      if(treeNodeForUpdate.length != 0){
+        if(isAnyDeviceSelected(treeNodeForUpdate)){
+          if(searchedValueController.text.isEmpty){
+            EasyLoading.show(status: "Updating");
+            context.read<DevicesBloc>().add(GetDevicesLocation(treeNodeForUpdate),);
+          }else{
+            EasyLoading.show(status: "Updating");
+            context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(treeNodeForUpdate),);
+          }
+        }
+      }
+    });
+
+  }
+
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    easyLoadingInit();
+    update();
   }
 
   @override
@@ -43,12 +67,10 @@ class _HomeState extends State<Home> {
     searchedValueController.dispose();
   }
 
-  void easyLoadingInit(){
-    EasyLoading.instance
-      ..indicatorType = EasyLoadingIndicatorType.fadingCircle
-      ..userInteractions = false
-      ..dismissOnTap = false;
-  }
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +81,9 @@ class _HomeState extends State<Home> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      builder: EasyLoading.init(),
       home: Scaffold(
           //appBar: DidebanAppBar.call(widget.username,widget.userId,context),
-        appBar: AppBarDideban(widget.username,widget.userId),
+        appBar: const AppBarDideban(),
           body: homeBody(context),
           drawer: drawer(context)
       ),
@@ -112,17 +133,60 @@ class _HomeState extends State<Home> {
           ),
           BlocBuilder<DevicesBloc, DevicesState>(builder: (context, state) {
             if (state is DevicesLoadingInProgress) {
-              return Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.2,
-                    ),
-                    const CircularProgressIndicator(
-                      color: Colors.red,
-                    ),
-                    const Text("Loading..."),
-                  ],
+              return SizedBox(
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: Shimmer.fromColors(
+                    baseColor: Colors.grey.shade400,
+                    highlightColor: Colors.white,
+                    child: ListView.builder(
+                        itemCount: 10,
+                        itemBuilder: (context, index){
+                          return Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.only(top: 8.0,bottom: 8,left: 15),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  radius: 30,
+                                  child: Icon(Icons.add),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0, left: 8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: 100,
+                                      height: 15,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: SizedBox(
+                                        width: 50,
+                                        height: 15,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(10),
+                                            color: Colors.white,
+                                          ),                                                       ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+
+                            ],
+                          );
+                        }
+                    )
                 ),
               );
             }
@@ -133,8 +197,10 @@ class _HomeState extends State<Home> {
             }
             if (state is DevicesLoadSuccess) {
               treeNode = state.treeNode;
+              treeNodeForUpdate = state.treeNode;
             }
             if(state is SearchDevicesLoadSuccess){
+              treeNodeForUpdate = state.searchedTreeNode;
               return Column(children: [
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
@@ -155,6 +221,7 @@ class _HomeState extends State<Home> {
               ]);
             }
             if(state is GetDevicesLocationSuccess){
+              treeNodeForUpdate = state.treeNode;
               return Column(children: [
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
@@ -227,9 +294,12 @@ class _HomeState extends State<Home> {
             ),
             children: <Widget>[
               TileLayer(
-                //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
-                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                tileProvider: CancellableNetworkTileProvider() // Use the cancellable tile provider
+
+                //urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
               ),
+
               PopupMarkerLayer(
                 options: PopupMarkerLayerOptions(
                   markers: markers,
@@ -261,8 +331,9 @@ class _HomeState extends State<Home> {
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+              //urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+              urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+              tileProvider: CancellableNetworkTileProvider(),
             ),
             PopupMarkerLayer(
               options: PopupMarkerLayerOptions(

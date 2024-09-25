@@ -3,6 +3,7 @@ import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
@@ -13,9 +14,8 @@ import '../utilities/util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class Tracking extends StatefulWidget {
-  const Tracking(this.username,this.userId, {super.key});
-  final String username;
-  final String userId;
+  const Tracking({super.key});
+
 
   @override
   State<Tracking> createState() => _TrackingState();
@@ -72,7 +72,6 @@ class _TrackingState extends State<Tracking> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getInitDateTime();
   }
@@ -80,21 +79,11 @@ class _TrackingState extends State<Tracking> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Dideban",
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        appBar: AppBarDideban(widget.username, widget.userId),
-        body: trackingBody(context),
-        drawer: drawer(context),
-        bottomNavigationBar: bottomBar(context),
-
-      ),
-      builder: EasyLoading.init(),
+    return Scaffold(
+      appBar: const AppBarDideban(),
+      body: trackingBody(context),
+      drawer: drawer(context),
+      bottomNavigationBar: bottomBar(context),
     );
   }
 
@@ -596,8 +585,8 @@ class _TrackingState extends State<Tracking> {
           ),
           children: <Widget>[
             TileLayer(
-              urlTemplate:
-              'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                tileProvider: CancellableNetworkTileProvider()
             ),
             PolylineLayer(
               polylines: [

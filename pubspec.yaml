@@ -38,15 +38,20 @@ dependencies:
   flutter_bloc: ^8.1.5
   http: ^1.2.1
   dio: ^5.4.2+1
-  flutter_map: ^6.1.0
-  flutter_map_marker_popup: ^6.1.2
+  flutter_map: ^7.0.2
+  flutter_map_marker_popup: ^7.0.0
   shamsi_date: ^1.0.2
   flutter_login: ^5.0.0
   crypto: ^3.0.3
   cryptography: ^2.7.0
   flutter_easyloading: ^3.0.5
-  flutter_map_cancellable_tile_provider: ^2.0.0
+  flutter_map_cancellable_tile_provider: ^3.0.0
   shared_preferences: ^2.3.1
+  shimmer: ^3.0.0
+  flutter_secure_storage: ^9.2.2
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +79,7 @@ flutter:
   assets:
     - images/logo.png
     - images/playpause.png
+    - images/excell.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
@@ -101,3 +107,4 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+

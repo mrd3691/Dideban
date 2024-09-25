@@ -4,6 +4,7 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/devices/devices_bloc.dart';
 import '../data/api.dart';
+import '../utilities/util.dart';
 import 'home_page.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -17,7 +18,6 @@ class LoginScreen extends StatelessWidget {
       return null;
     });
   }
-
 
   Future<String> _recoverPassword(String name) {
     debugPrint('Name: $name');
@@ -49,17 +49,20 @@ class LoginScreen extends StatelessWidget {
       onLogin: (data) async {
         final authResult = await API.userAuthenticate(data.name,data.password);
 
-
-
-
         if(authResult != null){
+            Util.copyToSecureStorage("password", data.password);
+            final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+            final SharedPreferences prefs = await _prefs;
+            prefs.setString('userName', data.name);
+            prefs.setString('userId', authResult.id.toString());
+
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>
                     BlocProvider(
                       create: (context) => DevicesBloc()
                         ..add(FetchAllDevices(authResult.id.toString()),),
-                      child: Home(data.name,authResult.id.toString()),
+                      child: const Home(),
                     ),
               ),
             );

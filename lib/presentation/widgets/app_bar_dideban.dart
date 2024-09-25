@@ -1,5 +1,10 @@
+import 'package:dideban/blocs/drivers/drivers_bloc.dart';
+import 'package:dideban/presentation/drivers_setting.dart';
+import 'package:dideban/utilities/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../blocs/devices/devices_bloc.dart';
 import '../../blocs/groups/groups_bloc.dart';
 import '../../blocs/tracking/tracking_bloc.dart';
@@ -8,18 +13,53 @@ import '../home_page.dart';
 import '../login.dart';
 import '../tracking.dart';
 
-class AppBarDideban extends StatelessWidget implements  PreferredSizeWidget {
-  const AppBarDideban(this.username,this.userId,{super.key});
-  final String username;
-  final String userId;
+class AppBarDideban extends StatefulWidget implements  PreferredSizeWidget {
+  const AppBarDideban({super.key});
+
+  @override
+  State<AppBarDideban> createState() => _AppBarDidebanState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 
+}
+
+class _AppBarDidebanState extends State<AppBarDideban> {
+  String userId = "";
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Future<void>  getUserId()async{
+    try{
+      final SharedPreferences prefs = await _prefs;
+      userId = prefs.getString('userId') ?? "";
+    }catch(e){
+      userId = "";
+    }
+  }
+
+  Future<String>  getUserName()async{
+    try{
+      final SharedPreferences prefs = await _prefs;
+      String userName =  prefs.getString('userName') ?? "";
+      return userName;
+    }catch(e){
+      return "";
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getUserId();
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text("user:$username"),
+      //title: Text("user:$userName"),
       actions: [
         IconButton(
           tooltip: "Home",
@@ -33,7 +73,7 @@ class AppBarDideban extends StatelessWidget implements  PreferredSizeWidget {
                     BlocProvider(
                       create: (context) => DevicesBloc()
                         ..add(FetchAllDevices(userId),),
-                      child: Home(username,userId),
+                      child: const Home(),
                     ),
               ),
             );
@@ -59,54 +99,76 @@ class AppBarDideban extends StatelessWidget implements  PreferredSizeWidget {
                     MultiBlocProvider(providers: [
                       BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(userId))),
                       BlocProvider(create: (context) => TrackingBloc())
-                    ], child: Tracking(username,userId)),
+                    ], child: Tracking()),
               ),
             );
 
           },
         ),
-        (username == "admin")?MenuAnchor(
-          builder:
-              (BuildContext context, MenuController controller, Widget? child) {
-            return IconButton(
-              onPressed: () {
-                if (controller.isOpen) {
-                  controller.close();
-                } else {
-                  controller.open();
-                }
-              },
-              icon: const Icon(Icons.settings),
-              tooltip: 'Management',
-            );
-          },
-          menuChildren: List<MenuItemButton>.generate(3,
-                (int index) => MenuItemButton(
-              onPressed: () {
-                try{
-                  if(index == 0){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => GroupsBloc()
-                                ..add(FetchAllGroups(),),
-                              child: GroupsSetting(username,userId),
-                            ),
+        FutureBuilder<String>(
+            future: getUserName(),
+            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+              if(snapshot.hasData){
+                if(snapshot.data == "admin"){
+                  return MenuAnchor(
+                    builder:
+                        (BuildContext context, MenuController controller, Widget? child) {
+                      return IconButton(
+                        onPressed: () {
+                          if (controller.isOpen) {
+                            controller.close();
+                          } else {
+                            controller.open();
+                          }
+                        },
+                        icon: const Icon(Icons.settings),
+                        tooltip: 'Management',
+                      );
+                    },
+                    menuChildren: List<MenuItemButton>.generate(3,
+                          (int index) => MenuItemButton(
+                        onPressed: () {
+                          if(index == 0){
+                            EasyLoading.show(status: 'Please wait');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BlocProvider(
+                                      create: (context) => GroupsBloc()
+                                        ..add(FetchAllGroups(),),
+                                      child: const GroupsSetting(),
+                                    ),
+                              ),
+                            );
+                          }
+                          if(index == 2){
+                            EasyLoading.show(status: 'Please wait');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BlocProvider(
+                                      create: (context) => DriversBloc()
+                                        ..add(FetchAllDrivers(),),
+                                      child: const DriversSetting(),
+                                    ),
+                              ),
+                            );
+                          }
+                        },
+                        child: getSettingButton(index),
                       ),
-                    );
-                  }
+                    ),
+                  );
+                }else {
+                  return Container();
                 }
-                catch(e){
-                  //print(e);
-                }
+              }else{
+                return const CircularProgressIndicator();
+              }
+            }
+        ),
 
 
-              },
-              child: getSettingButton(index),
-            ),
-          ),
-        ):Container(),
         IconButton(
           tooltip: "account",
           icon: const Icon(

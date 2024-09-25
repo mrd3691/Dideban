@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 class Group{
 
@@ -19,7 +18,7 @@ class Group{
       id: json["id"],
       name: json["name"],
       groupid: (json["groupid"] ?? ""),
-      attributes: json["attributes"],
+      attributes: (json["attributes"] ?? ""),
     );
   }
 

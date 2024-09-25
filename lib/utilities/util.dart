@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shamsi_date/shamsi_date.dart';
-//import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Util{
+
+  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   static String jalaliToGeorgian(String input) {
     try{
@@ -99,6 +102,54 @@ class Util{
     var b = utf8.decode(secretKeyBytes);
     print('Result: $b');
     return secretKeyBytes.toString();
+  }
+
+
+  static AndroidOptions _getAndroidOptions() => const AndroidOptions(
+    encryptedSharedPreferences: true,
+  );
+
+  static Future<int> copyToSecureStorage(String key,String value)async {
+    try{
+      const storage = FlutterSecureStorage();
+      await storage.write(
+        key: key,
+        value: value,
+        //iOptions: _getIOSOptions(),
+        aOptions: _getAndroidOptions(),
+      );
+      return 0;
+    }
+    catch(e){
+      //Util.showError(context, "خطا", e.toString());
+      return -1;
+    }
+  }
+
+  static Future<String> readFromSecureStorage(String key)async {
+    try{
+      const storage = FlutterSecureStorage();
+      String? value = await storage.read(
+        key: key,
+        //iOptions: _getIOSOptions(),
+        aOptions: _getAndroidOptions(),
+      );
+      return value!;
+    }
+    catch(e){
+      //Util.showError(context, "خطا", e.toString());
+      return "";
+    }
+  }
+
+  static Future<String>  getUserName()async{
+    try{
+      final SharedPreferences prefs = await _prefs;
+      String userName =  prefs.getString('userName') ?? "";
+      return userName;
+    }catch(e){
+      return "";
+    }
   }
 
 

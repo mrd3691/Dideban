@@ -28,6 +28,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
     List<TreeNode> treeNodes = event.treeNode;
     List<Marker> markers;
     markers = await _makeLocationList(treeNodes);
+
     emit(GetDevicesLocationSuccess(markers: markers,treeNode: treeNodes));
 
   }
