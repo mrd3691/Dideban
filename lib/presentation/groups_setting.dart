@@ -61,7 +61,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                         onPressed: (){
-                          _showUpdateDialog(int.parse(state.groups![index].id),state.groups![index].name);
+                          _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
                         },
                         icon: const Icon(Icons.edit),
                     ),
@@ -70,7 +70,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id), state.groups![index].name);
+                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
                       },
                       icon: const Icon(Icons.delete),
                     ),
@@ -112,7 +112,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id),state.groups![index].name);
+                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
                       },
                       icon: const Icon(Icons.edit),
                     ),
@@ -121,7 +121,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id), state.groups![index].name);
+                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
                       },
                       icon: const Icon(Icons.delete),
                     ),
@@ -163,7 +163,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id),state.groups![index].name);
+                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
                       },
                       icon: const Icon(Icons.edit),
                     ),
@@ -172,7 +172,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id), state.groups![index].name);
+                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
                       },
                       icon: const Icon(Icons.delete),
                     ),
@@ -214,7 +214,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id),state.groups![index].name);
+                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
                       },
                       icon: const Icon(Icons.edit),
                     ),
@@ -223,7 +223,7 @@ class _GroupsSettingState extends State<GroupsSetting> {
                     width: MediaQuery.of(context).size.width*0.2,
                     child: IconButton(
                       onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id), state.groups![index].name);
+                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
                       },
                       icon: const Icon(Icons.delete),
                     ),

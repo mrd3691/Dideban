@@ -4,21 +4,21 @@ class Group{
   Group({
     required this.id,
     required this.name,
-    required this.groupid,
+    required this.groupId,
     required this.attributes,
   });
 
-  String id;
+  int id;
   String name;
-  String groupid;
-  String attributes;
+  int groupId;
+  var attributes;
 
   factory Group.fromMap( Map<String , dynamic> json) {
     return Group(
       id: json["id"],
       name: json["name"],
-      groupid: (json["groupid"] ?? ""),
-      attributes: (json["attributes"] ?? ""),
+      groupId: (json["groupid"] ?? 0),
+      attributes: json["attributes"] ,
     );
   }
 
@@ -28,7 +28,7 @@ class Group{
   Map<String , dynamic> toMap() => {
     "id":id,
     "name":name,
-    "groupid":groupid,
+    "groupid":groupId,
     "attributes":attributes,
 
   };

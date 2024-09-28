@@ -14,7 +14,7 @@ class API{
 
   static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  static Future<List<Group>?> fetchAllGroups() async{
+  static Future<List<Group>?> fetchAllGroups11111() async{
     try {
       final response = await http.post(Uri.parse('http://80.210.21.35/getAllGroups.php'));
       if (response.statusCode == 200) {
@@ -28,6 +28,32 @@ class API{
       if (kDebugMode) {
         print(e);
       }
+      return null;
+    }
+  }
+
+  static Future<List<Group>?> fetchAllGroups() async{
+    try{
+      String userName =await Util.getUserName();
+      String password =await Util.readFromSecureStorage("password");
+      String auth = base64Encode(utf8.encode("$userName:$password"));
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': auth
+      };
+      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups'));
+
+      request.headers.addAll(headers);
+      http.StreamedResponse streamedResponse = await request.send();
+      http.Response response = await http.Response.fromStream(streamedResponse);
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Group> groups = jsonResponse.map<Group>( (json) =>  Group.fromMap(json) ).toList();
+        return groups;
+      } else {
+        return null;
+      }
+    }catch(e){
       return null;
     }
   }
@@ -244,7 +270,6 @@ class API{
     }
   }
 
-
   static Future<int> updateDriver(int id, String newDriverName, String newUniqueId) async{
     try {
       String userName =await Util.getUserName();
@@ -318,6 +343,7 @@ class API{
       return -1;
     }
   }
+
 
 
 }

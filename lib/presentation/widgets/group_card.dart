@@ -19,8 +19,8 @@ class GroupCard extends StatelessWidget {
           leading: ClipOval(
             child: Text(group.name)
           ),
-          title: Text(group.groupid),
-          subtitle: Text(group.id),
+          title: Text(group.groupId.toString()),
+          subtitle: Text(group.id.toString()),
         ),
       ),
     );

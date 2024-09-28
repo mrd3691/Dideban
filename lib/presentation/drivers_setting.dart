@@ -64,27 +64,15 @@ class _DriversSettingState extends State<DriversSetting> {
                   color: Colors.white12,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 4, top: 4, right: 4),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  border: OutlineInputBorder()
-                              ),
-                              onChanged: (value) {
-                                context.read<DriversBloc>().add(
-                                  SearchDriver(state.drivers, value),);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<DriversBloc>().add(
+                          SearchDriver(state.drivers, value),);
+                      },
                     ),
                   ),
                 ),
@@ -225,27 +213,15 @@ class _DriversSettingState extends State<DriversSetting> {
                     color: Colors.white12,
                     child: Directionality(
                       textDirection: TextDirection.rtl,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 4, top: 4, right: 4),
-                              child: TextField(
-                                decoration: const InputDecoration(
-                                    prefixIcon: Icon(Icons.search),
-                                    border: OutlineInputBorder()
-                                ),
-                                onChanged: (value) {
-                                  context.read<DriversBloc>().add(
-                                    SearchDriver(state.drivers, value),);
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: TextField(
+                        decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder()
+                        ),
+                        onChanged: (value) {
+                          context.read<DriversBloc>().add(
+                            SearchDriver(state.drivers, value),);
+                        },
                       ),
                     ),
                   ),
@@ -383,27 +359,15 @@ class _DriversSettingState extends State<DriversSetting> {
                   color: Colors.white12,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 4, top: 4, right: 4),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  border: OutlineInputBorder()
-                              ),
-                              onChanged: (value) {
-                                context.read<DriversBloc>().add(
-                                  SearchDriver(state.drivers, value),);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<DriversBloc>().add(
+                          SearchDriver(state.drivers, value),);
+                      },
                     ),
                   ),
                 ),
@@ -541,27 +505,15 @@ class _DriversSettingState extends State<DriversSetting> {
                   color: Colors.white12,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 4, top: 4, right: 4),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  border: OutlineInputBorder()
-                              ),
-                              onChanged: (value) {
-                                context.read<DriversBloc>().add(
-                                  SearchDriver(state.drivers, value),);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<DriversBloc>().add(
+                          SearchDriver(state.drivers, value),);
+                      },
                     ),
                   ),
                 ),
@@ -698,27 +650,15 @@ class _DriversSettingState extends State<DriversSetting> {
                   color: Colors.white12,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          flex: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                bottom: 4, top: 4, right: 4),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                  prefixIcon: Icon(Icons.search),
-                                  border: OutlineInputBorder()
-                              ),
-                              onChanged: (value) {
-                                context.read<DriversBloc>().add(
-                                  SearchDriver(drivers, value),);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<DriversBloc>().add(
+                          SearchDriver(drivers, value),);
+                      },
                     ),
                   ),
                 ),

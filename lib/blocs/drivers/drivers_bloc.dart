@@ -30,7 +30,6 @@ class DriversBloc extends Bloc<DriversEvent, DriversState> {
     }
   }
 
-
   FutureOr<void> fetchAllDrivers(FetchAllDrivers event, Emitter<DriversState> emit,) async {
     try{
       emit(DriversLoadingInProgress());

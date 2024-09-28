@@ -1,4 +1,6 @@
+import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
+import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/utilities/util.dart';
 import 'package:flutter/material.dart';
@@ -137,6 +139,21 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                                       create: (context) => GroupsBloc()
                                         ..add(FetchAllGroups(),),
                                       child: const GroupsSetting(),
+                                    ),
+                              ),
+                            );
+                          }
+                          if(index == 1){
+                            EasyLoading.show(status: 'Please wait');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BlocProvider(
+                                      create: (context) => DevicesSettingBloc()
+                                        ..add(FetchAllDevicesSetting(),)
+                                        ..add(FetchAllDevicesSettingDrivers(),)
+                                        ..add(FetchAllDevicesSettingGroups(),),
+                                      child: const DevicesSetting(),
                                     ),
                               ),
                             );
