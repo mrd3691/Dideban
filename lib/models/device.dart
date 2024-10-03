@@ -21,13 +21,13 @@ class Device{
 
   int id;
   final attributes;
-  int? groupId;
+  int groupId;
   String name;
   String uniqueId;
   String? status;
   String? lastUpdate;
   int? positionId;
-  int? geofenceIds;
+  List<dynamic>? geofenceIds;
   String? phone;
   String? model;
   String? contact;

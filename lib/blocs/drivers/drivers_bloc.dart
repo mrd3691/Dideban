@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:dideban/data/driver_api.dart';
 import 'package:dideban/models/driver.dart';
 import 'package:meta/meta.dart';
-import '../../data/api.dart';
 part 'drivers_event.dart';
 part 'drivers_state.dart';
 
@@ -33,7 +33,7 @@ class DriversBloc extends Bloc<DriversEvent, DriversState> {
   FutureOr<void> fetchAllDrivers(FetchAllDrivers event, Emitter<DriversState> emit,) async {
     try{
       emit(DriversLoadingInProgress());
-      final drivers  = await API.fetchAllDrivers();
+      final drivers  = await DriverAPI.fetchAllDrivers();
       if(drivers == null){
         emit(DriversLoadFailed());
       }
@@ -49,8 +49,8 @@ class DriversBloc extends Bloc<DriversEvent, DriversState> {
       int id = event.id;
       String newDriverName = event.newDriverName;
       String newUniqueId = event.newUniqueId;
-      int statusCode = await API.updateDriver(id, newDriverName, newUniqueId );
-      List<Driver>? drivers  = await API.fetchAllDrivers();
+      int statusCode = await DriverAPI.updateDriver(id, newDriverName, newUniqueId );
+      List<Driver>? drivers  = await DriverAPI.fetchAllDrivers();
       if(statusCode != 200){
         emit(UpdateDriverFailed());
       }else{
@@ -65,8 +65,8 @@ class DriversBloc extends Bloc<DriversEvent, DriversState> {
     try{
       emit(DeleteDriverLoadingInProgress());
       int id = event.id;
-      int statusCode = await API.deleteDriver(id);
-      List<Driver>? drivers  = await API.fetchAllDrivers();
+      int statusCode = await DriverAPI.deleteDriver(id);
+      List<Driver>? drivers  = await DriverAPI.fetchAllDrivers();
       if(statusCode != 204){
         emit(DeleteDriverFailed());
       }else{
@@ -82,8 +82,8 @@ class DriversBloc extends Bloc<DriversEvent, DriversState> {
       emit(CreateDriverLoadingInProgress());
       String driverName = event.driverName;
       String uniqueId = event.uniqueId;
-      int statusCode = await API.createDriver(driverName,uniqueId);
-      List<Driver>? drivers  = await API.fetchAllDrivers();
+      int statusCode = await DriverAPI.createDriver(driverName,uniqueId);
+      List<Driver>? drivers  = await DriverAPI.fetchAllDrivers();
       if(statusCode != 200){
         emit(CreateDriverFailed());
       }else{

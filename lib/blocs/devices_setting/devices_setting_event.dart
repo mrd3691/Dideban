@@ -43,15 +43,6 @@ final class SearchDeviceSetting extends DevicesSettingEvent{
   SearchDeviceSetting(this.devices,this.searchedString);
 }
 
-final class FetchAllDevicesSettingGroups extends DevicesSettingEvent{
-  FetchAllDevicesSettingGroups();
-}
 
-final class FetchAllDevicesSettingDrivers extends DevicesSettingEvent{
-  FetchAllDevicesSettingDrivers();
-}
 
-final class ShowUpdateDialogueDeviceSetting extends DevicesSettingEvent{
-  final Device device;
-  ShowUpdateDialogueDeviceSetting(this.device);
-}
+

@@ -5,7 +5,7 @@ part of 'groups_bloc.dart';
 sealed class GroupsState {}
 
 final class GroupsInitial extends GroupsState {}
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 final class GroupsLoadSuccess extends GroupsState {
   final List<Group>? groups;
   GroupsLoadSuccess({
@@ -16,10 +16,7 @@ final class GroupsLoadSuccess extends GroupsState {
 final class GroupsLoadingInProgress extends GroupsState {}
 
 final class GroupsLoadFailed extends GroupsState {}
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 final class UpdateGroupLoadingInProgress extends GroupsState {}
 
 final class UpdateGroupSuccess extends GroupsState {
@@ -29,9 +26,7 @@ final class UpdateGroupSuccess extends GroupsState {
 }
 
 final class UpdateGroupFailed extends GroupsState {}
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 final class DeleteGroupLoadingInProgress extends GroupsState {}
 
 final class DeleteGroupSuccess extends GroupsState {
@@ -41,10 +36,7 @@ final class DeleteGroupSuccess extends GroupsState {
 }
 
 final class DeleteGroupFailed extends GroupsState {}
-
-
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 final class CreateGroupLoadingInProgress extends GroupsState {}
 
 final class CreateGroupSuccess extends GroupsState {
@@ -54,3 +46,12 @@ final class CreateGroupSuccess extends GroupsState {
 }
 
 final class CreateGroupFailed extends GroupsState {}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+final class SearchGroupLoadingInProgress extends GroupsState {}
+
+final class SearchGroupSuccess extends GroupsState {
+  final List<Group>? groups;
+  SearchGroupSuccess({required this.groups});
+}
+
+final class SearchGroupFailed extends GroupsState {}

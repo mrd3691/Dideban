@@ -3,6 +3,7 @@ import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../models/group.dart';
 
 class GroupsSetting extends StatefulWidget {
   const GroupsSetting({ super.key});
@@ -14,9 +15,10 @@ class _GroupsSettingState extends State<GroupsSetting> {
   final _updateGroupNameController = TextEditingController();
   final _createGroupNameController = TextEditingController();
 
+  List<Group>? groups = [];
+
   @override
   void dispose() {
-    // TODO: implement dispose
     _updateGroupNameController.dispose();
     _createGroupNameController.dispose();
     super.dispose();
@@ -42,207 +44,624 @@ class _GroupsSettingState extends State<GroupsSetting> {
   Widget homeBody(BuildContext context){
     return BlocBuilder<GroupsBloc, GroupsState>(
       builder: (context, state) {
-        if(state is GroupsLoadSuccess){
+        if (state is GroupsLoadSuccess) {
+          groups = state.groups;
           EasyLoading.dismiss();
-          return ListView.separated(
-            separatorBuilder: (context, index) => const Divider(
-              color: Colors.black,
-            ),
-            itemCount: state.groups!.length,
-            itemBuilder: (context, index) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width*0.5,
-                      child: Center(child: Text(state.groups![index].name))
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                        onPressed: (){
-                          _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
-                        },
-                        icon: const Icon(Icons.edit),
-                    ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<GroupsBloc>().add(
+                          SearchGroup(state.groups, value),);
                       },
-                      icon: const Icon(Icons.delete),
                     ),
-                  )
-                ],
+                  ),
+                ),
               ),
-            ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.50,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.groups!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.50,
+                                child: Center(
+                                    child: Text(state.groups![index].name))
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showUpdateDialog(state.groups![index].id,
+                                      state.groups![index].name,);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.groups![index].id,
+                                      state.groups![index].name);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                ),
+              ),
+            ],
+
           );
         }
-        if(state is GroupsLoadFailed){
+        if (state is GroupsLoadFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while loading groups");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while loading groups"),
-            ),
+          return const Center(
+            child: Text("An error occurred while loading groups"),
           );
         }
-        if(state is UpdateGroupSuccess){
+        if (state is UpdateGroupSuccess) {
+          groups = state.groups;
           EasyLoading.dismiss();
           EasyLoading.showInfo('Group updated successfully');
-          return ListView.separated(
-            separatorBuilder: (context, index) => const Divider(
-              color: Colors.black,
-            ),
-            itemCount: state.groups!.length,
-            itemBuilder: (context, index) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width*0.5,
-                      child: Center(child: Text(state.groups![index].name))
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
-                      },
-                      icon: const Icon(Icons.edit),
+          return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                  child: Container(
+                    color: Colors.white12,
+                    child: Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: TextField(
+                        decoration: const InputDecoration(
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder()
+                        ),
+                        onChanged: (value) {
+                          context.read<GroupsBloc>().add(
+                            SearchGroup(state.groups, value),);
+                        },
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
-                      },
-                      icon: const Icon(Icons.delete),
+                ),
+                Container(
+                  color: Colors.deepPurple,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.50,
+                            child: const Center(child: Text("Name",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 20),))
+                        ),
+
+                        SizedBox(
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.2,
+                            child: const Center(child: Text("Update",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 20),))
+                        ),
+                        SizedBox(
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.2,
+                            child: const Center(child: Text("Remove",
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 20),))
+                        ),
+                      ],
                     ),
-                  )
-                ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.groups!.length,
+                    itemBuilder: (context, index) =>
+                        Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                  width: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .width * 0.50,
+                                  child: Center(
+                                      child: Text(state.groups![index].name))
+                              ),
+                              SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.2,
+                                child: IconButton(
+                                  onPressed: () {
+                                    _showUpdateDialog(state.groups![index].id,
+                                        state.groups![index].name,);
+                                  },
+                                  icon: const Icon(Icons.edit),
+                                ),
+                              ),
+                              SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.2,
+                                child: IconButton(
+                                  onPressed: () {
+                                    _showDeleteDialog(state.groups![index].id,
+                                        state.groups![index].name);
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                  ),
+                ),
+              ]
+
+          );
+        }
+        if (state is UpdateGroupFailed) {
+          EasyLoading.dismiss();
+          return const Center(
+            child: Text("An error occurred while updating group"),
+          );
+        }
+        if (state is DeleteGroupSuccess) {
+          groups = state.groups;
+          EasyLoading.dismiss();
+          EasyLoading.showInfo('group deleted successfully');
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<GroupsBloc>().add(
+                          SearchGroup(state.groups, value),);
+                      },
+                    ),
+                  ),
+                ),
               ),
-            ),
-          );
-        }
-        if(state is UpdateGroupFailed){
-          EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while updating group");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while updating group"),
-            ),
-          );
-        }
-        if(state is DeleteGroupSuccess){
-          EasyLoading.dismiss();
-          EasyLoading.showInfo('Group deleted successfully');
-          return ListView.separated(
-            separatorBuilder: (context, index) => const Divider(
-              color: Colors.black,
-            ),
-            itemCount: state.groups!.length,
-            itemBuilder: (context, index) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width*0.5,
-                      child: Center(child: Text(state.groups![index].name))
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.50,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
-                      },
-                      icon: const Icon(Icons.edit),
-                    ),
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
-                  )
-                ],
+                ),
               ),
-            ),
+              Expanded(
+                child: ListView.separated(
+                  separatorBuilder: (context, index) =>
+                  const Divider(
+                    color: Colors.black,
+                  ),
+                  itemCount: state.groups!.length,
+                  itemBuilder: (context, index) =>
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.50,
+                                child: Center(
+                                    child: Text(state.groups![index].name))
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showUpdateDialog(state.groups![index].id,
+                                      state.groups![index].name,);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.groups![index].id,
+                                      state.groups![index].name);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                ),
+              ),
+            ],
           );
         }
-        if(state is DeleteGroupFailed){
+        if (state is DeleteGroupFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while deleting group");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while deleting group"),
-            ),
+          return const Center(
+            child: Text("An error occurred while deleting group"),
           );
         }
-        if(state is CreateGroupSuccess){
+        if (state is CreateGroupSuccess) {
+          groups = state.groups;
           EasyLoading.dismiss();
           EasyLoading.showInfo('Group created successfully');
-          return ListView.separated(
-            separatorBuilder: (context, index) => const Divider(
-              color: Colors.black,
-            ),
-            itemCount: state.groups!.length,
-            itemBuilder: (context, index) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width*0.5,
-                      child: Center(child: Text(state.groups![index].name))
-                  ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showUpdateDialog(int.parse(state.groups![index].id.toString()),state.groups![index].name);
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<GroupsBloc>().add(
+                          SearchGroup(state.groups, value),);
                       },
-                      icon: const Icon(Icons.edit),
                     ),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width*0.2,
-                    child: IconButton(
-                      onPressed: (){
-                        _showDeleteDialog(int.parse(state.groups![index].id.toString()), state.groups![index].name);
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
-                  )
-                ],
+                ),
               ),
-            ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.50,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.groups!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.50,
+                                child: Center(
+                                    child: Text(state.groups![index].name))
+                            ),
+
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showUpdateDialog(state.groups![index].id,
+                                      state.groups![index].name,);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.groups![index].id,
+                                      state.groups![index].name);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                ),
+              ),
+            ],
           );
         }
-        if(state is CreateGroupFailed){
+        if (state is CreateGroupFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while creating group");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while creating group"),
-            ),
+          return const Center(
+            child: Text("An error occurred while creating group"),
+          );
+        }
+        if (state is SearchGroupSuccess) {
+          EasyLoading.dismiss();
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<GroupsBloc>().add(
+                          SearchGroup(groups, value),);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.50,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 20),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.groups!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.50,
+                                child: Center(
+                                    child: Text(state.groups![index].name))
+                            ),
+
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showUpdateDialog(state.groups![index].id,
+                                      state.groups![index].name,);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.groups![index].id,
+                                      state.groups![index].name);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                ),
+              ),
+            ],
+
+          );
+        }
+        if (state is SearchGroupFailed) {
+          EasyLoading.dismiss();
+          return const Center(
+            child: Text("An error occurred while loading groups"),
           );
         }
         return Container();

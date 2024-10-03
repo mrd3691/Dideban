@@ -111,6 +111,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget drawer(BuildContext context){
+    bool checkAll =false;
     return Drawer(
       child: Column(
         children: [

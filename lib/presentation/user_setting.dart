@@ -1,32 +1,41 @@
-import 'package:dideban/blocs/drivers/drivers_bloc.dart';
+import 'package:dideban/blocs/users/users_bloc.dart';
+import 'package:dideban/data/user_api.dart';
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../models/driver.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import '../blocs/devices/devices_bloc.dart';
+import '../models/group.dart';
+import '../models/user.dart';
 
-class DriversSetting extends StatefulWidget {
-  const DriversSetting({ super.key});
+
+class UsersSetting extends StatefulWidget {
+  const UsersSetting({ super.key});
   @override
-  State<DriversSetting> createState() => _DriversSettingState();
+  State<UsersSetting> createState() => _UsersSettingState();
 }
 
-class _DriversSettingState extends State<DriversSetting> {
-  final _updateDriverNameController = TextEditingController();
-  final _updateUniqueIdController = TextEditingController();
-  final _createDriverNameController = TextEditingController();
-  final _createUniqueIdController = TextEditingController();
+class _UsersSettingState extends State<UsersSetting> {
+  final _updateNameController = TextEditingController();
+  final _updateUserNameController = TextEditingController();
+  final _updatePasswordController = TextEditingController();
+  final _createNameController = TextEditingController();
+  final _createUserNameController = TextEditingController();
+  final _createPasswordController = TextEditingController();
 
   //only use for search and initial when other state is success
-  List<Driver>? drivers = [];
+  List<User>? users = [];
+  List<Group>? groups = [];
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    _updateDriverNameController.dispose();
-    _updateUniqueIdController.dispose();
-    _createDriverNameController.dispose();
-    _createUniqueIdController.dispose();
+    _updateNameController.dispose();
+    _updateUserNameController.dispose();
+    _updatePasswordController.dispose();
+    _createNameController.dispose();
+    _createUserNameController.dispose();
+    _createPasswordController.dispose();
     super.dispose();
   }
 
@@ -35,11 +44,12 @@ class _DriversSettingState extends State<DriversSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AppBarDideban(),
-      body: homeBody(context),
+      body:homeBody(context),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _createDriverNameController.text = "";
-          _createUniqueIdController.text = "";
+          _createNameController.text = "";
+          _createUserNameController.text = "";
+          _createPasswordController.text ="";
           _showCreateDialog();
         },
         tooltip: 'Create',
@@ -49,10 +59,11 @@ class _DriversSettingState extends State<DriversSetting> {
   }
 
   Widget homeBody(BuildContext context) {
-    return BlocBuilder<DriversBloc, DriversState>(
+    return BlocBuilder<UsersBloc, UsersState>(
       builder: (context, state) {
-        if (state is DriversLoadSuccess) {
-          drivers = state.drivers;
+        if (state is UsersLoadSuccess ) {
+          users = state.users;
+          groups = state.groups;
           EasyLoading.dismiss();
           return Column(
             children: [
@@ -68,8 +79,8 @@ class _DriversSettingState extends State<DriversSetting> {
                           border: OutlineInputBorder()
                       ),
                       onChanged: (value) {
-                        context.read<DriversBloc>().add(
-                          SearchDriver(state.drivers, value),);
+                        context.read<UsersBloc>().add(
+                          SearchUser(state.users, value),);
                       },
                     ),
                   ),
@@ -88,16 +99,16 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.25,
                           child: const Center(child: Text("Name",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
                               .of(context)
                               .size
                               .width * 0.25,
-                          child: const Center(child: Text("UniqueId",
+                          child: const Center(child: Text("UserName",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
@@ -106,7 +117,7 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.2,
                           child: const Center(child: Text("Update",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
@@ -115,7 +126,7 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.2,
                           child: const Center(child: Text("Remove",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                     ],
                   ),
@@ -127,7 +138,7 @@ class _DriversSettingState extends State<DriversSetting> {
                     const Divider(
                       color: Colors.black,
                     ),
-                    itemCount: state.drivers!.length,
+                    itemCount: state.users!.length,
                     itemBuilder: (context, index) {
                       return Directionality(
                         textDirection: TextDirection.rtl,
@@ -139,7 +150,7 @@ class _DriversSettingState extends State<DriversSetting> {
                                     .size
                                     .width * 0.25,
                                 child: Center(
-                                    child: Text(state.drivers![index].name))
+                                    child: Text(state.users![index].name))
                             ),
                             SizedBox(
                                 width: MediaQuery
@@ -147,7 +158,7 @@ class _DriversSettingState extends State<DriversSetting> {
                                     .size
                                     .width * 0.25,
                                 child: Center(
-                                    child: Text(state.drivers![index].uniqueId))
+                                    child: Text(state.users![index].email))
                             ),
                             SizedBox(
                               width: MediaQuery
@@ -155,10 +166,15 @@ class _DriversSettingState extends State<DriversSetting> {
                                   .size
                                   .width * 0.2,
                               child: IconButton(
-                                onPressed: () {
-                                  _showUpdateDialog(state.drivers![index].id,
-                                      state.drivers![index].name,
-                                      state.drivers![index].uniqueId);
+                                onPressed: () async {
+                                  _updateNameController.text ="";
+                                  _updateUserNameController.text ="";
+                                  _updatePasswordController.text ="";
+                                  final  selectedGroups  = await UserAPI.fetchUserGroup(state.users![index].id,);
+                                  _showUpdateDialog(state.users![index].id,
+                                      state.users![index].name,
+                                      state.users![index].email,
+                                      selectedGroups!);
                                 },
                                 icon: const Icon(Icons.edit),
                               ),
@@ -170,8 +186,8 @@ class _DriversSettingState extends State<DriversSetting> {
                                   .width * 0.2,
                               child: IconButton(
                                 onPressed: () {
-                                  _showDeleteDialog(state.drivers![index].id,
-                                      state.drivers![index].name);
+                                  _showDeleteDialog(state.users![index].id,
+                                      state.users![index].email);
                                 },
                                 icon: const Icon(Icons.delete),
                               ),
@@ -187,157 +203,17 @@ class _DriversSettingState extends State<DriversSetting> {
 
           );
         }
-        if (state is DriversLoadFailed) {
+        if (state is UsersLoadFailed) {
           EasyLoading.dismiss();
           return const Center(
-            child: Text("An error occurred while loading drivers"),
+            child: Text("An error occurred while loading users"),
           );
         }
-        if (state is UpdateDriverSuccess) {
-          drivers = state.drivers;
+        if (state is CreateUserSuccess) {
+          users = state.users;
+          groups = state.groups;
           EasyLoading.dismiss();
-          EasyLoading.showInfo('Driver updated successfully');
-          return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
-                  child: Container(
-                    color: Colors.white12,
-                    child: Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: TextField(
-                        decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder()
-                        ),
-                        onChanged: (value) {
-                          context.read<DriversBloc>().add(
-                            SearchDriver(state.drivers, value),);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.deepPurple,
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.25,
-                            child: const Center(child: Text("Name",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20),))
-                        ),
-                        SizedBox(
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.25,
-                            child: const Center(child: Text("UniqueId",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20),))
-                        ),
-                        SizedBox(
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.2,
-                            child: const Center(child: Text("Update",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20),))
-                        ),
-                        SizedBox(
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.2,
-                            child: const Center(child: Text("Remove",
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 20),))
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) =>
-                    const Divider(
-                      color: Colors.black,
-                    ),
-                    itemCount: state.drivers!.length,
-                    itemBuilder: (context, index) =>
-                        Directionality(
-                          textDirection: TextDirection.rtl,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width * 0.25,
-                                  child: Center(
-                                      child: Text(state.drivers![index].name))
-                              ),
-                              SizedBox(
-                                  width: MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width * 0.25,
-                                  child: Center(child: Text(
-                                      state.drivers![index].uniqueId))
-                              ),
-                              SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.2,
-                                child: IconButton(
-                                  onPressed: () {
-                                    _showUpdateDialog(state.drivers![index].id,
-                                        state.drivers![index].name,
-                                        state.drivers![index].uniqueId);
-                                  },
-                                  icon: const Icon(Icons.edit),
-                                ),
-                              ),
-                              SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.2,
-                                child: IconButton(
-                                  onPressed: () {
-                                    _showDeleteDialog(state.drivers![index].id,
-                                        state.drivers![index].name);
-                                  },
-                                  icon: const Icon(Icons.delete),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                  ),
-                ),
-              ]
-
-          );
-        }
-        if (state is UpdateDriverFailed) {
-          EasyLoading.dismiss();
-          return const Center(
-            child: Text("An error occurred while updating driver"),
-          );
-        }
-        if (state is DeleteDriverSuccess) {
-          drivers = state.drivers;
-          EasyLoading.dismiss();
-          EasyLoading.showInfo('Driver deleted successfully');
+          EasyLoading.showInfo('User created successfully');
           return Column(
             children: [
               Padding(
@@ -352,8 +228,8 @@ class _DriversSettingState extends State<DriversSetting> {
                           border: OutlineInputBorder()
                       ),
                       onChanged: (value) {
-                        context.read<DriversBloc>().add(
-                          SearchDriver(state.drivers, value),);
+                        context.read<UsersBloc>().add(
+                          SearchUser(state.users, value),);
                       },
                     ),
                   ),
@@ -372,16 +248,16 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.25,
                           child: const Center(child: Text("Name",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
                               .of(context)
                               .size
                               .width * 0.25,
-                          child: const Center(child: Text("UniqueId",
+                          child: const Center(child: Text("UserName",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
@@ -390,7 +266,7 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.2,
                           child: const Center(child: Text("Update",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                       SizedBox(
                           width: MediaQuery
@@ -399,147 +275,7 @@ class _DriversSettingState extends State<DriversSetting> {
                               .width * 0.2,
                           child: const Center(child: Text("Remove",
                             style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  separatorBuilder: (context, index) =>
-                  const Divider(
-                    color: Colors.black,
-                  ),
-                  itemCount: state.drivers!.length,
-                  itemBuilder: (context, index) =>
-                      Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.25,
-                                child: Center(
-                                    child: Text(state.drivers![index].name))
-                            ),
-                            SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.25,
-                                child: Center(
-                                    child: Text(state.drivers![index].uniqueId))
-                            ),
-                            SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.2,
-                              child: IconButton(
-                                onPressed: () {
-                                  _showUpdateDialog(state.drivers![index].id,
-                                      state.drivers![index].name,
-                                      state.drivers![index].uniqueId);
-                                },
-                                icon: const Icon(Icons.edit),
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.2,
-                              child: IconButton(
-                                onPressed: () {
-                                  _showDeleteDialog(state.drivers![index].id,
-                                      state.drivers![index].name);
-                                },
-                                icon: const Icon(Icons.delete),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                ),
-              ),
-            ],
-          );
-        }
-        if (state is DeleteDriverFailed) {
-          EasyLoading.dismiss();
-          return const Center(
-            child: Text("An error occurred while deleting group"),
-          );
-        }
-        if (state is CreateDriverSuccess) {
-          drivers = state.drivers;
-          EasyLoading.dismiss();
-          EasyLoading.showInfo('Driver created successfully');
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
-                child: Container(
-                  color: Colors.white12,
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: TextField(
-                      decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder()
-                      ),
-                      onChanged: (value) {
-                        context.read<DriversBloc>().add(
-                          SearchDriver(state.drivers, value),);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                color: Colors.deepPurple,
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.25,
-                          child: const Center(child: Text("Name",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.25,
-                          child: const Center(child: Text("UniqueId",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.2,
-                          child: const Center(child: Text("Update",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.2,
-                          child: const Center(child: Text("Remove",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
+                                color: Colors.white, fontSize: 15),))
                       ),
                     ],
                   ),
@@ -551,7 +287,7 @@ class _DriversSettingState extends State<DriversSetting> {
                     const Divider(
                       color: Colors.black,
                     ),
-                    itemCount: state.drivers!.length,
+                    itemCount: state.users!.length,
                     itemBuilder: (context, index) {
                       return Directionality(
                         textDirection: TextDirection.rtl,
@@ -563,15 +299,15 @@ class _DriversSettingState extends State<DriversSetting> {
                                     .size
                                     .width * 0.25,
                                 child: Center(
-                                    child: Text(state.drivers![index].name))
+                                    child: Text(state.users![index].name))
                             ),
                             SizedBox(
                                 width: MediaQuery
                                     .of(context)
                                     .size
                                     .width * 0.25,
-                                child: Center(child: Text(state.drivers![index]
-                                    .uniqueId))
+                                child: Center(
+                                    child: Text(state.users![index].email))
                             ),
                             SizedBox(
                               width: MediaQuery
@@ -579,10 +315,15 @@ class _DriversSettingState extends State<DriversSetting> {
                                   .size
                                   .width * 0.2,
                               child: IconButton(
-                                onPressed: () {
-                                  _showUpdateDialog(state.drivers![index].id,
-                                      state.drivers![index].name,
-                                      state.drivers![index].uniqueId);
+                                onPressed: () async {
+                                  _updateNameController.text ="";
+                                  _updateUserNameController.text ="";
+                                  _updatePasswordController.text ="";
+                                  final  selectedGroups  = await UserAPI.fetchUserGroup(state.users![index].id,);
+                                  _showUpdateDialog(state.users![index].id,
+                                      state.users![index].name,
+                                      state.users![index].email,
+                                      selectedGroups!);
                                 },
                                 icon: const Icon(Icons.edit),
                               ),
@@ -594,147 +335,8 @@ class _DriversSettingState extends State<DriversSetting> {
                                   .width * 0.2,
                               child: IconButton(
                                 onPressed: () {
-                                  _showDeleteDialog(state.drivers![index].id,
-                                      state.drivers![index].name);
-                                },
-                                icon: const Icon(Icons.delete),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                ),
-              ),
-            ],
-          );
-        }
-        if (state is CreateDriverFailed) {
-          EasyLoading.dismiss();
-          return const Center(
-            child: Text("An error occurred while creating driver"),
-          );
-        }
-        if (state is SearchDriverSuccess) {
-          EasyLoading.dismiss();
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
-                child: Container(
-                  color: Colors.white12,
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: TextField(
-                      decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder()
-                      ),
-                      onChanged: (value) {
-                        context.read<DriversBloc>().add(
-                          SearchDriver(drivers, value),);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                color: Colors.deepPurple,
-                child: Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.25,
-                          child: const Center(child: Text("Name",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.25,
-                          child: const Center(child: Text("UniqueId",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.2,
-                          child: const Center(child: Text("Update",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                      SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.2,
-                          child: const Center(child: Text("Remove",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 20),))
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                    separatorBuilder: (context, index) =>
-                    const Divider(
-                      color: Colors.black,
-                    ),
-                    itemCount: state.drivers!.length,
-                    itemBuilder: (context, index) {
-                      return Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: Row(
-                          children: [
-                            SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.25,
-                                child: Center(
-                                    child: Text(state.drivers![index].name))
-                            ),
-                            SizedBox(
-                                width: MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width * 0.25,
-                                child: Center(
-                                    child: Text(state.drivers![index].uniqueId))
-                            ),
-                            SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.2,
-                              child: IconButton(
-                                onPressed: () {
-                                  _showUpdateDialog(state.drivers![index].id,
-                                      state.drivers![index].name,
-                                      state.drivers![index].uniqueId);
-                                },
-                                icon: const Icon(Icons.edit),
-                              ),
-                            ),
-                            SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.2,
-                              child: IconButton(
-                                onPressed: () {
-                                  _showDeleteDialog(state.drivers![index].id,
-                                      state.drivers![index].name);
+                                  _showDeleteDialog(state.users![index].id,
+                                      state.users![index].email);
                                 },
                                 icon: const Icon(Icons.delete),
                               ),
@@ -750,137 +352,500 @@ class _DriversSettingState extends State<DriversSetting> {
 
           );
         }
-        if (state is SearchDriverFailed) {
+        if (state is CreateUserFailed) {
           EasyLoading.dismiss();
-          return const Center(
-            child: Text("An error occurred while loading drivers"),
+          return  const Center(
+            child:  Text("An error occurred while creating users"),
           );
         }
+        if (state is DeleteUserSuccess) {
+          users = state.users;
+          groups = state.groups;
+          EasyLoading.dismiss();
+          EasyLoading.showInfo('User deleted successfully');
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<UsersBloc>().add(
+                          SearchUser(state.users, value),);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("UserName",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.users!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].name))
+                            ),
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].email))
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () async {
+                                  _updateNameController.text ="";
+                                  _updateUserNameController.text ="";
+                                  _updatePasswordController.text ="";
+                                  final  selectedGroups  = await UserAPI.fetchUserGroup(state.users![index].id,);
+                                  _showUpdateDialog(state.users![index].id,
+                                      state.users![index].name,
+                                      state.users![index].email,
+                                      selectedGroups!);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.users![index].id,
+                                      state.users![index].email);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                ),
+              ),
+            ],
+
+          );
+        }
+        if (state is DeleteUserFailed) {
+          EasyLoading.dismiss();
+          return const Center(
+            child: Text("An error occurred while deleting user"),
+          );
+        }
+        if (state is UpdateUserSuccess) {
+          users = state.users;
+          groups = state.groups;
+          EasyLoading.dismiss();
+          EasyLoading.showInfo('User updated successfully');
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<UsersBloc>().add(
+                          SearchUser(state.users, value),);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("UserName",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.users!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].name))
+                            ),
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].email))
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () async {
+                                  _updateNameController.text ="";
+                                  _updateUserNameController.text ="";
+                                  _updatePasswordController.text ="";
+                                  final  selectedGroups  = await UserAPI.fetchUserGroup(state.users![index].id,);
+                                  _showUpdateDialog(state.users![index].id,
+                                      state.users![index].name,
+                                      state.users![index].email,
+                                      selectedGroups!);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.users![index].id,
+                                      state.users![index].email);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                ),
+              ),
+            ],
+          );
+        }
+        if (state is UpdateUserFailed) {
+          EasyLoading.dismiss();
+          return const Center(
+            child: Text("An error occurred while updating users"),
+          );
+        }
+        if (state is SearchUserSuccess) {
+          EasyLoading.dismiss();
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                child: Container(
+                  color: Colors.white12,
+                  child: Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: TextField(
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder()
+                      ),
+                      onChanged: (value) {
+                        context.read<UsersBloc>().add(
+                          SearchUser(users, value),);
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.deepPurple,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("Name",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.25,
+                          child: const Center(child: Text("UserName",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Update",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                      SizedBox(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.2,
+                          child: const Center(child: Text("Remove",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 15),))
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                    separatorBuilder: (context, index) =>
+                    const Divider(
+                      color: Colors.black,
+                    ),
+                    itemCount: state.users!.length,
+                    itemBuilder: (context, index) {
+                      return Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Row(
+                          children: [
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].name))
+                            ),
+                            SizedBox(
+                                width: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .width * 0.25,
+                                child: Center(
+                                    child: Text(state.users![index].email))
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () async {
+                                  _updateNameController.text ="";
+                                  _updateUserNameController.text ="";
+                                  _updatePasswordController.text ="";
+                                  final  selectedGroups  = await UserAPI.fetchUserGroup(state.users![index].id,);
+                                  _showUpdateDialog(state.users![index].id,
+                                      state.users![index].name,
+                                      state.users![index].email,
+                                      selectedGroups!);
+                                },
+                                icon: const Icon(Icons.edit),
+                              ),
+                            ),
+                            SizedBox(
+                              width: MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.2,
+                              child: IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(state.users![index].id,
+                                      state.users![index].email);
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+
+                ),
+              ),
+            ],
+          );
+        }
+        if (state is SearchUserFailed) {
+          EasyLoading.dismiss();
+          return const Center(
+            child: Text("An error occurred while searching users"),
+          );
+        }
+
         return Container();
       },
     );
   }
 
 
-  void _showUpdateDialog(int id, String driverName, String uniqueId) {
-    _updateDriverNameController.text = driverName;
-    _updateUniqueIdController.text = uniqueId;
-    showDialog(
-        context: context,
-        builder: (BuildContext context1) {
-          return BlocProvider.value(
-            value: context.read<DriversBloc>(),
-            child: AlertDialog(
-              title: const Text("Update driver"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: TextField(
-                      controller: _updateDriverNameController,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter new driver name',
-                          prefix: Text("Driver name:          ")
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: TextField(
-                      controller: _updateUniqueIdController,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter new uniqueId',
-                          prefix: Text("UniqueId:          ")
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context1).pop(); // Close the dialog
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    String newDriverName = _updateDriverNameController.text;
-                    String newUniqueId = _updateUniqueIdController.text;
-                    Navigator.of(context1).pop();
-                    EasyLoading.show(status: 'Please wait');
-                    context.read<DriversBloc>().add(
-                      UpdateDriver(id, newDriverName, newUniqueId),);
-                  },
-                  child: const Text('Update'),
-                )
-              ],
-            ),
-          );
-        }
-    );
-  }
-
-  void _showDeleteDialog(int id, String driverName) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context2) {
-          return BlocProvider.value(
-            value: context.read<DriversBloc>(),
-            child: AlertDialog(
-              title: const Text("Delete driver"),
-              content: Text(driverName),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context2).pop(); // Close the dialog
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context2).pop();
-                    EasyLoading.show(status: 'Please wait');
-                    context.read<DriversBloc>().add(DeleteDriver(id),);
-                  },
-                  child: const Text('Delete'),
-                )
-              ],
-            ),
-          );
-        }
-    );
-  }
 
   void _showCreateDialog() {
     showDialog(
         context: context,
         builder: (BuildContext context3) {
           return BlocProvider.value(
-            value: context.read<DriversBloc>(),
+            value: context.read<UsersBloc>(),
             child: AlertDialog(
-              title: const Text("Create driver"),
+              title: const Text("Create user"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Align(
                     alignment: Alignment.topLeft,
                     child: TextField(
-                      controller: _createDriverNameController,
+                      controller: _createNameController,
                       decoration: const InputDecoration(
-                        labelText: 'Enter driver name',
-                        prefix: Text("Driver name:          "),
+                        labelText: 'Enter name',
+                        prefix: Text("name:          "),
                       ),
                     ),
                   ),
                   Align(
                     alignment: Alignment.topLeft,
                     child: TextField(
-                      controller: _createUniqueIdController,
+                      controller: _createUserNameController,
                       decoration: const InputDecoration(
-                          labelText: 'Enter uniqueId',
-                          prefix: Text("UniqueId:          ")
+                        labelText: 'Enter username',
+                        prefix: Text("username:          "),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: TextField(
+                      controller: _createPasswordController,
+                      decoration: const InputDecoration(
+                          labelText: 'Enter password',
+                          prefix: Text("password:          ")
                       ),
                     ),
                   ),
@@ -895,12 +860,19 @@ class _DriversSettingState extends State<DriversSetting> {
                 ),
                 TextButton(
                   onPressed: () {
-                    String driverName = _createDriverNameController.text;
-                    String uniqueID = _createUniqueIdController.text;
-                    Navigator.of(context3).pop();
-                    EasyLoading.show(status: 'Please wait');
-                    context.read<DriversBloc>().add(
-                      CreateDriver(driverName, uniqueID),);
+                    if(_createPasswordController.text.isEmpty ||
+                    _createUserNameController.text.isEmpty ||
+                    _createNameController.text.isEmpty){
+                    EasyLoading.showInfo('Please import required fields');
+                    }else{
+                      String name = _createNameController.text;
+                      String username = _createUserNameController.text;
+                      String password = _createPasswordController.text;
+                      Navigator.of(context3).pop();
+                      EasyLoading.show(status: 'Please wait');
+                      context.read<UsersBloc>().add(
+                        CreateUser(name,username, password),);
+                    }
                   },
                   child: const Text('Create'),
                 )
@@ -911,9 +883,148 @@ class _DriversSettingState extends State<DriversSetting> {
     );
   }
 
+  void _showDeleteDialog(int id, String username) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context2) {
+          return BlocProvider.value(
+            value: context.read<UsersBloc>(),
+            child: AlertDialog(
+              title: const Text("Delete user"),
+              content: Text(username),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context2).pop(); // Close the dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context2).pop();
+                    EasyLoading.show(status: 'Please wait');
+                    context.read<UsersBloc>().add(DeleteUser(id),);
+                  },
+                  child: const Text('Delete'),
+                )
+              ],
+            ),
+          );
+        }
+    );
+  }
+
+  void _showUpdateDialog(int id, String name, String username, List<Group> selectedGroups) {
+    _updateNameController.text = name;
+    _updateUserNameController.text = username;
+
+    final items = groups!.map((group) => MultiSelectItem<Group>(group, group.name)).toList();
+    List<Group> oldSelectedGroups = selectedGroups;
+    List<Group> newSelectedGroups = selectedGroups;
+    showDialog(
+        context: context,
+        builder: (BuildContext context1) {
+
+          return BlocProvider.value(
+            value: context.read<UsersBloc>(),
+            child: AlertDialog(
+              title: const Text("Update user"),
+              content: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState){
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: TextField(
+                            controller: _updateNameController,
+                            decoration: const InputDecoration(
+                              hintText: 'Enter new name',
+                              prefix: Text("name:          "),
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: TextField(
+                            controller: _updateUserNameController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter new username',
+                                prefix: Text("username:          ")
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: TextField(
+                            controller: _updatePasswordController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter new password',
+                                prefix: Text("password:          ")
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                          //width: MediaQuery.of(context).size.width * 0.3,
+                          child: MultiSelectDialogField(
+                              items: items,
+                              initialValue: newSelectedGroups,
+
+                            onConfirm: (List<Group> values) {
+
+                              setState(() {
+                                newSelectedGroups = values;
+                              });
+                            },
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                              border: Border.all(
+                                color: Colors.grey,
+                                width: 1,
+                              ),
+                            ),
+
+                            ),
+                        )
+                      ],
+                    );
+                  }
 
 
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context1).pop(); // Close the dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if(_updatePasswordController.text.isEmpty ||
+                       _updateUserNameController.text.isEmpty ||
+                       _updateNameController.text.isEmpty){
+                      EasyLoading.showInfo('Please import required fields');
+                    }else{
+                      String newName = _updateNameController.text;
+                      String newUserName = _updateUserNameController.text;
+                      String password = _updatePasswordController.text;
+                      Navigator.of(context1).pop();
+                      EasyLoading.show(status: 'Please wait');
+                      context.read<UsersBloc>().add(
+                        UpdateUser(id, newName,newUserName,password,oldSelectedGroups,newSelectedGroups),);
+                    }
 
+                  },
+                  child: const Text('Update'),
+                )
+              ],
+            ),
+          );
+        }
+    );
+  }
 
 
 }

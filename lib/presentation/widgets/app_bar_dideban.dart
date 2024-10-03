@@ -1,8 +1,9 @@
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
+import 'package:dideban/blocs/users/users_bloc.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
-import 'package:dideban/utilities/util.dart';
+import 'package:dideban/presentation/user_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -81,13 +82,13 @@ class _AppBarDidebanState extends State<AppBarDideban> {
             );
           },
         ),
-        IconButton(
+        /*IconButton(
           tooltip: "report",
           icon: const Icon(
             Icons.report_gmailerrorred_rounded,
           ),
           onPressed: () {},
-        ),
+        ),*/
         IconButton(
           tooltip: "tracking",
           icon: const Icon(
@@ -101,12 +102,13 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                     MultiBlocProvider(providers: [
                       BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(userId))),
                       BlocProvider(create: (context) => TrackingBloc())
-                    ], child: Tracking()),
+                    ], child: const Tracking()),
               ),
             );
 
           },
         ),
+
         FutureBuilder<String>(
             future: getUserName(),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -127,7 +129,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                         tooltip: 'Management',
                       );
                     },
-                    menuChildren: List<MenuItemButton>.generate(3,
+                    menuChildren: List<MenuItemButton>.generate(4,
                           (int index) => MenuItemButton(
                         onPressed: () {
                           if(index == 0){
@@ -150,9 +152,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                                 builder: (context) =>
                                     BlocProvider(
                                       create: (context) => DevicesSettingBloc()
-                                        ..add(FetchAllDevicesSetting(),)
-                                        ..add(FetchAllDevicesSettingDrivers(),)
-                                        ..add(FetchAllDevicesSettingGroups(),),
+                                        ..add(FetchAllDevicesSetting(),),
                                       child: const DevicesSetting(),
                                     ),
                               ),
@@ -167,6 +167,19 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                                       create: (context) => DriversBloc()
                                         ..add(FetchAllDrivers(),),
                                       child: const DriversSetting(),
+                                    ),
+                              ),
+                            );
+                          }
+                          if(index == 3){
+                            EasyLoading.show(status: 'Please wait');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BlocProvider(
+                                      create: (context) => UsersBloc()
+                                        ..add(FetchAllUsers(),),
+                                      child: const UsersSetting(),
                                     ),
                               ),
                             );
@@ -186,13 +199,13 @@ class _AppBarDidebanState extends State<AppBarDideban> {
         ),
 
 
-        IconButton(
+        /*IconButton(
           tooltip: "account",
           icon: const Icon(
             Icons.account_circle,
           ),
           onPressed: () {},
-        ),
+        ),*/
         IconButton(
           tooltip: "logout",
           icon: const Icon(
@@ -213,6 +226,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Devices");
     }else if( index == 2){
       return const Text("Drivers");
+    }else if( index == 3){
+      return const Text("Users");
     }
     return const Text("");
   }

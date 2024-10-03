@@ -195,6 +195,7 @@ class _TrackingState extends State<Tracking> {
   }
 
   Widget bottomBar(BuildContext context){
+    bool isPause = true;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -345,7 +346,7 @@ class _TrackingState extends State<Tracking> {
                     ),
                   ),
                   Flexible(
-                    flex: 5,
+                    flex: 8,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -367,6 +368,7 @@ class _TrackingState extends State<Tracking> {
                           child: IconButton(
                             onPressed: (){
 
+                              isPause =false;
                               try{
                                 if(timer == null){
                                   timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
@@ -391,8 +393,8 @@ class _TrackingState extends State<Tracking> {
                                 //print(e);
                               }
                             },
-                            //icon: const Icon(Icons.play_circle),
-                            icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
+                              icon: (timer==null)?Icon(Icons.play_circle): (timer!.isActive)? Icon(Icons.pause_circle): Icon(Icons.play_circle),
+                            //icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
                           ),
                         ),
                         Flexible(
@@ -407,6 +409,7 @@ class _TrackingState extends State<Tracking> {
                             icon: const Icon(Icons.skip_next),
                           ),
                         ),
+                        Spacer()
                       ],
                     ),
                   )
@@ -417,10 +420,13 @@ class _TrackingState extends State<Tracking> {
             if(state is SliderNewState){
               Marker cm =  state.markers[state.value.toInt()];
               String dateTime="";
+              String speed ="";
+
               currentSliderValue = state.value;
               sliderLength =state.markers.length;
               if(cm is CarMarker){
                 dateTime = cm.car.dateTime;
+                speed = cm.car.speed;
               }
               if(state.value >= markers.length){
               }
@@ -429,20 +435,27 @@ class _TrackingState extends State<Tracking> {
                 children: [
                   Flexible(
                     flex: 20,
-                    child: Slider(
-                      value: state.value,
-                      max: (state.markers.length-1).toDouble(),
-                      divisions: state.markers.length,
-                      label: dateTime,
-                      onChanged:(val){
-                        currentSliderValue = val;
-                        _popupLayerController.hideAllPopups();
-                        context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
-                      },
+                    child: Column(
+                      children: [
+                        Slider(
+                          value: state.value,
+                          max: (state.markers.length-1).toDouble(),
+                          divisions: state.markers.length,
+                          label: dateTime,
+
+                          onChanged:(val){
+                            currentSliderValue = val;
+                            _popupLayerController.hideAllPopups();
+                            context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
+                          },
+                        ),
+                        Text("$dateTime     $speed"),
+                        SizedBox(width: 2,)
+                      ],
                     ),
                   ),
                   Flexible(
-                    flex:5,
+                    flex:8,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -461,34 +474,51 @@ class _TrackingState extends State<Tracking> {
                         ),
                         Flexible(
                           flex: 2,
-                          child: IconButton(
-                            onPressed: (){
-                              try{
-                                if(timer == null){
-                                  timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                    if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                      _popupLayerController.hideAllPopups();
-                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
-                                    }
-                                  } );
-                                }else{
-                                  if(timer!.isActive){
-                                    timer!.cancel();
-                                  }else{
-                                    timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
-                                      if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                        _popupLayerController.hideAllPopups();
-                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                          child: StatefulBuilder(
+                            builder: (BuildContext context, StateSetter setState){
+
+                              return IconButton(
+                                onPressed: (){
+
+                                  try{
+                                    if(timer == null){
+                                      timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                        if(currentSliderValue.roundToDouble() < sliderLength-1){
+                                          _popupLayerController.hideAllPopups();
+                                          context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                        }
+                                      } );
+                                    }else{
+                                      if(timer!.isActive){
+                                        timer!.cancel();
+                                      }else{
+                                        timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                          if(currentSliderValue.roundToDouble() < sliderLength-1){
+                                            _popupLayerController.hideAllPopups();
+                                            context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                          }
+                                        } );
                                       }
-                                    } );
+                                    }
+                                    setState((){
+                                      if(isPause){
+                                        isPause =false;
+                                      }else{
+                                        isPause = true;
+                                      }
+
+                                    });
+                                  }catch(e){
+                                    //print(e);
                                   }
-                                }
-                              }catch(e){
-                                //print(e);
-                              }
-                            },
-                            //icon: (isPlayed)? Icon(Icons.pause):Icon(Icons.play_circle),
-                            icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
+                                },
+
+                                icon: (isPause)?Icon(Icons.play_circle):Icon(Icons.pause_circle),
+                                //icon: (timer==null)?Icon(Icons.play_circle): (timer!.isActive)? Icon(Icons.pause_circle): Icon(Icons.play_circle),
+                                //icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
+
+                              );
+                            }
 
                           ),
                         ),
@@ -504,6 +534,7 @@ class _TrackingState extends State<Tracking> {
                             icon: const Icon(Icons.skip_next),
                           ),
                         ),
+                        const Spacer(),
                       ],
                     ),
                   ),
@@ -593,7 +624,7 @@ class _TrackingState extends State<Tracking> {
                 Polyline(
                     points: position,
                     color: Colors.blue,
-                    strokeWidth: 15
+                    strokeWidth: 5
                 ),
               ],
             ),

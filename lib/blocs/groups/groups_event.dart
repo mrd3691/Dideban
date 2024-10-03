@@ -23,4 +23,10 @@ final class CreateGroup extends GroupsEvent{
   CreateGroup( this.groupName);
 }
 
+final class SearchGroup extends GroupsEvent{
+  final List<Group>? groups;
+  final String searchedString;
+  SearchGroup(this.groups,this.searchedString);
+}
+
 

@@ -12,12 +12,7 @@ class LoginScreen extends StatelessWidget {
 
   Duration get loginTime => const Duration(milliseconds: 1000);
 
-  Future<String?> _signupUser(SignupData data) {
-    debugPrint('Signup Name: ${data.name}, Password: ${data.password}');
-    return Future.delayed(loginTime).then((_) {
-      return null;
-    });
-  }
+
 
   Future<String> _recoverPassword(String name) {
     debugPrint('Name: $name');
@@ -71,8 +66,9 @@ class LoginScreen extends StatelessWidget {
         }
 
       },
-      onSignup: _signupUser,
+      onSignup: null,
       onRecoverPassword: _recoverPassword,
+      hideForgotPasswordButton: true,
     );
   }
 }

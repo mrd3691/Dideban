@@ -50,19 +50,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AppBarDideban(),
-      body:
-      BlocListener<DevicesSettingBloc, DevicesSettingState>(
-          listener: (context, state) {
-            if (state is DeviceSettingGroupsLoadSuccess){
-              groups = state.groups;
-            }
-            if (state is DeviceSettingDriversLoadSuccess){
-              drivers = state.drivers;
-            }
-          },
-          child: homeBody(context),
-      ),
-      //homeBody(context),
+      body:homeBody(context),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
            _createDeviceNameController.text = "";
@@ -84,6 +72,8 @@ class _DevicesSettingState extends State<DevicesSetting> {
       builder: (context, state) {
         if (state is DevicesSettingLoadSuccess) {
           devices = state.devices;
+          groups = state.groups;
+          drivers = state.drivers;
           EasyLoading.dismiss();
           return Column(
             children: [
@@ -210,7 +200,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                       state.devices![index].id,
                                       state.devices![index].name,
                                       state.devices![index].uniqueId,
-                                      state.devices![index].groupId ?? 0,
+                                      state.devices![index].groupId ,
                                       (state.devices![index].phone) ?? "",
                                       (state.devices![index].model) ?? "",
                                       (state.devices![index].contact) ?? "",
@@ -247,14 +237,8 @@ class _DevicesSettingState extends State<DevicesSetting> {
         }
         if (state is DevicesSettingLoadFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while loading groups");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while loading devices"),
-            ),
+          return const Center(
+            child: Text("An error occurred while loading devices"),
           );
         }
         if (state is DeleteDeviceSettingSuccess) {
@@ -386,7 +370,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                       state.devices![index].id,
                                       state.devices![index].name,
                                       state.devices![index].uniqueId,
-                                      state.devices![index].groupId ?? 0,
+                                      state.devices![index].groupId ,
                                       (state.devices![index].phone) ?? "",
                                       (state.devices![index].model) ?? "",
                                       (state.devices![index].contact) ?? "",
@@ -422,14 +406,8 @@ class _DevicesSettingState extends State<DevicesSetting> {
         }
         if (state is DeleteDeviceSettingFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while deleting group");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while deleting device"),
-            ),
+          return const Center(
+            child: Text("An error occurred while deleting device"),
           );
         }
         if (state is CreateDeviceSettingSuccess) {
@@ -561,7 +539,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                       state.devices![index].id,
                                       state.devices![index].name,
                                       state.devices![index].uniqueId,
-                                      state.devices![index].groupId ?? 0,
+                                      state.devices![index].groupId ,
                                       (state.devices![index].phone) ?? "",
                                       (state.devices![index].model) ?? "",
                                       (state.devices![index].contact) ?? "",
@@ -597,14 +575,8 @@ class _DevicesSettingState extends State<DevicesSetting> {
         }
         if (state is CreateDeviceSettingFailed) {
           EasyLoading.dismiss();
-          //EasyLoading.showError("An error occurred while creating group");
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while creating device"),
-            ),
+          return const Center(
+            child: Text("An error occurred while creating device"),
           );
         }
         if (state is SearchDeviceSettingSuccess) {
@@ -734,7 +706,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                       state.devices![index].id,
                                       state.devices![index].name,
                                       state.devices![index].uniqueId,
-                                      state.devices![index].groupId ?? 0,
+                                      state.devices![index].groupId ,
                                       (state.devices![index].phone) ?? "",
                                       (state.devices![index].model) ?? "",
                                       (state.devices![index].contact) ?? "",
@@ -771,13 +743,8 @@ class _DevicesSettingState extends State<DevicesSetting> {
         }
         if (state is SearchDeviceSettingFailed) {
           EasyLoading.dismiss();
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while loading devices"),
-            ),
+          return const Center(
+            child: Text("An error occurred while loading devices"),
           );
         }
         if (state is UpdateDeviceSettingSuccess) {
@@ -909,7 +876,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                       state.devices![index].id,
                                       state.devices![index].name,
                                       state.devices![index].uniqueId,
-                                      state.devices![index].groupId ?? 0,
+                                      state.devices![index].groupId ,
                                       (state.devices![index].phone) ?? "",
                                       (state.devices![index].model) ?? "",
                                       (state.devices![index].contact) ?? "",
@@ -945,16 +912,10 @@ class _DevicesSettingState extends State<DevicesSetting> {
         }
         if (state is UpdateDeviceSettingFailed) {
           EasyLoading.dismiss();
-          return Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("An error occurred while updating device"),
-            ),
+          return const Center(
+            child: Text("An error occurred while updating device"),
           );
         }
-
         return Container();
       },
     );
