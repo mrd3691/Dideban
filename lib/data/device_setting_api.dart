@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:dideban/utilities/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/device.dart';
 import '../models/driver.dart';
 import '../models/group.dart';
@@ -10,14 +9,10 @@ import '../models/group.dart';
 
 class DeviceSettingApi{
 
-  static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-
-
   static Future<List<Device>?> fetchAllDevices() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -43,7 +38,7 @@ class DeviceSettingApi{
   static Future<int> updateDevice(int id, String newDeviceName, String newUniqueId, int newGroupId, String newPhone,String newModel,String newContact,String newCategory) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -79,7 +74,7 @@ class DeviceSettingApi{
   static Future<int> linkDeviceDriver(int deviceId, int driverId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -105,7 +100,7 @@ class DeviceSettingApi{
   static Future<int> unlinkDeviceDriver(int deviceId, int driverId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -132,7 +127,7 @@ class DeviceSettingApi{
   static Future<int> deleteDevice(int id) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Authorization': auth
@@ -152,7 +147,7 @@ class DeviceSettingApi{
   static Future<int> createDevice(String deviceName, String uniqueId, int groupId, String phone, String model, String contact, String category) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -188,7 +183,7 @@ class DeviceSettingApi{
   static Future<List<Group>?> fetchAllGroups() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -214,7 +209,7 @@ class DeviceSettingApi{
   static Future<List<Driver>?> fetchAllDrivers() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -240,7 +235,7 @@ class DeviceSettingApi{
   static Future<List<Driver>?> fetchDeviceDriver(int deviceId) async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',

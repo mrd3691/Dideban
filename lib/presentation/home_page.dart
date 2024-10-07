@@ -15,6 +15,7 @@ import 'dart:async';
 
 class Home extends StatefulWidget {
   const Home({super.key});
+  static late Timer timer;
 
   @override
   State<Home> createState() => _HomeState();
@@ -31,8 +32,7 @@ class _HomeState extends State<Home> {
 
 
   void update(){
-
-    Timer timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
+    Home.timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
         int t = timer.tick;
       _popupLayerController.hideAllPopups();
       if(treeNodeForUpdate.length != 0){
@@ -53,18 +53,18 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     update();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _popupLayerController.dispose();
     _mapController.dispose();
     searchedValueController.dispose();
+    Home.timer.cancel();
+
   }
 
 
@@ -111,7 +111,6 @@ class _HomeState extends State<Home> {
   }
 
   Widget drawer(BuildContext context){
-    bool checkAll =false;
     return Drawer(
       child: Column(
         children: [

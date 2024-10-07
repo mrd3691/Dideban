@@ -4,7 +4,6 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/devices/devices_bloc.dart';
 import '../data/api.dart';
-import '../utilities/util.dart';
 import 'home_page.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -43,13 +42,12 @@ class LoginScreen extends StatelessWidget {
       logo: const AssetImage('images/logo.png'),
       onLogin: (data) async {
         final authResult = await API.userAuthenticate(data.name,data.password);
-
         if(authResult != null){
-            Util.copyToSecureStorage("password", data.password);
-            final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-            final SharedPreferences prefs = await _prefs;
+            final Future<SharedPreferences> prefs0 = SharedPreferences.getInstance();
+            final SharedPreferences prefs = await prefs0;
             prefs.setString('userName', data.name);
             prefs.setString('userId', authResult.id.toString());
+            prefs.setString('password', data.password);
 
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(

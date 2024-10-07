@@ -8,7 +8,7 @@ class DriverAPI{
   static Future<List<Driver>?> fetchAllDrivers() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ class DriverAPI{
   static Future<int> updateDriver(int id, String newDriverName, String newUniqueId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ class DriverAPI{
   static Future<int> deleteDriver(int id) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Authorization': auth
@@ -75,7 +75,7 @@ class DriverAPI{
   static Future<int> createDriver(String driverName, String uniqueId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',

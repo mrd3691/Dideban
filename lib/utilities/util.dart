@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +31,45 @@ class Util{
         dayGeorgian = "0$dayGeorgian";
       }
       return "$yearGeorgian-$monthGeorgian-$dayGeorgian";
+    }
+    catch(e){
+      return "";
+    }
+  }
+
+  static String jalaliToGeorgianGMTConvert(String date, String time) {
+    try{
+      if(date.isEmpty || date.length<8 || date.length>10) {
+        return "";
+      }
+      if(time.isEmpty || time.length<3 || time.length>5) {
+        return "";
+      }
+
+
+      List<String> splittedDate = date.split('/');
+      if(splittedDate.isEmpty) {
+        return "";
+      }
+      int yearJalali = int.parse(splittedDate[0].trim());
+      int monthJalali = int.parse(splittedDate[1].trim());
+      int dayJalali = int.parse(splittedDate[2].trim());
+
+
+      List<String> splittedTime = time.split(':');
+      if(splittedTime.isEmpty) {
+        return "";
+      }
+      int hour = int.parse(splittedTime[0].trim());
+      int minute = int.parse(splittedTime[1].trim());
+
+      Jalali jalali = Jalali(yearJalali, monthJalali, dayJalali, hour, minute);
+      Gregorian georgian = jalali.toGregorian();
+      DateTime dateTime= georgian.toDateTime();
+      dateTime = dateTime.subtract(Duration(hours: 3,minutes: 30));
+
+
+      return dateTime.toString();
     }
     catch(e){
       return "";
@@ -104,49 +142,21 @@ class Util{
     return secretKeyBytes.toString();
   }
 
-
-  static AndroidOptions _getAndroidOptions() => const AndroidOptions(
-    encryptedSharedPreferences: true,
-  );
-
-  static Future<int> copyToSecureStorage(String key,String value)async {
-    try{
-      const storage = FlutterSecureStorage();
-      await storage.write(
-        key: key,
-        value: value,
-        //iOptions: _getIOSOptions(),
-        aOptions: _getAndroidOptions(),
-      );
-      return 0;
-    }
-    catch(e){
-      //Util.showError(context, "خطا", e.toString());
-      return -1;
-    }
-  }
-
-  static Future<String> readFromSecureStorage(String key)async {
-    try{
-      const storage = FlutterSecureStorage();
-      String? value = await storage.read(
-        key: key,
-        //iOptions: _getIOSOptions(),
-        aOptions: _getAndroidOptions(),
-      );
-      return value!;
-    }
-    catch(e){
-      //Util.showError(context, "خطا", e.toString());
-      return "";
-    }
-  }
-
   static Future<String>  getUserName()async{
     try{
       final SharedPreferences prefs = await _prefs;
       String userName =  prefs.getString('userName') ?? "";
       return userName;
+    }catch(e){
+      return "";
+    }
+  }
+
+  static Future<String>  getPassword()async{
+    try{
+      final SharedPreferences prefs = await _prefs;
+      String password =  prefs.getString('password') ?? "";
+      return password;
     }catch(e){
       return "";
     }

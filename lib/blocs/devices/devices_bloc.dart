@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:dideban/models/deviceShow.dart';
 import 'package:dideban/data/api.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
-import 'package:latlong2/latlong.dart';
+
 import 'package:dideban/presentation/widgets/car_position.dart';
 
 part 'devices_event.dart';
@@ -95,8 +95,8 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
   Future<List<Marker>> _makeLocationListFromSearchedNodes(List<TreeNode> treeNode)async{
     List<Marker> carMarkers = [];
     try{
-      int i;
-      for (i = 0; i < treeNode.length-1; i++) {
+
+      for (int i = 0; i <= treeNode.length-1; i++) {
           if (treeNode[i].checkBoxState == CheckBoxState.selected) {
             final deviceLocation = await API.fetchDeviceLocation(treeNode[i].title);
             carMarkers.add(

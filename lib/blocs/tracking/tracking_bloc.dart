@@ -16,19 +16,25 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
       try{
         emit(TrackingInProgress());
         String deviceName = event.deviceName;
-        String startDate = Util.jalaliToGeorgian(event.startDate);
+        /*String startDate = Util.jalaliToGeorgian(event.startDate);
         String startTime = event.startTime;
         String endDate = Util.jalaliToGeorgian(event.endDate);
         String endTime = event.endTime;
         String startDateTime = "$startDate $startTime";
-        String endDateTime = "$endDate $endTime";
+        String endDateTime = "$endDate $endTime";*/
+
+        String startDateTime =Util.jalaliToGeorgianGMTConvert(event.startDate,event.startTime);
+        String endDateTime =Util.jalaliToGeorgianGMTConvert(event.endDate,event.endTime);
+
+
+
 
         final points =await API.fetchTrackingPoints(deviceName, startDateTime, endDateTime);
         List<Marker> carMarkers = [];
         if(points!.isEmpty){
           emit(TrackingSuccess(markers: carMarkers));
         }
-        points?.forEach((element) {
+        points.forEach((element) {
           carMarkers.add(
               CarMarker(
                   car: Car(

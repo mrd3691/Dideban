@@ -9,7 +9,7 @@ class UserAPI{
   static Future<List<User>?> fetchAllUsers() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ class UserAPI{
   static Future<int> updateUser(int id, String newName, String newUserName, String newPassword) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ class UserAPI{
   static Future<int> deleteUser(int id) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Authorization': auth
@@ -93,7 +93,7 @@ class UserAPI{
   static Future<int> createUser(String name,String username, String userPassword) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ class UserAPI{
   static Future<List<Group>?> fetchAllGroups() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ class UserAPI{
   static Future<List<Group>?> fetchUserGroup(int userId) async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -187,7 +187,7 @@ class UserAPI{
   static Future<int> linkUserGroup(int userId, int groupId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ class UserAPI{
   static Future<int> unlinkUserGroup(int userId, int groupId) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',

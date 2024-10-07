@@ -84,14 +84,16 @@ class API{
       var basicAuth = base64.encode(utf8.encode( "$userName:$password"));
       var headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic $basicAuth',
-        'Cookie': 'JSESSIONID=node016fa0smer30xe178wumbnfnwgy89.node0'
+        //'Authorization': 'Basic $basicAuth',
+        //'Cookie': 'JSESSIONID=node016fa0smer30xe178wumbnfnwgy89.node0'
       };
 
       var req = <String , dynamic>{};
       req["email"] = userName;
       req["password"] = password;
 
+      print("username: $userName");
+      print("pass: $password");
 
       final response = await http.post(
           Uri.parse('http://80.210.21.35:8082/api/session'),

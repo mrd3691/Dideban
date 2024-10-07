@@ -8,7 +8,7 @@ class GroupAPI{
   static Future<List<Group>?> fetchAllGroups() async{
     try{
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ class GroupAPI{
   static Future<int> updateGroup(int id, String newGroupName) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ class GroupAPI{
   static Future<int> deleteGroup(int id) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Authorization': auth
@@ -75,7 +75,7 @@ class GroupAPI{
   static Future<int> createGroup(String groupName) async{
     try {
       String userName =await Util.getUserName();
-      String password =await Util.readFromSecureStorage("password");
+      String password =await Util.getPassword();
       String auth = base64Encode(utf8.encode("$userName:$password"));
       var headers = {
         'Content-Type': 'application/json',
