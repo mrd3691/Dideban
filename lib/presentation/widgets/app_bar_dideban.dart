@@ -1,8 +1,10 @@
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
+import 'package:dideban/blocs/home/home_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
+import 'package:dideban/presentation/home.dart';
 import 'package:dideban/presentation/user_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -131,7 +133,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                         tooltip: 'Management',
                       );
                     },
-                    menuChildren: List<MenuItemButton>.generate(4,
+                    menuChildren: List<MenuItemButton>.generate(5,
                           (int index) => MenuItemButton(
                         onPressed: () {
                           if(index == 0){
@@ -190,6 +192,20 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               ),
                             );
                           }
+                          if(index == 4){
+                            Home.timer.cancel();
+                            //EasyLoading.show(status: 'Please wait');
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    BlocProvider(
+                                      create: (context) => HomeBloc()
+                                        ..add(LoadDrawer(),),
+                                      child: const Home1(),
+                                    ),
+                              ),
+                            );
+                          }
                         },
                         child: getSettingButton(index),
                       ),
@@ -235,6 +251,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Drivers");
     }else if( index == 3){
       return const Text("Users");
+    } else if( index == 4){
+      return const Text("Test");
     }
     return const Text("");
   }

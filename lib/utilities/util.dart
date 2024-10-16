@@ -7,6 +7,38 @@ class Util{
 
   static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+  static DateTime? jalaliToGeorgianDateTime(String Date,String time) {
+    DateTime? dateTime=null;
+    try{
+      if(Date.isEmpty || time.isEmpty) {
+        return null;
+      }
+      var splittedDate = Date.split('/');
+      if(splittedDate.isEmpty) {
+        return null;
+      }
+      var yearJalali = int.parse(splittedDate[0].trim());
+      var monthJalali = int.parse(splittedDate[1].trim());
+      var dayJalali = int.parse(splittedDate[2].trim());
+
+
+      var splittedTime = time.split(':');
+      var hour = int.parse(splittedTime[0].trim());
+      var minute = int.parse(splittedTime[1].trim());
+      var second = int.parse(splittedTime[2].trim());
+
+
+      Jalali jalali = Jalali(yearJalali, monthJalali, dayJalali,hour,minute,second);
+      Gregorian georgian = jalali.toGregorian();
+      DateTime dateTime =georgian.toDateTime();
+
+      return dateTime;
+    }
+    catch(e){
+      return null;
+    }
+  }
+
   static String jalaliToGeorgian(String input) {
     try{
       if(input.isEmpty || input.length<8 || input.length>10) {
@@ -100,6 +132,25 @@ class Util{
         dayJalali = "0$dayJalali";
       }
       return "$yearJalali/$monthJalali/$dayJalali";
+    }
+    catch(e){
+      return "";
+    }
+  }
+
+  static String georgianToJalaliWithGMTConvert(DateTime input) {
+    try{
+
+      DateTime georgianDateTime = input.add(Duration(hours: 3,minutes: 30));
+      Jalali jalaliDateTime = georgianDateTime.toJalali();
+
+      String yearJalali =  jalaliDateTime.year.toString();
+      String monthJalali =  jalaliDateTime.month.toString();
+      String dayJalali =  jalaliDateTime.day.toString();
+      String hour = jalaliDateTime.hour.toString();
+      String minute = jalaliDateTime.minute.toString();
+      String second = jalaliDateTime.second.toString();
+      return "$hour:$minute:$second $yearJalali/$monthJalali/$dayJalali";
     }
     catch(e){
       return "";

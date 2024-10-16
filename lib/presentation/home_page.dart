@@ -13,15 +13,15 @@ import 'package:shimmer/shimmer.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'dart:async';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
-  static late Timer timer;
+class Home1 extends StatefulWidget {
+  const Home1({super.key});
+
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Home1> createState() => _Home1State();
 }
 
-class _HomeState extends State<Home> {
+class _Home1State extends State<Home1> {
   List<TreeNode> treeNode = [];
   List<TreeNode> treeNodeForUpdate = [];
   List<Marker> markers = [];
@@ -31,30 +31,13 @@ class _HomeState extends State<Home> {
 
 
 
-  void update(){
-    Home.timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
-        int t = timer.tick;
-      _popupLayerController.hideAllPopups();
-      if(treeNodeForUpdate.length != 0){
-        if(isAnyDeviceSelected(treeNodeForUpdate)){
-          if(searchedValueController.text.isEmpty){
-            EasyLoading.show(status: "Updating");
-            context.read<DevicesBloc>().add(GetDevicesLocation(treeNodeForUpdate),);
-          }else{
-            EasyLoading.show(status: "Updating");
-            context.read<DevicesBloc>().add(GetDevicesLocationFromSearchedNodes(treeNodeForUpdate),);
-          }
-        }
-      }
-    });
 
-  }
 
 
   @override
   void initState() {
     super.initState();
-    update();
+
   }
 
   @override
@@ -63,7 +46,6 @@ class _HomeState extends State<Home> {
     _popupLayerController.dispose();
     _mapController.dispose();
     searchedValueController.dispose();
-    Home.timer.cancel();
 
   }
 

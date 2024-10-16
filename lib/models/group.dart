@@ -17,7 +17,7 @@ class Group{
     return Group(
       id: json["id"],
       name: json["name"],
-      groupId: (json["groupid"] ?? 0),
+      groupId: (json["groupId"] ?? 0),
       attributes: json["attributes"] ,
     );
   }

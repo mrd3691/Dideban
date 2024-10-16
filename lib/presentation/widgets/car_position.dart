@@ -34,11 +34,10 @@ class CarMarker extends Marker {
     width: Car.size,
     point: LatLng(car.lat, car.long),
     //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
-    child: (int.parse(car.speed.substring(7))>100)?// substring remove speed: from the first
+    child: (int.parse(car.speed)>100)?// substring remove speed: from the first
       Icon(Icons.location_on_rounded, color: Colors.redAccent,):
       Icon(Icons.location_on_rounded, color: Colors.deepPurple,),
   );
-
   final Car car;
 }
 

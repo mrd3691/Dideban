@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/devices/devices_bloc.dart';
+import '../blocs/home/home_bloc.dart';
 import '../data/api.dart';
+import 'home.dart';
 import 'home_page.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -49,7 +51,19 @@ class LoginScreen extends StatelessWidget {
             prefs.setString('userId', authResult.id.toString());
             prefs.setString('password', data.password);
 
+
             Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) =>
+                    BlocProvider(
+                      create: (context) => HomeBloc()
+                        ..add(LoadDrawer(),),
+                      child: const Home(),
+                    ),
+              ),
+            );
+
+            /*Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>
                     BlocProvider(
@@ -58,7 +72,7 @@ class LoginScreen extends StatelessWidget {
                       child: const Home(),
                     ),
               ),
-            );
+            );*/
         }else{
           return "user name or password is incorrect";
         }

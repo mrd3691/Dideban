@@ -41,7 +41,7 @@ class Device{
     return Device(
       id: json["id"],
       attributes: json["attributes"],
-      groupId: (json["groupId"]),
+      groupId: (json["groupId"]) ?? 0,
       name: (json["name"]) ?? "",
       uniqueId: (json["uniqueId"]),
       status: json["status"],
