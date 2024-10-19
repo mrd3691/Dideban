@@ -285,7 +285,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-
   bool checkAlarmExistence(Marker newAlarm){
     bool alarmAlreadyExist = false;
     try{
@@ -307,8 +306,8 @@ class _HomeState extends State<Home> {
     }
   }
 
-  bool checkMarkerDateTimeValidity(Marker newAlarm){
-    bool timeIsValid = true;
+  Duration? dateTimeDiffFromNow(Marker newAlarm){
+    Duration? diff = null;
     try{
       if(newAlarm is CarMarker){
         var splittedDateTime = newAlarm.car.dateTime.split(" ");
@@ -316,21 +315,14 @@ class _HomeState extends State<Home> {
         String time = splittedDateTime[0];
         DateTime? georgianDateTime = Util.jalaliToGeorgianDateTime(jalaliDate,time);
         if(georgianDateTime == null){
-          return true;
+          return null;
         }
         DateTime dateTimeNow =DateTime.now();
-        Duration diff = dateTimeNow.difference(georgianDateTime);
-        Duration trigger =Duration(days: 1);
-        if(diff>trigger){
-          return timeIsValid =false;
-        }
-
-
+        diff = dateTimeNow.difference(georgianDateTime);
       }
-
-      return timeIsValid;
+      return diff;
     }catch(e){
-      return timeIsValid;
+      return diff;
     }
   }
 
@@ -448,8 +440,10 @@ class _HomeState extends State<Home> {
 
                       ],
                     ),
+
                     Expanded(
                       child: Card(
+                        borderOnForeground: true,
                         child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if(state is GetLocationOfSelectedDevicesSuccess){
@@ -457,42 +451,54 @@ class _HomeState extends State<Home> {
                                 for(int i=0;i<state.markers!.length;i++){
                                   Marker newMarker = markers![i];
                                   if(newMarker is CarMarker) {
-                                    int speed = int.parse(newMarker.car.speed);
-                                    bool x=checkMarkerDateTimeValidity(newMarker);
-                                    if(!x){
+                                    Duration? diff=dateTimeDiffFromNow(newMarker);
+                                    if(diff == null){
+                                      continue;
+                                    }
+                                    if(diff>Duration(hours: 6)){
                                       bool alarmAlreadyExist = checkAlarmExistence(newMarker);
                                       if(!alarmAlreadyExist){
                                         _alarmItems.add(state.markers![i]);
                                       }
+                                      continue;
                                     }
-
+                                    if(diff>Duration(minutes: 10)){
+                                      continue;
+                                    }
+                                    int speed = int.parse(newMarker.car.speed);
                                     if (speed > 100) {
                                       bool alarmAlreadyExist = checkAlarmExistence(newMarker);
                                       if(!alarmAlreadyExist){
                                         _alarmItems.add(state.markers![i]);
                                       }
-                                      break;
+                                      continue;
                                     }
-
                                   }
-
                                 }
                               }
                             }
                             return ListView.builder(
-
                               itemCount: _alarmItems.length,
                               itemBuilder: (context, index) {
                                 Marker marker = _alarmItems[index];
+                                String alarmText="";
+                                if(marker is CarMarker){
+                                  Duration? diff =  dateTimeDiffFromNow(marker);
+                                  if(diff! > Duration(hours: 6)){
+                                    alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
+                                  }else if(int.parse(marker.car.speed) > 100){
+                                    alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
+                                  }
+                                }
                                 return Directionality(
                                   textDirection: TextDirection.rtl,
                                   child: ListTile(
 
-                                    title:(marker is CarMarker)? Text("هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed}"):Text(""),
+                                    title:Text(alarmText),
                                     onTap: (){
-                                      LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
+                                      /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
                                       double newZoom =12.0; // New zoom level
-                                      _mapController.move(newCenter, newZoom);
+                                      _mapController.move(newCenter, newZoom);*/
                                     },
                                   ),
                                 );
