@@ -64,13 +64,13 @@ class CarMarkerPopup extends StatelessWidget {
                   child: Text(car.dateTime)),
               Align(
                   alignment: Alignment.topLeft,
-                  child: Text(car.speed.toString())),
+                  child: Text("speed: "+car.speed.toString())),
               Align(
                   alignment: Alignment.topLeft,
-                  child: Text(car.acc)),
+                  child: Text("status: "+car.acc)),
               Align(
                   alignment: Alignment.topLeft,
-                  child: Text(car.driver)),
+                  child: Text("driver: "+car.driver)),
             ],
           ),
         ),

@@ -27,23 +27,22 @@ class _HomeState extends State<Home> {
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> treeNodeForUpdate = [];
 
-  TextEditingController positionDataController = TextEditingController();
 
   List<Marker> _alarmItems =[];
   TextEditingController searchedValueController = TextEditingController();
   List<Marker>? markers = [];
-  //final PopupController _popupLayerController = PopupController();
+   PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
   bool rebuildDrawer=true;
 
   void update(){
-    Home.timer = Timer.periodic(Duration(seconds: 30), (Timer timer) {
+    Home.timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
       rebuildDrawer =false;
       if(searchedValueController.text.isEmpty){
-        EasyLoading.show(status: "updating");
+        //EasyLoading.show(status: "updating");
         context.read<HomeBloc>().add(Update(treeNodeForUpdate,true),);
       }else{
-        EasyLoading.show(status: "Please Wait");
+        //EasyLoading.show(status: "Please Wait");
         context.read<HomeBloc>().add(Update(treeNodeForUpdate,false),);
       }
     });
@@ -53,13 +52,13 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    //update();
+    update();
   }
 
   @override
   void dispose() {
     super.dispose();
-    //_popupLayerController.dispose();
+    _popupLayerController.dispose();
     _mapController.dispose();
     searchedValueController.dispose();
     Home.timer.cancel();
@@ -174,6 +173,7 @@ class _HomeState extends State<Home> {
               );
             }
             if(state is DrawerLoadSuccess){
+
               treeNodeForUpdate =state.treeNode;
               originalTreeNode =state.treeNode;
               return Column(children: [
@@ -181,8 +181,8 @@ class _HomeState extends State<Home> {
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
-                      //_popupLayerController.hideAllPopups();
-                      positionDataController.text="";
+                      _popupLayerController.hideAllPopups();
+
                       rebuildDrawer =false;
                       if(searchedValueController.text.isEmpty){
                         EasyLoading.show(status: "Please Wait");
@@ -208,10 +208,11 @@ class _HomeState extends State<Home> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+
                     onChanged: (newNodes) {
                       rebuildDrawer =false;
-                      //_popupLayerController.hideAllPopups();
-                      positionDataController.text="";
+                      _popupLayerController.hideAllPopups();
+
                       if(searchedValueController.text.isEmpty){
                         EasyLoading.show(status: "Please Wait");
                         context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,true),);
@@ -237,8 +238,8 @@ class _HomeState extends State<Home> {
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
-                      //_popupLayerController.hideAllPopups();
-                      positionDataController.text="";
+                      _popupLayerController.hideAllPopups();
+
                       rebuildDrawer =false;
                       if(searchedValueController.text.isEmpty){
                         EasyLoading.show(status: "Please Wait");
@@ -260,8 +261,8 @@ class _HomeState extends State<Home> {
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
                     onChanged: (newNodes) {
-                      //_popupLayerController.hideAllPopups();
-                      positionDataController.text="";
+                      _popupLayerController.hideAllPopups();
+
                       rebuildDrawer =false;
                       if(searchedValueController.text.isEmpty){
                         EasyLoading.show(status: "Please Wait");
@@ -337,6 +338,7 @@ class _HomeState extends State<Home> {
 
                 LatLng newCenter =const LatLng(33.81275, 51.52094);
                 double newZoom =5.0;
+                _popupLayerController.hideAllPopups();
                 if(markers != null){
                   if(markers!.length==1){
                     newCenter = LatLng(markers![0].point.latitude, markers![0].point.longitude); // New center (e.g., Paris)
@@ -363,32 +365,28 @@ class _HomeState extends State<Home> {
                     flags: InteractiveFlag.all,
                   ),
                   onTap: (_, __) {
-                    //_popupLayerController.hideAllPopups();
-                    positionDataController.text="";
+                    _popupLayerController.hideAllPopups();
+
                   }
                 ),
                 children: <Widget>[
                   TileLayer(
-                    //urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
                     tileProvider: CancellableNetworkTileProvider(),
                   ),
 
                   PopupMarkerLayer(
                     options: PopupMarkerLayerOptions(
                       markers: markers ?? [],
-                      //popupController: _popupLayerController,
+                      popupController: _popupLayerController,
                       popupDisplayOptions: PopupDisplayOptions(
                         builder: (_, Marker marker) {
+
                           if(marker is CarMarker) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              positionDataController.text = "${marker.car.name}   ${marker.car.dateTime} سرعت:    ${marker.car.speed} " ;
-                            });
-                            //return CarMarkerPopup(car: marker.car);
+                            return CarMarkerPopup(car: marker.car);
                           }
-                          return Container();
-                          //return const Card(child: Text('No data available'));
-                          //return  Card(child: marker.child);
+                          return const Card(child: Text('No data available'));
                         },
                       ),
 
@@ -417,30 +415,6 @@ class _HomeState extends State<Home> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Spacer(),
-                        Flexible(
-                          flex: 20,
-                          child: Directionality(
-                            textDirection: TextDirection.rtl,
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              readOnly: true,
-                              controller: positionDataController,
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-
-                              ),
-                            ),
-                          ),
-                        ),
-                        Spacer()
-
-                      ],
-                    ),
-
                     Expanded(
                       child: Card(
                         borderOnForeground: true,
@@ -455,7 +429,7 @@ class _HomeState extends State<Home> {
                                     if(diff == null){
                                       continue;
                                     }
-                                    if(diff>Duration(hours: 6)){
+                                    if(diff>Duration(hours: 24)){
                                       bool alarmAlreadyExist = checkAlarmExistence(newMarker);
                                       if(!alarmAlreadyExist){
                                         _alarmItems.add(state.markers![i]);
@@ -484,7 +458,7 @@ class _HomeState extends State<Home> {
                                 String alarmText="";
                                 if(marker is CarMarker){
                                   Duration? diff =  dateTimeDiffFromNow(marker);
-                                  if(diff! > Duration(hours: 6)){
+                                  if(diff! > Duration(hours: 24)){
                                     alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
                                   }else if(int.parse(marker.car.speed) > 100){
                                     alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";

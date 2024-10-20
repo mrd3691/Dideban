@@ -100,13 +100,15 @@ class _AppBarDidebanState extends State<AppBarDideban> {
           ),
           onPressed: () {
             Home.timer.cancel();
+
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>
-                    MultiBlocProvider(providers: [
-                      BlocProvider(create: (context) => DevicesBloc()..add(FetchAllDevices(userId))),
-                      BlocProvider(create: (context) => TrackingBloc())
-                    ], child: const Tracking()),
+                    BlocProvider(
+                      create: (context) => TrackingBloc()
+                        ..add(LoadDrawerTracking(),),
+                      child: const Tracking(),
+                    ),
               ),
             );
 

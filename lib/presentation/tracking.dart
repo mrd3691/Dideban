@@ -9,6 +9,7 @@ import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
+import 'package:shimmer/shimmer.dart';
 import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -22,13 +23,15 @@ class Tracking extends StatefulWidget {
 }
 
 class _TrackingState extends State<Tracking> {
-  List<TreeNode> treeNode = [];
+  List<TreeNode> originalTreeNode = [];
+  List<TreeNode> currentTreeNode = [];
   List<Marker> markers = [];
   List<String> selectedDevices =[];
   double sliderValue=0;
   double currentSliderValue=0;
   int sliderLength=0;
-  Timer? timer;
+  Timer? timerTracking;
+  bool rebuildDrawer=true;
 
   final PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
@@ -63,8 +66,8 @@ class _TrackingState extends State<Tracking> {
     _startTimeController.dispose();
     _endDateController.dispose();
     _endTimeController.dispose();
-    if(timer != null){
-      timer!.cancel();
+    if(timerTracking != null){
+      timerTracking!.cancel();
     }
 
 
@@ -102,93 +105,242 @@ class _TrackingState extends State<Tracking> {
                 ),
                 controller: searchedValueController,
                 onChanged: (value) {
-                  //final currentNode = context.read<DevicesBloc>().state;
-                  context.read<DevicesBloc>().add(SearchDevices(treeNode, value),);
+                  rebuildDrawer =true;
+
+                  context.read<TrackingBloc>().add(SearchDrawerDevicesTracking(originalTreeNode, value),);
+
+
                 },
               ),
             ),
           ),
-          BlocBuilder<DevicesBloc, DevicesState>(builder: (context, state) {
-            if (state is DevicesLoadingInProgress) {
-              return Center(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.2,
+          BlocBuilder<TrackingBloc, TrackingState>(
+              buildWhen: (previous, current) {
+                return rebuildDrawer;
+              },
+              builder: (context, state) {
+                if(state is DrawerIsLoading) {
+
+                  EasyLoading.dismiss();
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.7,
+                    child: Shimmer.fromColors(
+                        baseColor: Colors.grey.shade400,
+                        highlightColor: Colors.white,
+                        child: ListView.builder(
+                            itemCount: 10,
+                            itemBuilder: (context, index){
+                              return Row(
+                                children: [
+                                  const Padding(
+                                    padding: EdgeInsets.only(top: 8.0,bottom: 8,left: 15),
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      radius: 30,
+                                      child: Icon(Icons.add),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.0, left: 8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          height: 15,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 8.0),
+                                          child: SizedBox(
+                                            width: 50,
+                                            height: 15,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color: Colors.white,
+                                              ),                                                       ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+
+                                ],
+                              );
+                            }
+                        )
                     ),
-                    const CircularProgressIndicator(
-                      color: Colors.red,
-                    ),
-                    const Text("Loading..."),
-                  ],
-                ),
-              );
-            }
-            if (state is DevicesLoadFailure) {
-              return Center(
-                child: Text(state.message ?? "Some Error Occured"),
-              );
-            }
-            if (state is DevicesLoadSuccess) {
-              treeNode = state.treeNode;
-            }
-            if (state is SearchDevicesLoadSuccess){
-              return Column(children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: TreeView(
-                    onChanged: (newNodes) {
-                      selectedDevices.clear();
-                      if(searchedValueController.text.isEmpty){
-                        for (var element in newNodes) {
-                          for (var element1 in element.children) {
-                            if(element1.isSelected){
-                              selectedDevices.add(element1.title);
+                  );
+                }
+                if(state is DrawerLoadSuccess){
+                  originalTreeNode =state.treeNode;
+                  currentTreeNode =state.treeNode;
+                  return Column(children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.9,
+                      child: TreeView(
+                        onChanged: (newNodes) {
+                          //_popupLayerController.hideAllPopups();
+                          rebuildDrawer =false;
+
+
+                          selectedDevices.clear();
+                          if(searchedValueController.text.isEmpty){
+                            for (var element in newNodes) {
+                              for (var element1 in element.children) {
+                                for(var element2 in element1.children){
+                                  if(element2.isSelected){
+                                    selectedDevices.add(element2.title);
+                                  }
+                                }
+                              }
                             }
                           }
-                        }
-                      }
-                      else{
-                        for (var element in newNodes) {
-                          if(element.isSelected){
-                            selectedDevices.add(element.title);
+                          else{
+                            for (var element in newNodes) {
+                              if(element.isSelected){
+                                selectedDevices.add(element.title);
+                              }
+                            }
                           }
-                        }
-                      }
-                    },
-                    nodes: state.searchedTreeNode,
-                  ),
-                ),
-              ]);
-            }
-            return Column(children: [
-              Container(
-                height: MediaQuery.of(context).size.height * 0.9,
-                child: TreeView(
-                  onChanged: (newNodes) {
-                    selectedDevices.clear();
-                    if(searchedValueController.text.isEmpty){
-                      for (var element in newNodes) {
-                        for (var element1 in element.children) {
-                          if(element1.isSelected){
-                            selectedDevices.add(element1.title);
+
+
+                        },
+                        nodes: state.treeNode,
+                      ),
+                    ),
+                  ]);
+                }
+                if(state is DrawerLoadFailed){
+                  return Center(
+                    child: Text("Some Error Occured in loading Devices list"),
+                  );
+                }
+                if(state is SearchDrawerDevicesSuccess){
+                  currentTreeNode =state.treeNode;
+                  return Column(children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.9,
+                      child: TreeView(
+                        onChanged: (newNodes) {
+                          rebuildDrawer =false;
+                          selectedDevices.clear();
+                          if(searchedValueController.text.isEmpty){
+                            for (var element in newNodes) {
+                              for (var element1 in element.children) {
+                                for(var element2 in element1.children){
+                                  if(element2.isSelected){
+                                    selectedDevices.add(element2.title);
+                                  }
+                                }
+                              }
+                            }
                           }
-                        }
-                      }
-                    }
-                    else{
-                      for (var element in newNodes) {
-                        if(element.isSelected){
-                          selectedDevices.add(element.title);
-                        }
-                      }
-                    }
-                  },
-                  nodes: treeNode,
-                ),
-              ),
-            ]);
-          }),
+                          else{
+                            for (var element in newNodes) {
+                              if(element.isSelected){
+                                selectedDevices.add(element.title);
+                              }
+                            }
+                          }
+                        },
+                        nodes: state.treeNode,
+                      ),
+                    ),
+                  ]);
+                }
+                if(state is SearchDrawerDevicesFailed){
+                  return Center(
+                    child: Text("Some Error occured in searching Devices list"),
+                  );
+                }
+                if(state is TrackingSuccess){
+                  originalTreeNode =state.treeNode;
+                  return Column(children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.9,
+                      child: TreeView(
+                        onChanged: (newNodes) {
+                          //_popupLayerController.hideAllPopups();
+                          rebuildDrawer =false;
+
+
+                          selectedDevices.clear();
+                          if(searchedValueController.text.isEmpty){
+                            for (var element in newNodes) {
+                              for (var element1 in element.children) {
+                                for(var element2 in element1.children){
+                                  if(element2.isSelected){
+                                    selectedDevices.add(element2.title);
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else{
+                            for (var element in newNodes) {
+                              if(element.isSelected){
+                                selectedDevices.add(element.title);
+                              }
+                            }
+                          }
+
+
+                        },
+                        nodes: state.treeNode,
+                      ),
+                    ),
+                  ]);
+                }
+                if(state is SliderNewState){
+                  originalTreeNode =state.treeNode;
+                  return Column(children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.9,
+                      child: TreeView(
+                        onChanged: (newNodes) {
+                          //_popupLayerController.hideAllPopups();
+                          rebuildDrawer =false;
+
+
+                          selectedDevices.clear();
+                          if(searchedValueController.text.isEmpty){
+                            for (var element in newNodes) {
+                              for (var element1 in element.children) {
+                                for(var element2 in element1.children){
+                                  if(element2.isSelected){
+                                    selectedDevices.add(element2.title);
+                                  }
+                                }
+                              }
+                            }
+                          }
+                          else{
+                            for (var element in newNodes) {
+                              if(element.isSelected){
+                                selectedDevices.add(element.title);
+                              }
+                            }
+                          }
+
+
+                        },
+                        nodes: state.treeNode,
+                      ),
+                    ),
+                  ]);
+                }
+
+                return Container();
+
+              }),
         ],
       ),
     );
@@ -285,8 +437,8 @@ class _TrackingState extends State<Tracking> {
                   children: [
                     TextButton(
                       onPressed: (){
-                        if(timer !=null){
-                          timer!.cancel();
+                        if(timerTracking !=null){
+                          timerTracking!.cancel();
                         }
                         _popupLayerController.hideAllPopups();
                         if(selectedDevices.isEmpty){
@@ -300,7 +452,8 @@ class _TrackingState extends State<Tracking> {
                               _startDateController.text,
                               _startTimeController.text,
                               _endDateController.text,
-                              _endTimeController.text
+                              _endTimeController.text,
+                            currentTreeNode
                           ),);
                         }
                       },
@@ -341,7 +494,7 @@ class _TrackingState extends State<Tracking> {
                       onChanged:(val){
                         currentSliderValue = val;
                         _popupLayerController.hideAllPopups();
-                        context.read<TrackingBloc>().add(SliderChanged(markers, val),);
+                        context.read<TrackingBloc>().add(SliderChanged(markers, val,currentTreeNode),);
                       },
                     ),
                   ),
@@ -357,7 +510,7 @@ class _TrackingState extends State<Tracking> {
                             onPressed: (){
                               if(currentSliderValue.roundToDouble()>0){
                                 _popupLayerController.hideAllPopups();
-                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1),);
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1,currentTreeNode),);
                               }
                             },
                             icon: const Icon(Icons.skip_previous),
@@ -370,21 +523,21 @@ class _TrackingState extends State<Tracking> {
 
                               isPause =false;
                               try{
-                                if(timer == null){
-                                  timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                if(timerTracking == null){
+                                  timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
                                     if(currentSliderValue.roundToDouble() < sliderLength-1){
                                       _popupLayerController.hideAllPopups();
-                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                                     }
                                   } );
                                 }else{
-                                  if(timer!.isActive){
-                                    timer!.cancel();
+                                  if(timerTracking!.isActive){
+                                    timerTracking!.cancel();
                                   }else{
-                                    timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                    timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
                                       if(currentSliderValue.roundToDouble() < sliderLength-1){
                                         _popupLayerController.hideAllPopups();
-                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                                       }
                                     } );
                                   }
@@ -393,7 +546,7 @@ class _TrackingState extends State<Tracking> {
                                 //print(e);
                               }
                             },
-                              icon: (timer==null)?Icon(Icons.play_circle): (timer!.isActive)? Icon(Icons.pause_circle): Icon(Icons.play_circle),
+                              icon: (timerTracking==null)?Icon(Icons.play_circle): (timerTracking!.isActive)? Icon(Icons.pause_circle): Icon(Icons.play_circle),
                             //icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
                           ),
                         ),
@@ -403,7 +556,7 @@ class _TrackingState extends State<Tracking> {
                             onPressed: (){
                               if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
-                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                               }
                             },
                             icon: const Icon(Icons.skip_next),
@@ -422,11 +575,15 @@ class _TrackingState extends State<Tracking> {
               String dateTime="";
               String speed ="";
 
+              String name = "";
+
               currentSliderValue = state.value;
               sliderLength =state.markers.length;
               if(cm is CarMarker){
                 dateTime = cm.car.dateTime;
                 speed = cm.car.speed;
+
+                name = cm.car.name;
               }
               if(state.value >= markers.length){
               }
@@ -446,10 +603,12 @@ class _TrackingState extends State<Tracking> {
                           onChanged:(val){
                             currentSliderValue = val;
                             _popupLayerController.hideAllPopups();
-                            context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble()),);
+                            context.read<TrackingBloc>().add(SliderChanged(markers, val.roundToDouble(),currentTreeNode),);
                           },
                         ),
-                        Text("$dateTime     $speed"),
+                        Directionality(
+                            textDirection: TextDirection.rtl,
+                            child: Text(name +"  "+dateTime+"  "+"سرعت: "+speed)),
                         SizedBox(width: 2,)
                       ],
                     ),
@@ -466,7 +625,7 @@ class _TrackingState extends State<Tracking> {
                             onPressed: (){
                               if(currentSliderValue.roundToDouble()>0){
                                 _popupLayerController.hideAllPopups();
-                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1),);
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1,currentTreeNode),);
                               }
                             },
                             icon: const Icon(Icons.skip_previous),
@@ -481,21 +640,21 @@ class _TrackingState extends State<Tracking> {
                                 onPressed: (){
 
                                   try{
-                                    if(timer == null){
-                                      timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                    if(timerTracking == null){
+                                      timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
                                         if(currentSliderValue.roundToDouble() < sliderLength-1){
                                           _popupLayerController.hideAllPopups();
-                                          context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                          context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                                         }
                                       } );
                                     }else{
-                                      if(timer!.isActive){
-                                        timer!.cancel();
+                                      if(timerTracking!.isActive){
+                                        timerTracking!.cancel();
                                       }else{
-                                        timer = Timer.periodic(const Duration(microseconds: 300),(Timer t){
+                                        timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
                                           if(currentSliderValue.roundToDouble() < sliderLength-1){
                                             _popupLayerController.hideAllPopups();
-                                            context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                            context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                                           }
                                         } );
                                       }
@@ -528,7 +687,7 @@ class _TrackingState extends State<Tracking> {
                             onPressed: (){
                               if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
-                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1),);
+                                context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
                               }
                             },
                             icon: const Icon(Icons.skip_next),
@@ -616,7 +775,8 @@ class _TrackingState extends State<Tracking> {
           ),
           children: <Widget>[
             TileLayer(
-                urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
                 tileProvider: CancellableNetworkTileProvider()
             ),
             PolylineLayer(
@@ -634,10 +794,11 @@ class _TrackingState extends State<Tracking> {
                 popupController: _popupLayerController,
                 popupDisplayOptions: PopupDisplayOptions(
                   builder: (_, Marker marker) {
-                    if(marker is CarMarker) {
+                    return Container();
+                    /*if(marker is CarMarker) {
                       return CarMarkerPopup(car: marker.car);
                     }
-                    return const Card(child: Text('No data available'));
+                    return const Card(child: Text('No data available'));*/
                     //return  Card(child: marker.child);
                   },
                 ),

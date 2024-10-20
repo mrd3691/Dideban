@@ -92,8 +92,6 @@ class API{
       req["email"] = userName;
       req["password"] = password;
 
-      print("username: $userName");
-      print("pass: $password");
 
       final response = await http.post(
           Uri.parse('http://80.210.21.35:8082/api/session'),

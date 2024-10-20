@@ -87,7 +87,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
       }
       return carMarkers;
     }catch(e){
-      //print(e);
+
       return carMarkers;
     }
   }
