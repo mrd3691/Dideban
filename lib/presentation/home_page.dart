@@ -187,6 +187,7 @@ class _Home1State extends State<Home1> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+                    onTap:(val){},
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
@@ -208,6 +209,7 @@ class _Home1State extends State<Home1> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+                    onTap:(val){},
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
                       if(searchedValueController.text.isEmpty){
@@ -227,6 +229,7 @@ class _Home1State extends State<Home1> {
               Container(
                 height: MediaQuery.of(context).size.height * 0.9,
                 child: TreeView(
+                  onTap:(val){},
                   onChanged: (newNodes) {
                     _popupLayerController.hideAllPopups();
                     if(searchedValueController.text.isEmpty){

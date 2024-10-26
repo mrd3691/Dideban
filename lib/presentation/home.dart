@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
   bool rebuildDrawer=true;
 
   void update(){
-    Home.timer = Timer.periodic(Duration(seconds: 60), (Timer timer) {
+    Home.timer = Timer.periodic(Duration(seconds: 15), (Timer timer) {
       rebuildDrawer =false;
       if(searchedValueController.text.isEmpty){
         //EasyLoading.show(status: "updating");
@@ -99,10 +99,7 @@ class _HomeState extends State<Home> {
                 controller: searchedValueController,
                 onChanged: (value) {
                   rebuildDrawer =true;
-
                   context.read<HomeBloc>().add(SearchDrawerDevices(originalTreeNode, value),);
-
-
                 },
               ),
             ),
@@ -180,6 +177,21 @@ class _HomeState extends State<Home> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+                    onTap:(val){
+                      LatLng newCenter =const LatLng(33.81275, 51.52094);
+                      double newZoom =5.0;
+                      for(int i=0;i<markers!.length;i++){
+                        Marker marker = markers![i];
+                        if(marker is CarMarker){
+                          if(val.title == marker.car.name){
+                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
+                            newZoom = 12.0;
+                            _mapController.move(newCenter, newZoom);
+                            break;
+                          }
+                        }
+                      }
+                    },
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
 
@@ -208,7 +220,21 @@ class _HomeState extends State<Home> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
-
+                    onTap:(val){
+                      LatLng newCenter =const LatLng(33.81275, 51.52094);
+                      double newZoom =5.0;
+                      for(int i=0;i<markers!.length;i++){
+                        Marker marker = markers![i];
+                        if(marker is CarMarker){
+                          if(val.title == marker.car.name){
+                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
+                            newZoom = 12.0;
+                            _mapController.move(newCenter, newZoom);
+                            break;
+                          }
+                        }
+                      }
+                    },
                     onChanged: (newNodes) {
                       rebuildDrawer =false;
                       _popupLayerController.hideAllPopups();
@@ -237,6 +263,21 @@ class _HomeState extends State<Home> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+                    onTap:(val){
+                      LatLng newCenter =const LatLng(33.81275, 51.52094);
+                      double newZoom =5.0;
+                      for(int i=0;i<markers!.length;i++){
+                        Marker marker = markers![i];
+                        if(marker is CarMarker){
+                          if(val.title == marker.car.name){
+                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
+                            newZoom = 12.0;
+                            _mapController.move(newCenter, newZoom);
+                            break;
+                          }
+                        }
+                      }
+                    },
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
 
@@ -260,6 +301,21 @@ class _HomeState extends State<Home> {
                 Container(
                   height: MediaQuery.of(context).size.height * 0.9,
                   child: TreeView(
+                    onTap:(val){
+                      LatLng newCenter =const LatLng(33.81275, 51.52094);
+                      double newZoom =5.0;
+                      for(int i=0;i<markers!.length;i++){
+                        Marker marker = markers![i];
+                        if(marker is CarMarker){
+                          if(val.title == marker.car.name){
+                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
+                            newZoom = 12.0;
+                            _mapController.move(newCenter, newZoom);
+                            break;
+                          }
+                        }
+                      }
+                    },
                     onChanged: (newNodes) {
                       _popupLayerController.hideAllPopups();
 
@@ -332,6 +388,9 @@ class _HomeState extends State<Home> {
       children: [
         BlocBuilder<HomeBloc,HomeState>(
             builder: (context, state){
+              if(state is DrawerLoadSuccess){
+                originalTreeNode =state.treeNode;
+              }
               if(state is GetLocationOfSelectedDevicesSuccess){
                 EasyLoading.dismiss();
                 markers = state.markers;
@@ -372,7 +431,7 @@ class _HomeState extends State<Home> {
                 children: <Widget>[
                   TileLayer(
                     urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                    //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                     tileProvider: CancellableNetworkTileProvider(),
                   ),
 
@@ -421,6 +480,37 @@ class _HomeState extends State<Home> {
                         child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
                             if(state is GetLocationOfSelectedDevicesSuccess){
+                              if(state.markers != null){
+                                for(int i=0;i<state.markers!.length;i++){
+                                  Marker newMarker = markers![i];
+                                  if(newMarker is CarMarker) {
+                                    Duration? diff=dateTimeDiffFromNow(newMarker);
+                                    if(diff == null){
+                                      continue;
+                                    }
+                                    if(diff>Duration(hours: 24)){
+                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
+                                      if(!alarmAlreadyExist){
+                                        _alarmItems.add(state.markers![i]);
+                                      }
+                                      continue;
+                                    }
+                                    if(diff>Duration(minutes: 10)){
+                                      continue;
+                                    }
+                                    int speed = int.parse(newMarker.car.speed);
+                                    if (speed > 100) {
+                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
+                                      if(!alarmAlreadyExist){
+                                        _alarmItems.add(state.markers![i]);
+                                      }
+                                      continue;
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            if(state is UpdateSuccess){
                               if(state.markers != null){
                                 for(int i=0;i<state.markers!.length;i++){
                                   Marker newMarker = markers![i];

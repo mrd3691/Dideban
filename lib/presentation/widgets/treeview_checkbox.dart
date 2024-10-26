@@ -13,12 +13,14 @@ class TitleCheckBox extends StatelessWidget {
     required this.checkBoxState,
     required this.onChanged,
     required this.level,
+    required this.onTap
   }) : super(key: key);
 
   final String title;
   final CheckBoxState checkBoxState;
   final VoidCallback onChanged;
   final int level;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +85,9 @@ class TitleCheckBox extends StatelessWidget {
         const SizedBox(
           width: 8.0,
         ),
-        Text(title,style: TextStyle(fontSize: 12),),
+        InkWell(
+          onTap: onTap,
+            child: Text(title,style: TextStyle(fontSize: 12),)),
       ],
     );
   }
@@ -125,11 +129,13 @@ class TreeView extends StatefulWidget {
     required this.nodes,
     this.level = 0,
     required this.onChanged,
+    required this.onTap
   }) : super(key: key);
 
   final List<TreeNode> nodes;
   final int level;
   final void Function(List<TreeNode> newNodes) onChanged;
+  final void Function(TreeNode node) onTap;
 
   @override
   State<TreeView> createState() => _TreeViewState();
@@ -194,6 +200,12 @@ class _TreeViewState extends State<TreeView> {
               }
               widget.onChanged(nodes);
             },
+            onTap: (){
+              var y =nodes[index];
+              var t =0;
+              widget.onTap(nodes[index]);
+
+            },
             title: nodes[index].title ,
             checkBoxState: nodes[index].checkBoxState,
             level: widget.level,
@@ -219,7 +231,11 @@ class _TreeViewState extends State<TreeView> {
                 if (widget.level == 0) {
                   setState(() {});
                 }
-              },
+              }, onTap: (value) {
+                var yyyy= nodes[index];
+                var mmm=0;
+                widget.onTap(value);
+            },
             ),
           ],
         );

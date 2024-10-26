@@ -18,12 +18,31 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+
+
+
   HomeBloc() : super(HomeInitial()) {
     on<LoadDrawer>(loadDrawer);
     on<SearchDrawerDevices>(searchDrawerDevices);
     on<GetLocationOfSelectedDevices>(getLocationOfSelectedDevices);
     on<Update>(update);
+
+
+
   }
+  late List<Position>? positions;
+  late List<Device>? devices;
+
+  void getLastPositions()async{
+    positions  = await HomeAPI.getLastPositions();
+    getLastPositions();
+  }
+
+  void getDevices()async{
+    devices = await HomeAPI.getAllDevices();
+  }
+
+
 
   FutureOr<void> update(Update event, Emitter<HomeState> emit,) async {
 
@@ -57,7 +76,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   }
 
+
   FutureOr<void> loadDrawer(LoadDrawer event, Emitter<HomeState> emit,) async {
+
+    //getDevices();
+    //getLastPositions();
+
+
     emit(DrawerIsLoading());
     try{
       final devices  = await HomeAPI.getAllDevices();
@@ -67,6 +92,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final groups  = await HomeAPI.getAllGroups();
       List<TreeNode> totalNode = _makeNodes(devices!,groups!);
       emit(DrawerLoadSuccess(treeNode: totalNode));
+
     }catch(e){
       emit(DrawerLoadFailed());
     }
@@ -217,6 +243,86 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                           lat: devicePosition.latitude!,
                           long: devicePosition.longitude!
                         )
+                      )
+                  );
+
+                }
+              }
+            }
+          }
+        }
+      }else{
+        for (int i = 0; i < treeNode.length; i++) {
+          if(treeNode[i].isSelected){
+            noDeviceSelected =false;
+            int id = getDeviceIdWithName(devices!, treeNode[i].title);
+            final devicePosition = await HomeAPI.getPosition(id);
+            if(devicePosition != null){
+              final drivers = await HomeAPI.getDeviceDriver(id);
+              String driver ="";
+              if(drivers!=null && drivers.length>0){
+                driver =drivers[0].name;
+              }
+              String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(devicePosition.fixTime!);
+              String speed = (devicePosition.speed!*1.852).round().toString();
+              carMarkers.add(
+                  CarMarker(car:
+                  Car(
+                      name: treeNode[i].title,
+                      speed: speed,
+                      dateTime: jalaliDateTime,
+                      acc: _getIgnitionFromAttributes(devicePosition.attributes),
+                      driver: driver,
+                      lat: devicePosition.latitude!,
+                      long: devicePosition.longitude!
+                  )
+                  )
+              );
+            }
+          }
+        }
+      }
+      if(noDeviceSelected){
+        return null;
+      }
+      return carMarkers;
+    }catch(e){
+      return carMarkers;
+    }
+
+  }
+
+  Future<List<Marker>?> _makeLocationList1(List<TreeNode> treeNode, bool isOriginalTreeNode)async{
+    List<Marker> carMarkers = [];
+    bool noDeviceSelected =true;
+    try{
+      if(isOriginalTreeNode){
+        for (int i = 0; i < treeNode.length; i++) {
+          for (int j = 0; j < treeNode[i].children.length; j++) {
+            for(int k=0;k<treeNode[i].children[j].children.length;k++){
+              if(treeNode[i].children[j].children[k].isSelected){
+                noDeviceSelected =false;
+                int id = getDeviceIdWithName(devices!, treeNode[i].children[j].children[k].title);
+                final devicePosition = await HomeAPI.getPosition(id);
+                if(devicePosition != null){
+                  final drivers = await HomeAPI.getDeviceDriver(id);
+                  String driver ="";
+                  if(drivers!=null && drivers.length>0){
+                    driver =drivers[0].name;
+                  }
+                  String speed = (devicePosition.speed!*1.852).round().toString();
+                  String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(devicePosition.fixTime!);
+                  carMarkers.add(
+                      CarMarker(car:
+                      Car(
+                          name: treeNode[i].children[j].children[k].title,
+                          speed: speed,
+                          dateTime: jalaliDateTime,
+                          acc: _getIgnitionFromAttributes(devicePosition.attributes),
+                          driver: driver,
+                          lat: devicePosition.latitude!,
+                          long: devicePosition.longitude!
+                      )
                       )
                   );
 

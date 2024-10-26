@@ -186,6 +186,7 @@ class _TrackingState extends State<Tracking> {
                     Container(
                       height: MediaQuery.of(context).size.height * 0.9,
                       child: TreeView(
+                        onTap:(val){},
                         onChanged: (newNodes) {
                           //_popupLayerController.hideAllPopups();
                           rebuildDrawer =false;
@@ -229,6 +230,7 @@ class _TrackingState extends State<Tracking> {
                     Container(
                       height: MediaQuery.of(context).size.height * 0.9,
                       child: TreeView(
+                        onTap:(val){},
                         onChanged: (newNodes) {
                           rebuildDrawer =false;
                           selectedDevices.clear();
@@ -262,11 +264,12 @@ class _TrackingState extends State<Tracking> {
                   );
                 }
                 if(state is TrackingSuccess){
-                  originalTreeNode =state.treeNode;
+                  //originalTreeNode =state.treeNode;
                   return Column(children: [
                     Container(
                       height: MediaQuery.of(context).size.height * 0.9,
                       child: TreeView(
+                        onTap:(val){},
                         onChanged: (newNodes) {
                           //_popupLayerController.hideAllPopups();
                           rebuildDrawer =false;
@@ -300,11 +303,12 @@ class _TrackingState extends State<Tracking> {
                   ]);
                 }
                 if(state is SliderNewState){
-                  originalTreeNode =state.treeNode;
+                  //originalTreeNode =state.treeNode;
                   return Column(children: [
                     Container(
                       height: MediaQuery.of(context).size.height * 0.9,
                       child: TreeView(
+                        onTap:(val){},
                         onChanged: (newNodes) {
                           //_popupLayerController.hideAllPopups();
                           rebuildDrawer =false;
@@ -776,7 +780,7 @@ class _TrackingState extends State<Tracking> {
           children: <Widget>[
             TileLayer(
                 urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                //urlTemplate: 'https://{s}-tiles.locationiq.com/v3/streets/r/{z}/{x}/{y}.png?key=pk.ae156969fe4398a400434f77e91ce44a',
+                //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                 tileProvider: CancellableNetworkTileProvider()
             ),
             PolylineLayer(

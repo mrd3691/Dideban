@@ -117,5 +117,34 @@ class HomeAPI{
     }
   }
 
+  static Future<List<Position>?> getLastPositions() async{
+    try{
+      String userName =await Util.getUserName();
+      String password =await Util.getPassword();
+      String auth = base64Encode(utf8.encode("$userName:$password"));
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': auth
+      };
+      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/positions'));
+
+      request.headers.addAll(headers);
+      http.StreamedResponse streamedResponse = await request.send();
+      http.Response response = await http.Response.fromStream(streamedResponse);
+      if (response.statusCode == 200) {
+
+        var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+        List<Position> positions = jsonResponse.map<Position>( (json) =>  Position.fromJson(json) ).toList();
+
+
+        return positions;
+      } else {
+        return null;
+      }
+    }catch(e){
+      return null;
+    }
+  }
+
 
 }
