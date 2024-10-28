@@ -13,14 +13,11 @@ final class SearchDrawerDevices extends HomeEvent {
   SearchDrawerDevices(this.treeNode,this.searchedValue);
 }
 
-final class GetLocationOfSelectedDevices extends HomeEvent {
-  final List<TreeNode> treeNode;
-  final bool isOriginalTreeNode;
-  GetLocationOfSelectedDevices(this.treeNode,this.isOriginalTreeNode);
-}
+
 
 final class Update extends HomeEvent {
   final List<TreeNode> treeNode;
   final bool isOriginalTreeNode;
   Update(this.treeNode,this.isOriginalTreeNode);
 }
+

@@ -27,30 +27,12 @@ final class SearchDrawerDevicesSuccess extends HomeState {
 
 final class SearchDrawerDevicesFailed extends HomeState {}
 /////////////////////////////////////////////////////////////////////////////////
-final class GetLocationOfSelectedDevicesInProgress extends HomeState {}
 
-final class GetLocationOfSelectedDevicesSuccess extends HomeState {
-  final List<Marker>? markers;
-  final List<TreeNode> treeNode;
-  GetLocationOfSelectedDevicesSuccess({
-    required this.markers,
-    required this.treeNode
-
-  });
-}
-
-final class GetLocationOfSelectedDevicesFailure extends HomeState {
-  final String? message;
-
-  GetLocationOfSelectedDevicesFailure(this.message,);
-}
-/////////////////////////////////////////////////////////////////////////////////
 final class UpdateSuccess extends HomeState {
   final List<Marker>? markers;
-  final List<TreeNode> treeNode;
+
   UpdateSuccess({
     required this.markers,
-    required this.treeNode
   });
 }
 

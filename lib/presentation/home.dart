@@ -13,10 +13,10 @@ import 'package:shamsi_date/shamsi_date.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'dart:async';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
-  static late Timer timer;
   @override
   State<Home> createState() => _HomeState();
 }
@@ -25,44 +25,38 @@ class _HomeState extends State<Home> {
 
   double _bottomBarHeight = 120.0;
   List<TreeNode> originalTreeNode = [];
-  List<TreeNode> treeNodeForUpdate = [];
+  List<TreeNode> searchedTreeNode = [];
+  List<TreeNode> selectedTreeNode = [];
+
 
 
   List<Marker> _alarmItems =[];
   TextEditingController searchedValueController = TextEditingController();
   List<Marker>? markers = [];
-   PopupController _popupLayerController = PopupController();
   final MapController _mapController = MapController();
   bool rebuildDrawer=true;
 
-  void update(){
-    Home.timer = Timer.periodic(Duration(seconds: 15), (Timer timer) {
-      rebuildDrawer =false;
-      if(searchedValueController.text.isEmpty){
-        //EasyLoading.show(status: "updating");
-        context.read<HomeBloc>().add(Update(treeNodeForUpdate,true),);
-      }else{
-        //EasyLoading.show(status: "Please Wait");
-        context.read<HomeBloc>().add(Update(treeNodeForUpdate,false),);
-      }
-    });
+  TextEditingController deviceNameController = TextEditingController();
+  TextEditingController deviceDateTimeController = TextEditingController();
+  TextEditingController deviceSpeedController = TextEditingController();
 
-  }
+  Marker clickedMarker =CarMarker(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0));
 
   @override
   void initState() {
     super.initState();
-    update();
+    if(searchedValueController.text.isEmpty){
+      context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
+    }else{
+      context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _popupLayerController.dispose();
     _mapController.dispose();
     searchedValueController.dispose();
-    Home.timer.cancel();
-
   }
 
   @override
@@ -100,6 +94,9 @@ class _HomeState extends State<Home> {
                 onChanged: (value) {
                   rebuildDrawer =true;
                   context.read<HomeBloc>().add(SearchDrawerDevices(originalTreeNode, value),);
+                  if(value.isEmpty){
+                    selectedTreeNode=originalTreeNode;
+                  }
                 },
               ),
             ),
@@ -170,44 +167,7 @@ class _HomeState extends State<Home> {
               );
             }
             if(state is DrawerLoadSuccess){
-
-              treeNodeForUpdate =state.treeNode;
               originalTreeNode =state.treeNode;
-              return Column(children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: TreeView(
-                    onTap:(val){
-                      LatLng newCenter =const LatLng(33.81275, 51.52094);
-                      double newZoom =5.0;
-                      for(int i=0;i<markers!.length;i++){
-                        Marker marker = markers![i];
-                        if(marker is CarMarker){
-                          if(val.title == marker.car.name){
-                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
-                            newZoom = 12.0;
-                            _mapController.move(newCenter, newZoom);
-                            break;
-                          }
-                        }
-                      }
-                    },
-                    onChanged: (newNodes) {
-                      _popupLayerController.hideAllPopups();
-
-                      rebuildDrawer =false;
-                      if(searchedValueController.text.isEmpty){
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,true),);
-                      }else{
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,false),);
-                      }
-                    },
-                    nodes: state.treeNode,
-                  ),
-                ),
-              ]);
             }
             if(state is DrawerLoadFailed){
               return Center(
@@ -215,126 +175,44 @@ class _HomeState extends State<Home> {
               );
             }
             if(state is SearchDrawerDevicesSuccess){
-              treeNodeForUpdate =state.treeNode;
-              return Column(children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: TreeView(
-                    onTap:(val){
-                      LatLng newCenter =const LatLng(33.81275, 51.52094);
-                      double newZoom =5.0;
-                      for(int i=0;i<markers!.length;i++){
-                        Marker marker = markers![i];
-                        if(marker is CarMarker){
-                          if(val.title == marker.car.name){
-                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
-                            newZoom = 12.0;
-                            _mapController.move(newCenter, newZoom);
-                            break;
-                          }
-                        }
-                      }
-                    },
-                    onChanged: (newNodes) {
-                      rebuildDrawer =false;
-                      _popupLayerController.hideAllPopups();
-
-                      if(searchedValueController.text.isEmpty){
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,true),);
-                      }else{
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,false),);
-                      }
-                    },
-                    nodes: state.treeNode,
-                  ),
-                ),
-              ]);
+              searchedTreeNode =state.treeNode;
+              selectedTreeNode =searchedTreeNode;
             }
             if(state is SearchDrawerDevicesFailed){
               return Center(
                 child: Text("Some Error occured in searching Devices list"),
               );
             }
-            if(state is GetLocationOfSelectedDevicesSuccess){
-              treeNodeForUpdate =state.treeNode;
-              return Column(children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: TreeView(
-                    onTap:(val){
-                      LatLng newCenter =const LatLng(33.81275, 51.52094);
-                      double newZoom =5.0;
-                      for(int i=0;i<markers!.length;i++){
-                        Marker marker = markers![i];
-                        if(marker is CarMarker){
-                          if(val.title == marker.car.name){
-                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
-                            newZoom = 12.0;
-                            _mapController.move(newCenter, newZoom);
-                            break;
-                          }
+
+            return Column(children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.9,
+                child: TreeView(
+                  onTap:(val){
+                    LatLng newCenter =const LatLng(33.81275, 51.52094);
+                    double newZoom =5.0;
+                    for(int i=0;i<markers!.length;i++){
+                      Marker marker = markers![i];
+                      if(marker is CarMarker){
+                        if(val.title == marker.car.name){
+                          newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
+                          newZoom = 12.0;
+                          _mapController.move(newCenter, newZoom);
+                          deviceNameController.text=marker.car.name;
+                          deviceDateTimeController.text=marker.car.dateTime;
+                          deviceSpeedController.text ="  سرعت:  ${marker.car.speed}";
+                          break;
                         }
                       }
-                    },
-                    onChanged: (newNodes) {
-                      _popupLayerController.hideAllPopups();
-
-                      rebuildDrawer =false;
-                      if(searchedValueController.text.isEmpty){
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,true),);
-                      }else{
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,false),);
-                      }
-                    },
-                    nodes: state.treeNode,
-                  ),
+                    }
+                  },
+                  onChanged: (newNodes) {
+                    selectedTreeNode = newNodes;
+                  },
+                  nodes: (searchedValueController.text.isEmpty)? originalTreeNode:searchedTreeNode,
                 ),
-              ]);
-            }
-            if(state is UpdateSuccess){
-              treeNodeForUpdate =state.treeNode;
-              return Column(children: [
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: TreeView(
-                    onTap:(val){
-                      LatLng newCenter =const LatLng(33.81275, 51.52094);
-                      double newZoom =5.0;
-                      for(int i=0;i<markers!.length;i++){
-                        Marker marker = markers![i];
-                        if(marker is CarMarker){
-                          if(val.title == marker.car.name){
-                            newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
-                            newZoom = 12.0;
-                            _mapController.move(newCenter, newZoom);
-                            break;
-                          }
-                        }
-                      }
-                    },
-                    onChanged: (newNodes) {
-                      _popupLayerController.hideAllPopups();
-
-                      rebuildDrawer =false;
-                      if(searchedValueController.text.isEmpty){
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,true),);
-                      }else{
-                        EasyLoading.show(status: "Please Wait");
-                        context.read<HomeBloc>().add(GetLocationOfSelectedDevices(newNodes,false),);
-                      }
-                    },
-                    nodes: state.treeNode,
-                  ),
-                ),
-              ]);
-            }
-
-            return Container();
+              ),
+            ]);
 
           }),
         ],
@@ -390,12 +268,16 @@ class _HomeState extends State<Home> {
             builder: (context, state){
               if(state is DrawerLoadSuccess){
                 originalTreeNode =state.treeNode;
+                selectedTreeNode = state.treeNode;
               }
-              if(state is GetLocationOfSelectedDevicesSuccess){
+              if(state is UpdateSuccess){
+
                 EasyLoading.dismiss();
                 markers = state.markers;
 
-                LatLng newCenter =const LatLng(33.81275, 51.52094);
+
+
+                /*LatLng newCenter =const LatLng(33.81275, 51.52094);
                 double newZoom =5.0;
                 _popupLayerController.hideAllPopups();
                 if(markers != null){
@@ -408,12 +290,7 @@ class _HomeState extends State<Home> {
                   if(markers!.isEmpty){
                     EasyLoading.showError("No data available");
                   }
-                }
-
-              }
-              if(state is UpdateSuccess){
-                EasyLoading.dismiss();
-                markers = state.markers;
+                }*/
               }
               return FlutterMap(
                 mapController: _mapController,
@@ -424,8 +301,10 @@ class _HomeState extends State<Home> {
                     flags: InteractiveFlag.all,
                   ),
                   onTap: (_, __) {
-                    _popupLayerController.hideAllPopups();
-
+                    deviceNameController.text="";
+                    deviceDateTimeController.text="";
+                    deviceSpeedController.text ="";
+                    //_popupLayerController.hideAllPopups();
                   }
                 ),
                 children: <Widget>[
@@ -435,7 +314,41 @@ class _HomeState extends State<Home> {
                     tileProvider: CancellableNetworkTileProvider(),
                   ),
 
-                  PopupMarkerLayer(
+                  MarkerClusterLayerWidget(
+                    options: MarkerClusterLayerOptions(
+                      onMarkerTap: (value){
+                        if(value is CarMarker){
+                          deviceNameController.text = value.car.name;
+                          deviceSpeedController.text = "  سرعت: ${value.car.speed}" ;
+                          deviceDateTimeController.text =value.car.dateTime;
+                        }
+
+
+                        clickedMarker=value;
+                      },
+                      maxClusterRadius: 45,
+                      size: const Size(40, 40),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(50),
+                      maxZoom: 15,
+                      markers: markers!,
+                      builder: (context, markers) {
+                        return Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.blue),
+                          child: Center(
+                            child: Text(
+                              markers.length.toString(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  /*PopupMarkerLayer(
                     options: PopupMarkerLayerOptions(
                       markers: markers ?? [],
                       popupController: _popupLayerController,
@@ -450,10 +363,9 @@ class _HomeState extends State<Home> {
                       ),
 
                     ),
-                  )
+                  )*/
                 ],
               );
-
             }),
         Positioned(
           bottom: 0,
@@ -474,47 +386,65 @@ class _HomeState extends State<Home> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+
+                          Flexible(
+                            flex: 2,
+                            child: TextField(
+                              readOnly: true,
+                              controller: deviceNameController,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: TextField(
+                              readOnly: true,
+                              controller: deviceSpeedController,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: TextField(
+                              readOnly: true,
+                              controller: deviceDateTimeController,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     Expanded(
                       child: Card(
                         borderOnForeground: true,
                         child: BlocBuilder<HomeBloc, HomeState>(
                           builder: (context, state) {
-                            if(state is GetLocationOfSelectedDevicesSuccess){
-                              if(state.markers != null){
-                                for(int i=0;i<state.markers!.length;i++){
-                                  Marker newMarker = markers![i];
-                                  if(newMarker is CarMarker) {
-                                    Duration? diff=dateTimeDiffFromNow(newMarker);
-                                    if(diff == null){
-                                      continue;
-                                    }
-                                    if(diff>Duration(hours: 24)){
-                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
-                                      if(!alarmAlreadyExist){
-                                        _alarmItems.add(state.markers![i]);
-                                      }
-                                      continue;
-                                    }
-                                    if(diff>Duration(minutes: 10)){
-                                      continue;
-                                    }
-                                    int speed = int.parse(newMarker.car.speed);
-                                    if (speed > 100) {
-                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
-                                      if(!alarmAlreadyExist){
-                                        _alarmItems.add(state.markers![i]);
-                                      }
-                                      continue;
-                                    }
-                                  }
-                                }
-                              }
-                            }
                             if(state is UpdateSuccess){
                               if(state.markers != null){
                                 for(int i=0;i<state.markers!.length;i++){
                                   Marker newMarker = markers![i];
+
+
+
                                   if(newMarker is CarMarker) {
+
+                                    if(newMarker.car.name == deviceNameController.text){
+
+
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        //deviceNameController.text = newMarker.car.name;
+                                        deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
+                                        deviceDateTimeController.text = newMarker.car.dateTime;
+                                      });
+
+                                    }
+
+
                                     Duration? diff=dateTimeDiffFromNow(newMarker);
                                     if(diff == null){
                                       continue;
@@ -541,6 +471,14 @@ class _HomeState extends State<Home> {
                                 }
                               }
                             }
+
+                            if(searchedValueController.text.isEmpty){
+                              context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
+                            }else{
+                              context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
+                            }
+
+
                             return ListView.builder(
                               itemCount: _alarmItems.length,
                               itemBuilder: (context, index) {

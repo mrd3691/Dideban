@@ -73,13 +73,13 @@ class _AppBarDidebanState extends State<AppBarDideban> {
           ),
           onPressed: () {
 
-            Home.timer.cancel();
+
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (context) =>
                     BlocProvider(
-                      create: (context) => DevicesBloc()
-                        ..add(FetchAllDevices(userId),),
+                      create: (context) => HomeBloc()
+                        ..add(LoadDrawer(),),
                       child: const Home(),
                     ),
               ),
@@ -99,7 +99,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
             Icons.track_changes,
           ),
           onPressed: () {
-            Home.timer.cancel();
 
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
@@ -140,7 +139,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                         onPressed: () {
                           if(index == 0){
                             EasyLoading.show(status: 'Please wait');
-                            Home.timer.cancel();
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 builder: (context) =>
@@ -153,7 +151,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                             );
                           }
                           if(index == 1){
-                            Home.timer.cancel();
                             EasyLoading.show(status: 'Please wait');
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
@@ -167,7 +164,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                             );
                           }
                           if(index == 2){
-                            Home.timer.cancel();
                             EasyLoading.show(status: 'Please wait');
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
@@ -181,7 +177,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                             );
                           }
                           if(index == 3){
-                            Home.timer.cancel();
                             EasyLoading.show(status: 'Please wait');
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
@@ -195,7 +190,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                             );
                           }
                           if(index == 4){
-                            Home.timer.cancel();
                             //EasyLoading.show(status: 'Please wait');
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
@@ -236,7 +230,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
             Icons.logout,
           ),
           onPressed: () {
-            Home.timer.cancel();
             Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const LoginScreen()));
           },
         ),
