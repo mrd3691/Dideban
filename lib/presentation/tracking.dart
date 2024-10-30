@@ -600,7 +600,7 @@ class _TrackingState extends State<Tracking> {
 
               currentSliderValue = state.value;
               sliderLength =state.markers.length;
-              if(cm is CarMarker){
+              if(cm is CarMarkerTracking){
                 dateTime = cm.car.dateTime;
                 speed = cm.car.speed;
 

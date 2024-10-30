@@ -5,14 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
-import 'package:shamsi_date/shamsi_date.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
-import 'dart:async';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 
 class Home extends StatefulWidget {
@@ -44,15 +41,16 @@ class _HomeState extends State<Home> {
   TextEditingController deviceDateTimeController = TextEditingController();
   TextEditingController deviceSpeedController = TextEditingController();
 
-  Marker clickedMarker =CarMarker(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0));
+  Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,), clickedTreeNode: TreeNode(title: ""));
+  TreeNode clickedTreeNode = TreeNode(title: "");
 
   @override
   void initState() {
     super.initState();
     if(searchedValueController.text.isEmpty){
-      context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
+      context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
     }else{
-      context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
+      context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
     }
   }
 
@@ -195,11 +193,12 @@ class _HomeState extends State<Home> {
                 height: MediaQuery.of(context).size.height * 0.9,
                 child: TreeView(
                   onTap:(val){
+                    clickedTreeNode = val;
                     LatLng newCenter =const LatLng(33.81275, 51.52094);
                     double newZoom =5.0;
                     for(int i=0;i<markers!.length;i++){
                       Marker marker = markers![i];
-                      if(marker is CarMarker){
+                      if(marker is CarMarkerLive){
                         if(val.title == marker.car.name){
                           newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
                           newZoom = 12.0;
@@ -232,7 +231,7 @@ class _HomeState extends State<Home> {
     try{
       for(int j=_speedAlarmItems.length-1;j>=0;j--){ //check alarm exist
         Marker oldAlarm = _speedAlarmItems[j];
-        if(oldAlarm is CarMarker && newAlarm is CarMarker){
+        if(oldAlarm is CarMarkerLive && newAlarm is CarMarkerLive){
           if(oldAlarm.car.dateTime == newAlarm.car.dateTime){
             if(newAlarm.car.name == oldAlarm.car.name){
               alarmAlreadyExist =true;
@@ -253,7 +252,7 @@ class _HomeState extends State<Home> {
     try{
       for(int j=_idleAlarmItems.length-1;j>=0;j--){ //check alarm exist
         Marker oldAlarm = _idleAlarmItems[j];
-        if(oldAlarm is CarMarker && newAlarm is CarMarker){
+        if(oldAlarm is CarMarkerLive && newAlarm is CarMarkerLive){
           if(oldAlarm.car.dateTime == newAlarm.car.dateTime){
             if(newAlarm.car.name == oldAlarm.car.name){
               alarmAlreadyExist =true;
@@ -274,7 +273,7 @@ class _HomeState extends State<Home> {
   Duration? dateTimeDiffFromNow(Marker newAlarm){
     Duration? diff = null;
     try{
-      if(newAlarm is CarMarker){
+      if(newAlarm is CarMarkerLive){
         var splittedDateTime = newAlarm.car.dateTime.split(" ");
         String jalaliDate = splittedDateTime[1];
         String time = splittedDateTime[0];
@@ -347,11 +346,13 @@ class _HomeState extends State<Home> {
                   MarkerClusterLayerWidget(
                     options: MarkerClusterLayerOptions(
                       onMarkerTap: (value){
-                        if(value is CarMarker){
+                        if(value is CarMarkerLive){
                           deviceNameController.text = value.car.name;
                           deviceSpeedController.text = "  سرعت: ${value.car.speed}" ;
                           deviceDateTimeController.text =value.car.dateTime;
+
                         }
+
 
 
                         clickedMarker=value;
@@ -494,7 +495,7 @@ class _HomeState extends State<Home> {
                             if(state.markers != null){
                               for(int i=0;i<state.markers!.length;i++){
                                 Marker newMarker = markers![i];
-                                if(newMarker is CarMarker) {
+                                if(newMarker is CarMarkerLive) {
                                   if(newMarker.car.name == deviceNameController.text){
                                     WidgetsBinding.instance.addPostFrameCallback((_) {
                                       //deviceNameController.text = newMarker.car.name;
@@ -548,9 +549,9 @@ class _HomeState extends State<Home> {
                           }
 
                           if(searchedValueController.text.isEmpty){
-                            context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
+                            context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
                           }else{
-                            context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
+                            context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
                           }
 
 
@@ -567,7 +568,7 @@ class _HomeState extends State<Home> {
                                     itemBuilder: (context, index) {
                                       Marker marker = _idleAlarmItems[index];
                                       String alarmText="";
-                                      if(marker is CarMarker){
+                                      if(marker is CarMarkerLive){
                                         Duration? diff =  dateTimeDiffFromNow(marker);
                                         if(diff! > Duration(hours: 24)){
                                           alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
@@ -599,7 +600,7 @@ class _HomeState extends State<Home> {
                                     itemBuilder: (context, index) {
                                       Marker marker = _speedAlarmItems[index];
                                       String alarmText="";
-                                      if(marker is CarMarker){
+                                      if(marker is CarMarkerLive){
                                         Duration? diff =  dateTimeDiffFromNow(marker);
                                         if(diff! > Duration(hours: 24)){
                                           alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";

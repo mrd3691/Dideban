@@ -59,7 +59,7 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
 
 
         carMarkers.add(
-            CarMarker(
+            CarMarkerTracking(
                 car: Car(
                   name: deviceName,
                   speed:  element.speed,
@@ -68,6 +68,8 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
                   driver: element.driver,
                   lat: double.parse(element.latitude),
                   long: double.parse(element.longitude),
+                  course: -1
+
                 )
             ));
       });

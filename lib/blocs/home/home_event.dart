@@ -18,6 +18,7 @@ final class SearchDrawerDevices extends HomeEvent {
 final class Update extends HomeEvent {
   final List<TreeNode> treeNode;
   final bool isOriginalTreeNode;
-  Update(this.treeNode,this.isOriginalTreeNode);
+  final TreeNode clickedTreeNode;
+  Update(this.treeNode,this.isOriginalTreeNode,this.clickedTreeNode);
 }
 

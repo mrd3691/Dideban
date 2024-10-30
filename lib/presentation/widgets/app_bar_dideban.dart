@@ -14,7 +14,7 @@ import '../../blocs/devices/devices_bloc.dart';
 import '../../blocs/groups/groups_bloc.dart';
 import '../../blocs/tracking/tracking_bloc.dart';
 import '../groups_setting.dart';
-import '../home_page.dart';
+
 import '../login.dart';
 import '../tracking.dart';
 
@@ -189,19 +189,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               ),
                             );
                           }
-                          if(index == 4){
-                            //EasyLoading.show(status: 'Please wait');
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    BlocProvider(
-                                      create: (context) => HomeBloc()
-                                        ..add(LoadDrawer(),),
-                                      child: const Home1(),
-                                    ),
-                              ),
-                            );
-                          }
                         },
                         child: getSettingButton(index),
                       ),
@@ -246,8 +233,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Drivers");
     }else if( index == 3){
       return const Text("Users");
-    } else if( index == 4){
-      return const Text("Test");
     }
     return const Text("");
   }

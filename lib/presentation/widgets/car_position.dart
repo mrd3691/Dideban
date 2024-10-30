@@ -1,8 +1,10 @@
+import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shamsi_date/shamsi_date.dart';
 
 class Car {
   static const double size = 25;
@@ -15,6 +17,7 @@ class Car {
     required this.driver,
     required this.lat,
     required this.long,
+    required this.course
   });
 
   final String name;
@@ -24,57 +27,134 @@ class Car {
   final String driver;
   final double lat;
   final double long;
+  final double course;
 }
 
-class CarMarker extends Marker {
-  CarMarker({required this.car})
+
+class IconMarker extends StatelessWidget {
+  final dateTime;
+  final String speed;
+  final TreeNode clickedTreeNode;
+  final String markerName;
+  IconMarker( this.dateTime,this.speed,this.clickedTreeNode,this.markerName);
+
+  final Jalali jalaliNow = Jalali.now();
+
+  bool isIdle(String dateTime){
+    try{
+      var splittedDateTime = dateTime.split(" ");
+      String jalaliDate = splittedDateTime[1];
+      var splittedDate = jalaliDate.split("/");
+      var jalaliYear=splittedDate[0];
+      var jalaliMonth=splittedDate[1];
+      var jalaliDay=splittedDate[2];
+      if(int.parse(jalaliYear)<jalaliNow.year){
+        return true;
+      }
+      if(int.parse(jalaliMonth)<jalaliNow.month){
+        return true;
+      }
+      if(int.parse(jalaliDay)<jalaliNow.day){
+        return true;
+      }
+
+      return false;
+    }catch(e){
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+   if(isIdle(dateTime)){
+     return Stack(
+       alignment: Alignment.center,
+       children: [
+         Icon(
+           Icons.circle, // Directional arrow
+           size: 30,
+           color: Colors.black,
+         ),
+         Positioned(
+           //bottom: 0,
+           child: Icon(
+             Icons.arrow_upward, // Directional arrow
+             size: 30,
+             color: (clickedTreeNode.title == markerName)?Colors.blueAccent:Colors.white,
+           ),
+         ),
+       ],
+     );
+   }else{
+     return Stack(
+       alignment: Alignment.center,
+       children: [
+         Icon(
+           Icons.circle, // Directional arrow
+           size: 30,
+           color:(int.parse(speed)>100)?Colors.redAccent :Colors.greenAccent,
+         ),
+         Positioned(
+           //bottom: 0,
+           child: Icon(
+             Icons.arrow_upward, // Directional arrow
+             size: 30,
+             color: (clickedTreeNode.title == markerName)?Colors.blueAccent:Colors.black,
+           ),
+         ),
+       ],
+     );
+   }
+  }
+}
+
+
+
+class CarMarkerLive extends Marker {
+  CarMarkerLive({required this.car,required this.clickedTreeNode})
       : super(
     alignment: Alignment.topCenter,
     height: Car.size,
     width: Car.size,
     point: LatLng(car.lat, car.long),
     //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
-    child: (int.parse(car.speed)>100)?// substring remove speed: from the first
+      child: Transform.rotate(angle: (car.course) * (3.141592653589793 / 180), child: IconMarker(car.dateTime,car.speed,clickedTreeNode,car.name))
+
+
+  );
+  final Car car;
+  final TreeNode clickedTreeNode;
+
+
+
+
+
+
+
+
+
+}
+
+class CarMarkerTracking extends Marker {
+  CarMarkerTracking({required this.car})
+      : super(
+      alignment: Alignment.topCenter,
+      height: Car.size,
+      width: Car.size,
+      point: LatLng(car.lat, car.long),
+      //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
+      child: (int.parse(car.speed)>100)?// substring remove speed: from the first
       Icon(Icons.location_on_rounded, color: Colors.redAccent,):
-      Icon(Icons.location_on_rounded, color: Colors.deepPurple,),
+      Icon(Icons.location_on_rounded, color: Colors.deepPurple,)
+    /*Transform.rotate(
+          angle: (car.course-180)* (3.141592653589793 / 180),
+          child: Icon(Icons.arrow_upward, color: Colors.deepPurple,)
+      ),*/
   );
   final Car car;
 }
 
-class CarMarkerPopup extends StatelessWidget {
-  const CarMarkerPopup({super.key, required this.car});
-  final Car car;
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 200,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(10, 0, 0, 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(car.name),
-              Align(
-                  alignment: Alignment.topLeft,
-                  child: Text(car.dateTime)),
-              Align(
-                  alignment: Alignment.topLeft,
-                  child: Text("speed: "+car.speed.toString())),
-              Align(
-                  alignment: Alignment.topLeft,
-                  child: Text("status: "+car.acc)),
-              Align(
-                  alignment: Alignment.topLeft,
-                  child: Text("driver: "+car.driver)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+
+
+

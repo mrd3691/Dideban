@@ -42,7 +42,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> update(Update event, Emitter<HomeState> emit,) async {
     List<Marker>? markers;
     try{
-      markers = await _makeLocationList1(event.treeNode,event.isOriginalTreeNode);
+      markers = await _makeLocationList(event.treeNode,event.isOriginalTreeNode,event.clickedTreeNode);
       emit(UpdateSuccess(markers: markers));
     }catch(e){
       emit(UpdateFailure());
@@ -200,88 +200,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<List<Marker>?> _makeLocationList(List<TreeNode> treeNode, bool isOriginalTreeNode)async{
-    List<Marker> carMarkers = [];
-    bool noDeviceSelected =true;
-    try{
-      final devices = await HomeAPI.getAllDevices();
-      if(isOriginalTreeNode){
-        for (int i = 0; i < treeNode.length; i++) {
-          for (int j = 0; j < treeNode[i].children.length; j++) {
-            for(int k=0;k<treeNode[i].children[j].children.length;k++){
-              if(treeNode[i].children[j].children[k].isSelected){
-                noDeviceSelected =false;
-                int id = getDeviceIdWithName(devices!, treeNode[i].children[j].children[k].title);
-                final devicePosition = await HomeAPI.getPosition(id);
-                if(devicePosition != null){
-                  final drivers = await HomeAPI.getDeviceDriver(id);
-                  String driver ="";
-                  if(drivers!=null && drivers.length>0){
-                    driver =drivers[0].name;
-                  }
-                  String speed = (devicePosition.speed!*1.852).round().toString();
-                  String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(devicePosition.fixTime!);
-                  carMarkers.add(
-                      CarMarker(car:
-                        Car(
-                          name: treeNode[i].children[j].children[k].title,
-                          speed: speed,
-                          dateTime: jalaliDateTime,
-                          acc: _getIgnitionFromAttributes(devicePosition.attributes),
-                          driver: driver,
-                          lat: devicePosition.latitude!,
-                          long: devicePosition.longitude!
-                        )
-                      )
-                  );
 
-                }
-              }
-            }
-          }
-        }
-      }else{
-        for (int i = 0; i < treeNode.length; i++) {
-          if(treeNode[i].isSelected){
-            noDeviceSelected =false;
-            int id = getDeviceIdWithName(devices!, treeNode[i].title);
-            final devicePosition = await HomeAPI.getPosition(id);
-            if(devicePosition != null){
-              final drivers = await HomeAPI.getDeviceDriver(id);
-              String driver ="";
-              if(drivers!=null && drivers.length>0){
-                driver =drivers[0].name;
-              }
-              String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(devicePosition.fixTime!);
-              String speed = (devicePosition.speed!*1.852).round().toString();
-              carMarkers.add(
-                  CarMarker(car:
-                  Car(
-                      name: treeNode[i].title,
-                      speed: speed,
-                      dateTime: jalaliDateTime,
-                      acc: _getIgnitionFromAttributes(devicePosition.attributes),
-                      driver: driver,
-                      lat: devicePosition.latitude!,
-                      long: devicePosition.longitude!
-                  )
-                  )
-              );
-            }
-          }
-        }
-      }
-      if(noDeviceSelected){
-        return null;
-      }
-      return carMarkers;
-    }catch(e){
-      return carMarkers;
-    }
 
-  }
-
-  Future<List<Marker>?> _makeLocationList1(List<TreeNode> treeNode, bool isOriginalTreeNode)async{
+  Future<List<Marker>?> _makeLocationList(List<TreeNode> treeNode, bool isOriginalTreeNode,TreeNode clickedTreeNode)async{
     List<Marker> carMarkers = [];
     List<Position>? positions;
     try{
@@ -298,7 +219,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                     String speed = (positions[m].speed!*1.852).round().toString();
                     String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(positions[m].fixTime!);
                     carMarkers.add(
-                        CarMarker(car:
+                        CarMarkerLive(car:
                         Car(
                             name: name,
                             speed: speed,
@@ -306,8 +227,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                             acc: _getIgnitionFromAttributes(positions[m].attributes),
                             driver: "",
                             lat: positions[m].latitude!,
-                            long: positions[m].longitude!
-                        )
+                            long: positions[m].longitude!,
+                            course: positions[m].course!
+                        ), clickedTreeNode: clickedTreeNode
                         )
                     );
                     break;
@@ -326,7 +248,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 String speed = (positions[m].speed!*1.852).round().toString();
                 String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(positions[m].fixTime!);
                 carMarkers.add(
-                    CarMarker(car:
+                    CarMarkerLive(car:
                     Car(
                         name: name,
                         speed: speed,
@@ -334,8 +256,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                         acc: _getIgnitionFromAttributes(positions[m].attributes),
                         driver: "",
                         lat: positions[m].latitude!,
-                        long: positions[m].longitude!
-                    )
+                        long: positions[m].longitude!,
+                        course: positions[m].course!
+                    ), clickedTreeNode: clickedTreeNode
                     )
                 );
                 break;

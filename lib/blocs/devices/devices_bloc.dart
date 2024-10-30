@@ -68,7 +68,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
             final deviceLocation = await API.fetchDeviceLocation(child.title);
             if(deviceLocation!.isNotEmpty){
               carMarkers.add(
-                  CarMarker(car: Car(
+                  CarMarkerTracking(car: Car(
                     name: child.title,
                     speed:  "speed: ${deviceLocation[0].speed}",
                     dateTime:  deviceLocation[0].fixTime,
@@ -76,6 +76,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                     driver: "driver: ${deviceLocation[0].driver}",
                     lat: double.parse(deviceLocation[0].latitude),
                     long: double.parse(deviceLocation[0].longitude),
+                    course: -1
                   )
                   ));
             }else{
@@ -100,7 +101,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
           if (treeNode[i].checkBoxState == CheckBoxState.selected) {
             final deviceLocation = await API.fetchDeviceLocation(treeNode[i].title);
             carMarkers.add(
-                CarMarker(
+                CarMarkerTracking(
                     car: Car(
                       name: treeNode[i].title,
                       speed:  "speed: ${deviceLocation![0].speed}",
@@ -109,6 +110,7 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                       driver: "driver: ${deviceLocation[0].driver}",
                       lat: double.parse(deviceLocation[0].latitude),
                       long: double.parse(deviceLocation[0].longitude),
+                      course: -1
                     )
                 )
             );
