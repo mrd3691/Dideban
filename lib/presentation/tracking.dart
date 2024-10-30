@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
-import 'package:dideban/blocs/devices/devices_bloc.dart';
 import 'package:dideban/presentation/widgets/treeview_checkbox.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
@@ -13,6 +13,7 @@ import 'package:shimmer/shimmer.dart';
 import '../blocs/tracking/tracking_bloc.dart';
 import '../utilities/util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class Tracking extends StatefulWidget {
   const Tracking({super.key});
@@ -41,6 +42,17 @@ class _TrackingState extends State<Tracking> {
   final _startTimeController = TextEditingController();
   final _endDateController = TextEditingController();
   final _endTimeController = TextEditingController();
+
+  var dateMaskFormatter = new MaskTextInputFormatter(
+      mask: '####/##/##',
+      filter: { "#": RegExp(r'[0-9]') },
+      type: MaskAutoCompletionType.lazy
+  );
+  var timeMaskFormatter = new MaskTextInputFormatter(
+      mask: '##:##',
+      filter: { "#": RegExp(r'[0-9]') },
+      type: MaskAutoCompletionType.lazy
+  );
 
   
   void getInitDateTime(){
@@ -370,6 +382,8 @@ class _TrackingState extends State<Tracking> {
                       Flexible(
                         flex: 14,
                         child: TextField(
+
+                          inputFormatters: [dateMaskFormatter],
                           controller: _startDateController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -383,6 +397,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible(
                         flex: 9,
                         child: TextField(
+                          inputFormatters: [timeMaskFormatter],
                           controller: _startTimeController,
                           style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
                           decoration: const InputDecoration(
@@ -404,6 +419,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible( //End date field
                         flex: 14,
                         child: TextField(
+                          inputFormatters: [dateMaskFormatter],
                           controller: _endDateController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -417,6 +433,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible(
                         flex: 9,
                         child: TextField(
+                          inputFormatters: [timeMaskFormatter],
                           controller: _endTimeController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),

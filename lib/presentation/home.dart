@@ -23,14 +23,18 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  double _bottomBarHeight = 120.0;
+  double _bottomBarHeight = 160.0;
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> searchedTreeNode = [];
   List<TreeNode> selectedTreeNode = [];
 
 
+  final ScrollController speedAlarmListController = ScrollController();
+  final ScrollController idleAlarmListController = ScrollController();
+  bool autoUpdateSelect=true;
 
-  List<Marker> _alarmItems =[];
+  List<Marker> _speedAlarmItems =[];
+  List<Marker> _idleAlarmItems =[];
   TextEditingController searchedValueController = TextEditingController();
   List<Marker>? markers = [];
   final MapController _mapController = MapController();
@@ -86,7 +90,7 @@ class _HomeState extends State<Home> {
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: TextField(
-                enableInteractiveSelection: false,
+                //enableInteractiveSelection: false,
                 decoration: const InputDecoration(
                   suffixIcon: Icon(Icons.search),
                 ),
@@ -184,6 +188,8 @@ class _HomeState extends State<Home> {
               );
             }
 
+
+
             return Column(children: [
               Container(
                 height: MediaQuery.of(context).size.height * 0.9,
@@ -210,6 +216,7 @@ class _HomeState extends State<Home> {
                     selectedTreeNode = newNodes;
                   },
                   nodes: (searchedValueController.text.isEmpty)? originalTreeNode:searchedTreeNode,
+
                 ),
               ),
             ]);
@@ -220,11 +227,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-  bool checkAlarmExistence(Marker newAlarm){
+  bool checkSpeedAlarmExistence(Marker newAlarm){
     bool alarmAlreadyExist = false;
     try{
-      for(int j=_alarmItems.length-1;j>=0;j--){ //check alarm exist
-        Marker oldAlarm = _alarmItems[j];
+      for(int j=_speedAlarmItems.length-1;j>=0;j--){ //check alarm exist
+        Marker oldAlarm = _speedAlarmItems[j];
         if(oldAlarm is CarMarker && newAlarm is CarMarker){
           if(oldAlarm.car.dateTime == newAlarm.car.dateTime){
             if(newAlarm.car.name == oldAlarm.car.name){
@@ -240,6 +247,29 @@ class _HomeState extends State<Home> {
       return true;
     }
   }
+
+  bool checkIdleAlarmExistence(Marker newAlarm){
+    bool alarmAlreadyExist = false;
+    try{
+      for(int j=_idleAlarmItems.length-1;j>=0;j--){ //check alarm exist
+        Marker oldAlarm = _idleAlarmItems[j];
+        if(oldAlarm is CarMarker && newAlarm is CarMarker){
+          if(oldAlarm.car.dateTime == newAlarm.car.dateTime){
+            if(newAlarm.car.name == oldAlarm.car.name){
+              alarmAlreadyExist =true;
+              break;
+            }
+          }
+        }
+      }
+      return alarmAlreadyExist;
+    }
+    catch(e){
+      return true;
+    }
+  }
+
+
 
   Duration? dateTimeDiffFromNow(Marker newAlarm){
     Duration? diff = null;
@@ -419,95 +449,183 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                     ),
+
+                    SizedBox(
+                      height: 3,
+                    ),
+                    Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: Row(
+                        children: [
+                          ChoiceChip(
+                            label: Text("Auto scroll"),
+                            selected: autoUpdateSelect,
+                            onSelected: (value){
+                              setState(() {
+                                if(value){
+                                  autoUpdateSelect = true;
+                                }else{
+                                  autoUpdateSelect =false;
+                                }
+                              });
+                            },
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          ChoiceChip(
+                            label: Text("Clear"),
+                            selected: false,
+                            onSelected: (value){
+                              _speedAlarmItems.clear();
+                            },
+                          ),
+                        ],
+
+                      ),
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
                     Expanded(
-                      child: Card(
-                        borderOnForeground: true,
-                        child: BlocBuilder<HomeBloc, HomeState>(
-                          builder: (context, state) {
-                            if(state is UpdateSuccess){
-                              if(state.markers != null){
-                                for(int i=0;i<state.markers!.length;i++){
-                                  Marker newMarker = markers![i];
-
-
-
-                                  if(newMarker is CarMarker) {
-
-                                    if(newMarker.car.name == deviceNameController.text){
-
-
-                                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                                        //deviceNameController.text = newMarker.car.name;
-                                        deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
-                                        deviceDateTimeController.text = newMarker.car.dateTime;
-                                      });
-
+                      child: BlocBuilder<HomeBloc, HomeState>(
+                        builder: (context, state) {
+                          if(state is UpdateSuccess){
+                            if(state.markers != null){
+                              for(int i=0;i<state.markers!.length;i++){
+                                Marker newMarker = markers![i];
+                                if(newMarker is CarMarker) {
+                                  if(newMarker.car.name == deviceNameController.text){
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      //deviceNameController.text = newMarker.car.name;
+                                      deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
+                                      deviceDateTimeController.text = newMarker.car.dateTime;
+                                    });
+                                  }
+                                  Duration? diff=dateTimeDiffFromNow(newMarker);
+                                  if(diff == null){
+                                    continue;
+                                  }
+                                  if(diff>Duration(hours: 24)){
+                                    bool alarmAlreadyExist = checkIdleAlarmExistence(newMarker);
+                                    if(!alarmAlreadyExist){
+                                      _idleAlarmItems.add(state.markers![i]);
                                     }
-
-
-                                    Duration? diff=dateTimeDiffFromNow(newMarker);
-                                    if(diff == null){
-                                      continue;
+                                    continue;
+                                  }
+                                  if(diff>Duration(minutes: 10)){
+                                    continue;
+                                  }
+                                  int speed = int.parse(newMarker.car.speed);
+                                  if (speed > 100) {
+                                    bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
+                                    if(!alarmAlreadyExist){
+                                      _speedAlarmItems.add(state.markers![i]);
                                     }
-                                    if(diff>Duration(hours: 24)){
-                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
-                                      if(!alarmAlreadyExist){
-                                        _alarmItems.add(state.markers![i]);
-                                      }
-                                      continue;
-                                    }
-                                    if(diff>Duration(minutes: 10)){
-                                      continue;
-                                    }
-                                    int speed = int.parse(newMarker.car.speed);
-                                    if (speed > 100) {
-                                      bool alarmAlreadyExist = checkAlarmExistence(newMarker);
-                                      if(!alarmAlreadyExist){
-                                        _alarmItems.add(state.markers![i]);
-                                      }
-                                      continue;
-                                    }
+                                    continue;
                                   }
                                 }
                               }
+
+
+                              if(autoUpdateSelect){
+                                speedAlarmListController.animateTo(
+                                  speedAlarmListController.position.maxScrollExtent,
+                                  duration: Duration(seconds: 1),
+                                  curve: Curves.easeOut,
+                                );
+                                idleAlarmListController.animateTo(
+                                  idleAlarmListController.position.maxScrollExtent,
+                                  duration: Duration(seconds: 1),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+
+
+
+
                             }
+                          }
 
-                            if(searchedValueController.text.isEmpty){
-                              context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
-                            }else{
-                              context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
-                            }
+                          if(searchedValueController.text.isEmpty){
+                            context.read<HomeBloc>().add(Update(selectedTreeNode,true),);
+                          }else{
+                            context.read<HomeBloc>().add(Update(selectedTreeNode,false),);
+                          }
 
 
-                            return ListView.builder(
-                              itemCount: _alarmItems.length,
-                              itemBuilder: (context, index) {
-                                Marker marker = _alarmItems[index];
-                                String alarmText="";
-                                if(marker is CarMarker){
-                                  Duration? diff =  dateTimeDiffFromNow(marker);
-                                  if(diff! > Duration(hours: 24)){
-                                    alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
-                                  }else if(int.parse(marker.car.speed) > 100){
-                                    alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
-                                  }
-                                }
-                                return Directionality(
-                                  textDirection: TextDirection.rtl,
-                                  child: ListTile(
 
-                                    title:Text(alarmText),
-                                    onTap: (){
-                                      /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
-                                      double newZoom =12.0; // New zoom level
-                                      _mapController.move(newCenter, newZoom);*/
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Flexible(
+                                flex:2,
+                                child: Card(
+                                  child: ListView.builder(
+                                    controller: speedAlarmListController,
+                                    itemCount: _idleAlarmItems.length,
+                                    itemBuilder: (context, index) {
+                                      Marker marker = _idleAlarmItems[index];
+                                      String alarmText="";
+                                      if(marker is CarMarker){
+                                        Duration? diff =  dateTimeDiffFromNow(marker);
+                                        if(diff! > Duration(hours: 24)){
+                                          alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
+                                        }else if(int.parse(marker.car.speed) > 100){
+                                          alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
+                                        }
+                                      }
+                                      return Directionality(
+                                        textDirection: TextDirection.rtl,
+                                        child: ListTile(
+                                          title:Text(alarmText),
+                                          onTap: (){
+                                            /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
+                                          double newZoom =12.0; // New zoom level
+                                          _mapController.move(newCenter, newZoom);*/
+                                          },
+                                        ),
+                                      );
                                     },
                                   ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                ),
+                              ),
+                              Flexible(
+                                flex:2,
+                                child: Card(
+                                  child: ListView.builder(
+                                    controller: idleAlarmListController,
+                                    itemCount: _speedAlarmItems.length,
+                                    itemBuilder: (context, index) {
+                                      Marker marker = _speedAlarmItems[index];
+                                      String alarmText="";
+                                      if(marker is CarMarker){
+                                        Duration? diff =  dateTimeDiffFromNow(marker);
+                                        if(diff! > Duration(hours: 24)){
+                                          alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
+                                        }else if(int.parse(marker.car.speed) > 100){
+                                          alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
+                                        }
+                                      }
+                                      return Directionality(
+                                        textDirection: TextDirection.rtl,
+                                        child: ListTile(
+                                          title:Text(alarmText),
+                                          onTap: (){
+                                            /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
+                                          double newZoom =12.0; // New zoom level
+                                          _mapController.move(newCenter, newZoom);*/
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+
+                          );
+                        },
                       ),
                     )
                   ],
@@ -519,6 +637,4 @@ class _HomeState extends State<Home> {
       ],
     );
   }
-
-
 }
