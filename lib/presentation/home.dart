@@ -350,11 +350,7 @@ class _HomeState extends State<Home> {
                           deviceNameController.text = value.car.name;
                           deviceSpeedController.text = "  سرعت: ${value.car.speed}" ;
                           deviceDateTimeController.text =value.car.dateTime;
-
                         }
-
-
-
                         clickedMarker=value;
                       },
                       maxClusterRadius: 45,
@@ -581,9 +577,8 @@ class _HomeState extends State<Home> {
                                         child: ListTile(
                                           title:Text(alarmText),
                                           onTap: (){
-                                            /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
-                                          double newZoom =12.0; // New zoom level
-                                          _mapController.move(newCenter, newZoom);*/
+                                            _showAlarm(_idleAlarmItems[index]);
+
                                           },
                                         ),
                                       );
@@ -613,6 +608,7 @@ class _HomeState extends State<Home> {
                                         child: ListTile(
                                           title:Text(alarmText),
                                           onTap: (){
+                                            _showAlarm(_speedAlarmItems[index]);
                                             /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
                                           double newZoom =12.0; // New zoom level
                                           _mapController.move(newCenter, newZoom);*/
@@ -637,5 +633,65 @@ class _HomeState extends State<Home> {
         ),
       ],
     );
+  }
+
+  void _showAlarm(Marker alarmMarker)  {
+    List<Marker> alarmMarkers = [alarmMarker];
+    TextEditingController alarmDetailsController =TextEditingController();
+    try{
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            double initialZoom =  5.0;
+            late LatLng initialCenter;
+            if(alarmMarker is CarMarkerLive){
+              initialCenter=  LatLng(alarmMarker.point.latitude, alarmMarker.point.longitude);
+
+              alarmDetailsController.text = alarmMarker.car.name + "     سرعت:" + alarmMarker.car.speed + "    " + alarmMarker.car.dateTime;
+            }
+            return AlertDialog(
+              title: const Text("Alarm details"),
+              content: SizedBox(
+                width: 500,
+                height: 500,
+                child: FlutterMap(
+                    options: MapOptions(
+                        initialCenter:initialCenter,
+                        initialZoom: initialZoom,
+                        interactionOptions: const InteractionOptions(
+                          flags: InteractiveFlag.all,
+                        ),
+                        onTap: (_, __) {
+
+                        }
+                    ),
+                    children: <Widget>[
+                      TileLayer(
+                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
+                        tileProvider: CancellableNetworkTileProvider(),
+                      ),
+                      MarkerLayer(markers: alarmMarkers),
+                    ]
+                ),
+              ),
+              actions: [
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: TextField(
+                    controller: alarmDetailsController,
+                    readOnly: true,
+                  ),
+                )
+              ],
+            );
+
+          }
+      );
+    }catch(e){
+      var t=0;
+    }
+
+
   }
 }
