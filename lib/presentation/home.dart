@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   double _bottomBarHeight = 160.0;
+  double _rightBarWidth = 250.0;
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> searchedTreeNode = [];
   List<TreeNode> selectedTreeNode = [];
@@ -28,7 +29,7 @@ class _HomeState extends State<Home> {
 
   final ScrollController speedAlarmListController = ScrollController();
   final ScrollController idleAlarmListController = ScrollController();
-  bool autoUpdateSelect=true;
+  bool autoScrollSelect=true;
 
   List<Marker> _speedAlarmItems =[];
   List<Marker> _idleAlarmItems =[];
@@ -74,6 +75,7 @@ class _HomeState extends State<Home> {
           appBar: const AppBarDideban(),
           body: homeBody(context),
           drawer: drawer(context),
+
 
 
       ),
@@ -397,243 +399,298 @@ class _HomeState extends State<Home> {
               );
             }),
         Positioned(
+          top: 0,
           bottom: 0,
-          left: 0,
           right: 0,
           child: GestureDetector(
-            onVerticalDragUpdate: (details) {
+            onHorizontalDragUpdate: (details) {
               setState(() {
-                _bottomBarHeight -= details.delta.dy;
-                if (_bottomBarHeight < 100) _bottomBarHeight = 100; // Minimum height
-                if (_bottomBarHeight > 300) _bottomBarHeight = 300; // Maximum height
+                _rightBarWidth -= details.delta.dx;
+                if (_rightBarWidth < 200) _rightBarWidth = 200; // Minimum height
+                if (_rightBarWidth > 700) _rightBarWidth = 700; // Maximum height
               });
             },
             child: Container(
-              height: _bottomBarHeight,
-              color: Colors.blue,
-              child: BottomAppBar(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-
-                          Flexible(
-                            flex: 2,
-                            child: TextField(
-                              readOnly: true,
-                              controller: deviceNameController,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: TextField(
-                              readOnly: true,
-                              controller: deviceSpeedController,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          Flexible(
-                            flex: 2,
-                            child: TextField(
-                              readOnly: true,
-                              controller: deviceDateTimeController,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 3,
-                    ),
-                    Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: Row(
-                        children: [
-                          ChoiceChip(
-                            label: Text("Auto scroll"),
-                            selected: autoUpdateSelect,
-                            onSelected: (value){
-                              setState(() {
-                                if(value){
-                                  autoUpdateSelect = true;
-                                }else{
-                                  autoUpdateSelect =false;
-                                }
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          ChoiceChip(
-                            label: Text("Clear"),
-                            selected: false,
-                            onSelected: (value){
-                              originalTreeNode[0].children[0].children[0].isSelected =true;
-                              _speedAlarmItems.clear();
-                            },
-                          ),
-                        ],
-
-                      ),
-                    ),
-                    SizedBox(
-                      height: 3,
-                    ),
-                    Expanded(
-                      child: BlocBuilder<HomeBloc, HomeState>(
-                        builder: (context, state) {
-                          if(state is UpdateSuccess){
-                            if(state.markers != null){
-                              for(int i=0;i<state.markers!.length;i++){
-                                Marker newMarker = markers![i];
-                                if(newMarker is CarMarkerLive) {
-                                  if(newMarker.car.name == deviceNameController.text){
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      //deviceNameController.text = newMarker.car.name;
-                                      deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
-                                      deviceDateTimeController.text = newMarker.car.dateTime;
-                                    });
-                                  }
-                                  Duration? diff=dateTimeDiffFromNow(newMarker);
-                                  if(diff == null){
-                                    continue;
-                                  }
-                                  if(diff>Duration(hours: 24)){
-                                    bool alarmAlreadyExist = checkIdleAlarmExistence(newMarker);
-                                    if(!alarmAlreadyExist){
-                                      _idleAlarmItems.add(state.markers![i]);
-                                    }
-                                    continue;
-                                  }
-                                  if(diff>Duration(minutes: 10)){
-                                    continue;
-                                  }
-                                  int speed = int.parse(newMarker.car.speed);
-                                  if (speed > 100) {
-                                    bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
-                                    if(!alarmAlreadyExist){
-                                      _speedAlarmItems.add(state.markers![i]);
-                                    }
-                                    continue;
-                                  }
-                                }
-                              }
-
-
-                              if(autoUpdateSelect){
-                                speedAlarmListController.animateTo(
-                                  speedAlarmListController.position.maxScrollExtent,
-                                  duration: Duration(seconds: 1),
-                                  curve: Curves.easeOut,
-                                );
-                                idleAlarmListController.animateTo(
-                                  idleAlarmListController.position.maxScrollExtent,
-                                  duration: Duration(seconds: 1),
-                                  curve: Curves.easeOut,
-                                );
-                              }
-
-
-
-
+              width: _rightBarWidth,
+              color: Colors.white,
+              child: BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  if(state is UpdateSuccess){
+                    if(state.markers != null){
+                      for(int i=0;i<state.markers!.length;i++){
+                        Marker newMarker = markers![i];
+                        if(newMarker is CarMarkerLive) {
+                          if(newMarker.car.name == deviceNameController.text){
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              //deviceNameController.text = newMarker.car.name;
+                              deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
+                              deviceDateTimeController.text = newMarker.car.dateTime;
+                            });
+                          }
+                          Duration? diff=dateTimeDiffFromNow(newMarker);
+                          if(diff == null){
+                            continue;
+                          }
+                          if(diff>Duration(hours: 24)){
+                            bool alarmAlreadyExist = checkIdleAlarmExistence(newMarker);
+                            if(!alarmAlreadyExist){
+                              _idleAlarmItems.add(state.markers![i]);
                             }
+                            continue;
                           }
-
-                          if(searchedValueController.text.isEmpty){
-                            context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
-                          }else{
-                            context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
+                          if(diff>Duration(minutes: 10)){
+                            continue;
                           }
+                          int speed = int.parse(newMarker.car.speed);
+                          if (speed > 100) {
+                            bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
+                            if(!alarmAlreadyExist){
+                              _speedAlarmItems.add(state.markers![i]);
+                            }
+                            continue;
+                          }
+                        }
+                      }
+
+
+                      if(autoScrollSelect){
+                        speedAlarmListController.animateTo(
+                          speedAlarmListController.position.maxScrollExtent,
+                          duration: Duration(seconds: 1),
+                          curve: Curves.easeOut,
+                        );
+                        idleAlarmListController.animateTo(
+                          idleAlarmListController.position.maxScrollExtent,
+                          duration: Duration(seconds: 1),
+                          curve: Curves.easeOut,
+                        );
+                      }
 
 
 
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                    }
+                  }
+
+                  if(searchedValueController.text.isEmpty){
+                    context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
+                  }else{
+                    context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
+                  }
+
+
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Spacer(flex: 1,),
+                      Flexible(
+                        flex:2,
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: Row(
                             children: [
-                              Flexible(
-                                flex:2,
-                                child: Card(
-                                  child: ListView.builder(
-                                    controller: speedAlarmListController,
-                                    itemCount: _idleAlarmItems.length,
-                                    itemBuilder: (context, index) {
-                                      Marker marker = _idleAlarmItems[index];
-                                      String alarmText="";
-                                      if(marker is CarMarkerLive){
-                                        Duration? diff =  dateTimeDiffFromNow(marker);
-                                        if(diff! > Duration(hours: 24)){
-                                          alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
-                                        }else if(int.parse(marker.car.speed) > 100){
-                                          alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
-                                        }
-                                      }
-                                      return Directionality(
-                                        textDirection: TextDirection.rtl,
-                                        child: ListTile(
-                                          title:Text(alarmText),
-                                          onTap: (){
-                                            _showAlarm(_idleAlarmItems[index]);
-
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
+                              SizedBox(width: 5,),
+                              ChoiceChip(
+                                label: Text("Auto scroll"),
+                                selected: autoScrollSelect,
+                                onSelected: (value){
+                                  setState(() {
+                                    if(value){
+                                      autoScrollSelect = true;
+                                    }else{
+                                      autoScrollSelect =false;
+                                    }
+                                  });
+                                },
                               ),
-                              Flexible(
-                                flex:2,
-                                child: Card(
-                                  child: ListView.builder(
-                                    controller: idleAlarmListController,
-                                    itemCount: _speedAlarmItems.length,
-                                    itemBuilder: (context, index) {
-                                      Marker marker = _speedAlarmItems[index];
-                                      String alarmText="";
-                                      if(marker is CarMarkerLive){
-                                        Duration? diff =  dateTimeDiffFromNow(marker);
-                                        if(diff! > Duration(hours: 24)){
-                                          alarmText = "هشدار عدم ارسال اطلاعات : ${marker.car.name} آخرین ارسال اطلاعات: ${marker.car.dateTime}";
-                                        }else if(int.parse(marker.car.speed) > 100){
-                                          alarmText = "هشدار سرعت غیر مجاز : ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
-                                        }
-                                      }
-                                      return Directionality(
-                                        textDirection: TextDirection.rtl,
-                                        child: ListTile(
-                                          title:Text(alarmText),
-                                          onTap: (){
-                                            _showAlarm(_speedAlarmItems[index]);
-                                            /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
-                                          double newZoom =12.0; // New zoom level
-                                          _mapController.move(newCenter, newZoom);*/
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              ChoiceChip(
+                                label: Text("Clear"),
+                                selected: false,
+                                onSelected: (value){
+                                  originalTreeNode[0].children[0].children[0].isSelected =true;
+                                  _speedAlarmItems.clear();
+                                },
                               ),
                             ],
 
-                          );
-                        },
+                          ),
+                        ),
                       ),
-                    )
-                  ],
-                ),
+                      Spacer(flex: 1,),
+                      Flexible(
+                          flex:2,
+                          child: Text("هشدار عدم ارسال اطلاعات")
+                      ),
+
+                      Flexible(
+                        flex:20,
+                        child: Card(
+                          child: ListView.builder(
+                            controller: idleAlarmListController,
+                            itemCount: _idleAlarmItems.length,
+                            itemBuilder: (context, index) {
+
+                              Marker marker = _idleAlarmItems[index];
+                              String alarmText="";
+                              String idleAlarmName ="";
+                              String idleAlarmDateTime ="";
+                              if(marker is CarMarkerLive){
+                                idleAlarmName = marker.car.name;
+                                idleAlarmDateTime = marker.car.dateTime;
+                                /*Duration? diff =  dateTimeDiffFromNow(marker);
+                                if(diff! > Duration(hours: 24)){
+                                  alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
+                                }else if(int.parse(marker.car.speed) > 100){
+                                  alarmText = " ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
+                                }*/
+                              }
+                              return Directionality(
+                                textDirection: TextDirection.rtl,
+                                child: Container(
+                                  color: index % 2 == 0 ? Colors.white70 : Colors.white10,
+                                  child: ListTile(
+
+                                    title:Row(
+                                        children: [
+                                          Flexible(
+                                              flex:3,
+                                              child: Text(idleAlarmName)
+                                          ),
+                                          Spacer(),
+                                          Flexible(flex:3,child: Text(idleAlarmDateTime))
+                                        ],
+                                    ),
+                                    onTap: (){
+                                      _showAlarm(_idleAlarmItems[index]);
+
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Spacer(flex: 1,),
+                      Flexible(
+                        flex:2,
+                          child: Text("هشدار سرعت")),
+                      Flexible(
+                        flex:20,
+                        child: Card(
+                          child: ListView.builder(
+                            controller: speedAlarmListController,
+                            itemCount: _speedAlarmItems.length,
+                            itemBuilder: (context, index) {
+                              Marker marker = _speedAlarmItems[index];
+                              String alarmText="";
+                              String speedAlarmName ="";
+                              String speedAlarmSpeed ="";
+                              String speedAlarmDateTime ="";
+                              if(marker is CarMarkerLive){
+                                /*Duration? diff =  dateTimeDiffFromNow(marker);
+                                if(diff! > Duration(hours: 24)){
+                                  alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
+                                }else*/
+                                speedAlarmName = marker.car.name;
+                                speedAlarmSpeed = marker.car.speed;
+                                speedAlarmDateTime = marker.car.dateTime;
+                              }
+                              return Directionality(
+                                textDirection: TextDirection.rtl,
+                                child: Container(
+                                  color: index % 2 == 0 ? Colors.white70 : Colors.white10,
+                                  child: ListTile(
+                                    title:Row(
+                                        children: [
+                                          Flexible(
+                                              flex:3,
+                                              child: Text(speedAlarmName)
+                                          ),
+                                          Spacer(),
+                                          Flexible(
+                                            flex: 1,
+                                              child: Text(
+                                                  speedAlarmSpeed,
+                                                  style: TextStyle(color: (int.parse(speedAlarmSpeed)<105)?Colors.orange:Colors.red),
+
+                                              )
+                                          ),
+                                          Spacer(),
+                                          Flexible(
+                                              flex: 3,
+                                              child: Text(speedAlarmDateTime)
+                                          )
+                                        ],
+                                    ),
+                                    onTap: (){
+                                      _showAlarm(_speedAlarmItems[index]);
+                                      /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
+                                      double newZoom =12.0; // New zoom level
+                                      _mapController.move(newCenter, newZoom);*/
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+
+                  );
+                },
               ),
             ),
           ),
         ),
+        Positioned(
+          left: 0,
+          bottom: 0,
+          right: _rightBarWidth,
+          child: BottomAppBar(
+            //color: Colors.blue,
+            child:Directionality(
+              textDirection: TextDirection.rtl,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    flex: 2,
+                    child: TextField(
+                      readOnly: true,
+                      controller: deviceNameController,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: TextField(
+                      readOnly: true,
+                      controller: deviceSpeedController,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Flexible(
+                    flex: 2,
+                    child: TextField(
+                      readOnly: true,
+                      controller: deviceDateTimeController,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+
+
       ],
     );
   }
