@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dideban/config.dart';
 import 'package:http/http.dart' as http;
 import '../models/group.dart';
 import '../models/user.dart';
@@ -15,7 +16,8 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/users'));
+      //var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/users'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/users'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();

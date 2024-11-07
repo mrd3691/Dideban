@@ -75,6 +75,7 @@ class _HomeState extends State<Home> {
           body: homeBody(context),
           drawer: drawer(context),
 
+
       ),
     );
   }
@@ -227,6 +228,7 @@ class _HomeState extends State<Home> {
   }
 
   bool checkSpeedAlarmExistence(Marker newAlarm){
+
     bool alarmAlreadyExist = false;
     try{
       for(int j=_speedAlarmItems.length-1;j>=0;j--){ //check alarm exist
@@ -353,11 +355,11 @@ class _HomeState extends State<Home> {
                         }
                         clickedMarker=value;
                       },
-                      maxClusterRadius: 45,
-                      size: const Size(40, 40),
+                      maxClusterRadius: 30,
+                      size: const Size(30, 30),
                       alignment: Alignment.center,
                       padding: const EdgeInsets.all(50),
-                      maxZoom: 15,
+                      maxZoom: 10,
                       markers: markers!,
                       builder: (context, markers) {
                         return Container(
@@ -474,6 +476,7 @@ class _HomeState extends State<Home> {
                             label: Text("Clear"),
                             selected: false,
                             onSelected: (value){
+                              originalTreeNode[0].children[0].children[0].isSelected =true;
                               _speedAlarmItems.clear();
                             },
                           ),
@@ -652,8 +655,8 @@ class _HomeState extends State<Home> {
             return AlertDialog(
               title: const Text("Alarm details"),
               content: SizedBox(
-                width: 500,
-                height: 500,
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: MediaQuery.of(context).size.height * 0.5,
                 child: FlutterMap(
                     options: MapOptions(
                         initialCenter:initialCenter,

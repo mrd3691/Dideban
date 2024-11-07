@@ -8,27 +8,11 @@ import 'package:dideban/models/authStatus.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config.dart';
+
 class API{
 
   static final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  static Future<List<Group>?> fetchAllGroups11111() async{
-    try {
-      final response = await http.post(Uri.parse('http://80.210.21.35/getAllGroups.php'));
-      if (response.statusCode == 200) {
-        final parsed = json.decode(response.body).cast<Map<String , dynamic>>();
-        List<Group> groups = parsed.map<Group>( (json) =>  Group.fromMap(json) ).toList();
-        return groups;
-      } else {
-        return null;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-      return null;
-    }
-  }
 
   static Future<List<DeviceShow>?> fetchAllUserDevices(String userId) async{
     try {
@@ -36,7 +20,7 @@ class API{
       req["userId"] = userId;
 
       final response = await http.post(
-          Uri.parse('http://80.210.21.35/getAllUserDevices.php'),
+          Uri.parse('${Config.serverAddress}/getAllUserDevices.php'),
           body: req
       );
       if (response.statusCode == 200) {
@@ -61,7 +45,7 @@ class API{
       req["deviceName"] = deviceName;
 
       final response = await http.post(
-          Uri.parse('http://80.210.21.35/getDeviceLocation.php'),
+          Uri.parse('${Config.serverAddressTraccar}/getDeviceLocation.php'),
           body: req
       );
       if (response.statusCode == 200) {
@@ -94,7 +78,7 @@ class API{
 
 
       final response = await http.post(
-          Uri.parse('http://80.210.21.35:8082/api/session'),
+          Uri.parse('${Config.serverAddressTraccar}/api/session'),
           headers: headers,
           body: req
       );
@@ -120,7 +104,7 @@ class API{
       req["endDateTime"] = endDateTime;
 
       final response = await http.post(
-          Uri.parse('http://80.210.21.35/getTrackingPoints.php'),
+          Uri.parse('${Config.serverAddress}/getTrackingPoints.php'),
           body: req
       );
       if (response.statusCode == 200) {

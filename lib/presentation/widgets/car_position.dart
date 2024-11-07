@@ -66,7 +66,50 @@ class IconMarker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   if(isIdle(dateTime)){
+
+
+    if(clickedTreeNode.title == markerName) {
+      return Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.circle,
+            size: 30,// Directional arrow
+            color:Colors.white,
+          ),
+          Positioned(
+            child: Icon(
+              size: 30,
+              Icons.navigation, // Directional arrow
+              color: (isIdle(dateTime))
+                  ? Colors.black
+                  :(int.parse(speed)>100)
+                    ?Colors.redAccent
+                    :Colors.green
+            ),
+          ),
+        ],
+      );
+      return Icon(
+        Icons.navigation,
+        color: Colors.blue,
+      );
+    }else{
+      if(isIdle(dateTime)){
+        return Icon(
+          Icons.navigation,
+          color: Colors.black,
+        );
+      }else{
+        return Icon(
+          Icons.navigation, // Directional arrow
+          color:(int.parse(speed)>100)?Colors.redAccent :Colors.green,
+        );
+      }
+    }
+
+
+   /*if(isIdle(dateTime)){
      return Stack(
        alignment: Alignment.center,
        children: [
@@ -104,7 +147,7 @@ class IconMarker extends StatelessWidget {
          ),
        ],
      );
-   }
+   }*/
   }
 }
 
