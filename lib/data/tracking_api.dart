@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dideban/models/position.dart';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../models/device.dart';
 import '../models/driver.dart';
 import '../models/group.dart';
@@ -16,7 +17,7 @@ class TrackingAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/devices'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/devices'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -42,7 +43,7 @@ class TrackingAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/groups'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();

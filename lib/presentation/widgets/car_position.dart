@@ -64,6 +64,22 @@ class IconMarker extends StatelessWidget {
     }
   }
 
+
+
+  bool isNightMove(String speed){
+    try{
+      DateTime dtNow = DateTime.now();
+      if(dtNow.hour < 6 && int.parse(speed)>0){
+        return true;
+      }
+      return false;
+    }catch(e){
+      return false;
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -83,9 +99,12 @@ class IconMarker extends StatelessWidget {
               Icons.navigation, // Directional arrow
               color: (isIdle(dateTime))
                   ? Colors.black
-                  :(int.parse(speed)>100)
+                  :(int.parse(speed)>105)
                     ?Colors.redAccent
-                    :Colors.green
+                      : (isNightMove(speed)) ?
+                        Colors.deepPurple :
+                          Colors.blueAccent
+
             ),
           ),
         ],
@@ -103,7 +122,7 @@ class IconMarker extends StatelessWidget {
       }else{
         return Icon(
           Icons.navigation, // Directional arrow
-          color:(int.parse(speed)>100)?Colors.redAccent :Colors.green,
+          color:(int.parse(speed)>105)? Colors.redAccent : (isNightMove(speed))? Colors.deepPurple :  Colors.blueAccent ,
         );
       }
     }
@@ -186,7 +205,7 @@ class CarMarkerTracking extends Marker {
       width: Car.size,
       point: LatLng(car.lat, car.long),
       //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
-      child: (int.parse(car.speed)>100)?// substring remove speed: from the first
+      child: (int.parse(car.speed)>105)?// substring remove speed: from the first
       Icon(Icons.location_on_rounded, color: Colors.redAccent,):
       Icon(Icons.location_on_rounded, color: Colors.deepPurple,)
     /*Transform.rotate(

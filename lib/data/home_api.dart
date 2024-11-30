@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dideban/models/position.dart';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../models/device.dart';
 import '../models/driver.dart';
 import '../models/group.dart';
@@ -17,7 +18,7 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/devices'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/devices'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -43,7 +44,7 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/groups'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -69,7 +70,7 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/positions?deviceId=$deviceId'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/positions?deviceId=$deviceId'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -101,7 +102,7 @@ class HomeAPI{
         'Authorization': auth
       };
 
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/drivers?deviceId=$deviceId'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/drivers?deviceId=$deviceId'));
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
       http.Response response = await http.Response.fromStream(streamedResponse);
@@ -126,7 +127,7 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/positions'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/positions'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();

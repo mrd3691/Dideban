@@ -82,14 +82,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       if(searchedValue.isEmpty){
         emit(SearchDrawerDevicesSuccess(treeNode: totalNode));
       }else{
-        for(int i=0;i<totalNode.length;i++){
-          for(int j=0;j<totalNode[i].children.length;j++){
-            for(int k=0;k<totalNode[i].children[j].children.length;k++){
-              if(totalNode[i].children[j].children[k].title.contains(searchedValue)){
-                if(totalNode[i].children[j].children[k].isSelected){
-                  searchedTreeNode.add(TreeNode(title: totalNode[i].children[j].children[k].title,isSelected: true));
+        for(int i=0;i<totalNode[0].children.length;i++){
+          for(int j=0;j<totalNode[0].children[i].children.length;j++){
+            for(int k=0;k<totalNode[0].children[i].children[j].children.length;k++){
+              if(totalNode[0].children[i].children[j].children[k].title.contains(searchedValue)){
+                if(totalNode[0].children[i].children[j].children[k].isSelected){
+                  searchedTreeNode.add(TreeNode(title: totalNode[0].children[i].children[j].children[k].title,isSelected: true));
                 }else{
-                  searchedTreeNode.add(TreeNode(title: totalNode[i].children[j].children[k].title,isSelected: false));
+                  searchedTreeNode.add(TreeNode(title: totalNode[0].children[i].children[j].children[k].title,isSelected: false));
                 }
 
               }
@@ -147,6 +147,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   List<TreeNode> _makeNodes(List<Device> devices, List<Group> groups) {
     List<TreeNode> totalNode =[];
+
     try{
       totalNode = _makeRootNodes(groups);
       totalNode = _makeSubNodes(groups, totalNode);
@@ -166,7 +167,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           totalNode[i].children[j].children = nodes;
         }
       }
-      return totalNode;
+
+      List<TreeNode> totalNode1 =[];
+      TreeNode organNode = TreeNode(title: "آزادگان");
+      organNode.children = totalNode;
+      totalNode1.add(organNode);
+      return totalNode1;
     }catch(e){
       return totalNode;
     }
@@ -209,13 +215,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       positions  = await HomeAPI.getLastPositions();
 
       if(isOriginalTreeNode){
-        for (int i = 0; i < treeNode.length; i++) {
-          for (int j = 0; j < treeNode[i].children.length; j++) {
-            for (int k = 0; k < treeNode[i].children[j].children.length; k++) {
-              if (treeNode[i].children[j].children[k].isSelected){
+        for (int i = 0; i < treeNode[0].children.length; i++) {
+          for (int j = 0; j <treeNode[0].children[i].children.length; j++) {
+            for (int k = 0; k < treeNode[0].children[i].children[j].children.length; k++) {
+              if (treeNode[0].children[i].children[j].children[k].isSelected){
                 for(int m =0;m<positions!.length;m++){
                   String name = getDeviceNameWithId(positions[m].deviceId);
-                  if(name == treeNode[i].children[j].children[k].title){
+                  if(name == treeNode[0].children[i].children[j].children[k].title){
                     String speed = (positions[m].speed!*1.852).round().toString();
                     String jalaliDateTime=Util.georgianToJalaliWithGMTConvert(positions[m].fixTime!);
                     carMarkers.add(

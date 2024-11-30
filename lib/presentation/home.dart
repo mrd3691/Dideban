@@ -1,4 +1,5 @@
 import 'package:dideban/blocs/home/home_bloc.dart';
+import 'package:dideban/config.dart';
 import '../../utilities/util.dart';
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  double _bottomBarHeight = 160.0;
   double _rightBarWidth = 250.0;
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> searchedTreeNode = [];
@@ -38,9 +38,12 @@ class _HomeState extends State<Home> {
   final MapController _mapController = MapController();
   bool rebuildDrawer=true;
 
-  TextEditingController deviceNameController = TextEditingController();
-  TextEditingController deviceDateTimeController = TextEditingController();
-  TextEditingController deviceSpeedController = TextEditingController();
+
+
+  String clickedDeviceName="";
+  String clickedDeviceSpeed ="";
+  String clickedDeviceDate = "";
+  String clickedDeviceTime = "";
 
   Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,), clickedTreeNode: TreeNode(title: ""));
   TreeNode clickedTreeNode = TreeNode(title: "");
@@ -206,9 +209,12 @@ class _HomeState extends State<Home> {
                           newCenter = LatLng(marker.point.latitude, marker.point.longitude); // New center (e.g., Paris)
                           newZoom = 12.0;
                           _mapController.move(newCenter, newZoom);
-                          deviceNameController.text=marker.car.name;
-                          deviceDateTimeController.text=marker.car.dateTime;
-                          deviceSpeedController.text ="  سرعت:  ${marker.car.speed}";
+                          clickedDeviceName = marker.car.name;
+                          clickedDeviceSpeed = "  سرعت:  ${marker.car.speed}";
+                          //String dateTime = marker.car.dateTime;
+                          var dtArray = marker.car.dateTime.split(" ");
+                          clickedDeviceDate = "تاریخ: ${dtArray[1]}";
+                          clickedDeviceTime ="ساعت: ${dtArray[0]}";
                           break;
                         }
                       }
@@ -216,6 +222,8 @@ class _HomeState extends State<Home> {
                   },
                   onChanged: (newNodes) {
                     selectedTreeNode = newNodes;
+                    _speedAlarmItems.clear();
+                    _idleAlarmItems.clear();
                   },
                   nodes: (searchedValueController.text.isEmpty)? originalTreeNode:searchedTreeNode,
 
@@ -334,20 +342,21 @@ class _HomeState extends State<Home> {
                     flags: InteractiveFlag.all,
                   ),
                   onTap: (_, __) {
-                    deviceNameController.text="";
-                    deviceDateTimeController.text="";
-                    deviceSpeedController.text ="";
+                    clickedDeviceDate ="";
+                    clickedDeviceTime ="";
+                    clickedDeviceSpeed = "";
+                    clickedDeviceName = "";
                     //_popupLayerController.hideAllPopups();
                   }
                 ),
                 children: <Widget>[
                   TileLayer(
-                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    urlTemplate: "${Config.mapAddress}",
                     //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                     tileProvider: CancellableNetworkTileProvider(),
                   ),
 
-                  MarkerClusterLayerWidget(
+                  /*MarkerClusterLayerWidget(
                     options: MarkerClusterLayerOptions(
                       onMarkerTap: (value){
                         if(value is CarMarkerLive){
@@ -357,10 +366,10 @@ class _HomeState extends State<Home> {
                         }
                         clickedMarker=value;
                       },
-                      maxClusterRadius: 30,
+                      maxClusterRadius: 0,
                       size: const Size(30, 30),
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.all(50),
+                      //padding: const EdgeInsets.all(50),
                       maxZoom: 10,
                       markers: markers!,
                       builder: (context, markers) {
@@ -377,24 +386,42 @@ class _HomeState extends State<Home> {
                         );
                       },
                     ),
-                  ),
+                  ),*/
 
-                  /*PopupMarkerLayer(
+                  PopupMarkerLayer(
                     options: PopupMarkerLayerOptions(
                       markers: markers ?? [],
-                      popupController: _popupLayerController,
+                      //popupController: _popupLayerController,
                       popupDisplayOptions: PopupDisplayOptions(
                         builder: (_, Marker marker) {
 
-                          if(marker is CarMarker) {
-                            return CarMarkerPopup(car: marker.car);
-                          }
-                          return const Card(child: Text('No data available'));
+
+                          WidgetsBinding.instance
+                              .addPostFrameCallback((_)  {
+
+                            if(marker is CarMarkerLive){
+                              if(clickedDeviceName != marker.car.name){
+                                var dtArray = marker.car.dateTime.split(" ");
+                                clickedDeviceDate = "تاریخ: ${dtArray[1]}";
+                                clickedDeviceTime ="ساعت: ${dtArray[0]}";
+                                clickedDeviceSpeed = "  سرعت: ${marker.car.speed}" ;
+                                clickedDeviceName = marker.car.name;
+                              }
+
+                            }
+                            clickedMarker=marker;
+
+
+                          });
+
+                          return Container();
+
+
                         },
                       ),
 
                     ),
-                  )*/
+                  )
                 ],
               );
             }),
@@ -420,11 +447,13 @@ class _HomeState extends State<Home> {
                       for(int i=0;i<state.markers!.length;i++){
                         Marker newMarker = markers![i];
                         if(newMarker is CarMarkerLive) {
-                          if(newMarker.car.name == deviceNameController.text){
+                          if(newMarker.car.name == clickedDeviceName){
                             WidgetsBinding.instance.addPostFrameCallback((_) {
-                              //deviceNameController.text = newMarker.car.name;
-                              deviceSpeedController.text = " سرعت: ${newMarker.car.speed}";
-                              deviceDateTimeController.text = newMarker.car.dateTime;
+                              clickedDeviceSpeed =" سرعت: ${newMarker.car.speed}";
+
+                              var dtArray = newMarker.car.dateTime.split(" ");
+                              clickedDeviceDate = "تاریخ: ${dtArray[1]}";
+                              clickedDeviceTime ="ساعت: ${dtArray[0]}";
                             });
                           }
                           Duration? diff=dateTimeDiffFromNow(newMarker);
@@ -442,7 +471,7 @@ class _HomeState extends State<Home> {
                             continue;
                           }
                           int speed = int.parse(newMarker.car.speed);
-                          if (speed > 100) {
+                          if (speed > 105) {
                             bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
                             if(!alarmAlreadyExist){
                               _speedAlarmItems.add(state.markers![i]);
@@ -511,8 +540,8 @@ class _HomeState extends State<Home> {
                                 label: Text("Clear"),
                                 selected: false,
                                 onSelected: (value){
-                                  originalTreeNode[0].children[0].children[0].isSelected =true;
                                   _speedAlarmItems.clear();
+                                  _idleAlarmItems.clear();
                                 },
                               ),
                             ],
@@ -616,7 +645,7 @@ class _HomeState extends State<Home> {
                                             flex: 1,
                                               child: Text(
                                                   speedAlarmSpeed,
-                                                  style: TextStyle(color: (int.parse(speedAlarmSpeed)<105)?Colors.orange:Colors.red),
+                                                  style: TextStyle(color: Colors.red),
 
                                               )
                                           ),
@@ -656,34 +685,34 @@ class _HomeState extends State<Home> {
             //color: Colors.blue,
             child:Directionality(
               textDirection: TextDirection.rtl,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    flex: 2,
-                    child: TextField(
-                      readOnly: true,
-                      controller: deviceNameController,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: TextField(
-                      readOnly: true,
-                      controller: deviceSpeedController,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: TextField(
-                      readOnly: true,
-                      controller: deviceDateTimeController,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
+              child: BlocBuilder<HomeBloc, HomeState>(
+                builder: (context, state) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Flexible(
+                        flex: 2,
+                        child: Text(clickedDeviceName
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: Text(clickedDeviceSpeed
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: Text(clickedDeviceDate
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: Text(clickedDeviceTime
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -727,7 +756,7 @@ class _HomeState extends State<Home> {
                     ),
                     children: <Widget>[
                       TileLayer(
-                        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        urlTemplate: "${Config.mapAddress}",
                         //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                         tileProvider: CancellableNetworkTileProvider(),
                       ),

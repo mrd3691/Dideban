@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../models/driver.dart';
 import '../utilities/util.dart';
 
@@ -14,7 +15,7 @@ class DriverAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/drivers'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/drivers'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -40,7 +41,7 @@ class DriverAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('PUT', Uri.parse('http://80.210.21.35:8082/api/drivers/$id'));
+      var request = http.Request('PUT', Uri.parse('${Config.serverAddressTraccar}/api/drivers/$id'));
       request.body = json.encode({
         "id": id,
         "name": newDriverName,
@@ -63,7 +64,7 @@ class DriverAPI{
       var headers = {
         'Authorization': auth
       };
-      var request = http.Request('DELETE', Uri.parse('http://80.210.21.35:8082/api/drivers/$id'));
+      var request = http.Request('DELETE', Uri.parse('${Config.serverAddressTraccar}/api/drivers/$id'));
       request.headers.addAll(headers);
       http.StreamedResponse response = await request.send();
       return response.statusCode;
@@ -81,7 +82,7 @@ class DriverAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('POST', Uri.parse('http://80.210.21.35:8082/api/drivers'));
+      var request = http.Request('POST', Uri.parse('${Config.serverAddressTraccar}/api/drivers'));
       request.body = json.encode({
         "id": null,
         "attributes": {},

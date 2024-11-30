@@ -43,7 +43,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('PUT', Uri.parse('http://80.210.21.35:8082/api/users/$id'));
+      var request = http.Request('PUT', Uri.parse('${Config.serverAddressTraccar}/api/users/$id'));
       request.body = json.encode({
         "id": id,
         "name": newName,
@@ -83,7 +83,7 @@ class UserAPI{
       var headers = {
         'Authorization': auth
       };
-      var request = http.Request('DELETE', Uri.parse('http://80.210.21.35:8082/api/users/$id'));
+      var request = http.Request('DELETE', Uri.parse('${Config.serverAddressTraccar}/api/users/$id'));
       request.headers.addAll(headers);
       http.StreamedResponse response = await request.send();
       return response.statusCode;
@@ -101,7 +101,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('POST', Uri.parse('http://80.210.21.35:8082/api/users'));
+      var request = http.Request('POST', Uri.parse('${Config.serverAddressTraccar}/api/users'));
       request.body = json.encode({
         "id": null,
         "name": name,
@@ -143,7 +143,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/groups'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -169,7 +169,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups?userId=$userId'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/groups?userId=$userId'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -195,7 +195,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('POST', Uri.parse('http://80.210.21.35:8082/api/permissions'));
+      var request = http.Request('POST', Uri.parse('${Config.serverAddressTraccar}/api/permissions'));
       request.body = json.encode({
         "userId": userId,
         "groupId": groupId,
@@ -217,7 +217,7 @@ class UserAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('DELETE', Uri.parse('http://80.210.21.35:8082/api/permissions'));
+      var request = http.Request('DELETE', Uri.parse('${Config.serverAddressTraccar}/api/permissions'));
       request.body = json.encode({
         "userId": userId,
         "groupId": groupId,

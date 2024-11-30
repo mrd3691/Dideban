@@ -44,6 +44,8 @@ class LoginScreen extends StatelessWidget {
       logo: const AssetImage('images/logo.png'),
       onLogin: (data) async {
         final authResult = await API.userAuthenticate(data.name,data.password);
+
+
         if(authResult != null){
             final Future<SharedPreferences> prefs0 = SharedPreferences.getInstance();
             final SharedPreferences prefs = await prefs0;

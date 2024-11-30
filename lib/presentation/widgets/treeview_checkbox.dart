@@ -95,7 +95,7 @@ class TitleCheckBox extends StatelessWidget {
 
 class TreeNode {
   late String title;
-   bool isSelected;
+  final bool isSelected;
   final CheckBoxState checkBoxState;
   late  List<TreeNode> children;
 

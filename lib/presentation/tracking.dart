@@ -11,9 +11,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:dideban/presentation/widgets/car_position.dart';
 import 'package:shimmer/shimmer.dart';
 import '../blocs/tracking/tracking_bloc.dart';
+import '../config.dart';
 import '../utilities/util.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class Tracking extends StatefulWidget {
   const Tracking({super.key});
@@ -24,6 +24,8 @@ class Tracking extends StatefulWidget {
 }
 
 class _TrackingState extends State<Tracking> {
+  int trackingSpeedTime = 1000;
+
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> currentTreeNode = [];
   List<Marker> markers = [];
@@ -31,7 +33,6 @@ class _TrackingState extends State<Tracking> {
   double sliderValue=0;
   double currentSliderValue=0;
   int sliderLength=0;
-  Timer? timerTracking;
   bool rebuildDrawer=true;
 
   final PopupController _popupLayerController = PopupController();
@@ -43,17 +44,10 @@ class _TrackingState extends State<Tracking> {
   final _endDateController = TextEditingController();
   final _endTimeController = TextEditingController();
 
-  var dateMaskFormatter = new MaskTextInputFormatter(
-      mask: '####/##/##',
-      filter: { "#": RegExp(r'[0-9]') },
-      type: MaskAutoCompletionType.lazy
-  );
-  var timeMaskFormatter = new MaskTextInputFormatter(
-      mask: '##:##',
-      filter: { "#": RegExp(r'[0-9]') },
-      type: MaskAutoCompletionType.lazy
-  );
 
+
+
+  bool isPause = true;
   
   void getInitDateTime(){
     DateTime dt = DateTime.now();
@@ -78,9 +72,6 @@ class _TrackingState extends State<Tracking> {
     _startTimeController.dispose();
     _endDateController.dispose();
     _endTimeController.dispose();
-    if(timerTracking != null){
-      timerTracking!.cancel();
-    }
 
 
   }
@@ -111,7 +102,7 @@ class _TrackingState extends State<Tracking> {
             child: Directionality(
               textDirection: TextDirection.rtl,
               child: TextField(
-                enableInteractiveSelection: false,
+                //enableInteractiveSelection: false,
                 decoration: const InputDecoration(
                   suffixIcon: Icon(Icons.search),
                 ),
@@ -362,8 +353,27 @@ class _TrackingState extends State<Tracking> {
     );
   }
 
+
+
+  Future<void> play() async {
+    try{
+      if(isPause){
+        isPause = false;
+      }else{
+        isPause = true;
+      }
+      while(!isPause){
+        await Future.delayed(Duration(milliseconds: trackingSpeedTime));
+        _popupLayerController.hideAllPopups();
+        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
+      }
+    }catch(e){
+      //print(e);
+    }
+  }
+
   Widget bottomBar(BuildContext context){
-    bool isPause = true;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -383,7 +393,8 @@ class _TrackingState extends State<Tracking> {
                         flex: 14,
                         child: TextField(
 
-                          inputFormatters: [dateMaskFormatter],
+
+                          inputFormatters: [DateInputFormatter()],
                           controller: _startDateController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -397,7 +408,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible(
                         flex: 9,
                         child: TextField(
-                          inputFormatters: [timeMaskFormatter],
+                          inputFormatters: [TimeInputFormatter()],
                           controller: _startTimeController,
                           style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
                           decoration: const InputDecoration(
@@ -419,7 +430,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible( //End date field
                         flex: 14,
                         child: TextField(
-                          inputFormatters: [dateMaskFormatter],
+                          inputFormatters: [DateInputFormatter()],
                           controller: _endDateController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -433,7 +444,7 @@ class _TrackingState extends State<Tracking> {
                       Flexible(
                         flex: 9,
                         child: TextField(
-                          inputFormatters: [timeMaskFormatter],
+                          inputFormatters: [TimeInputFormatter()],
                           controller: _endTimeController,
                           decoration: const InputDecoration(
                               border: OutlineInputBorder(),
@@ -458,9 +469,7 @@ class _TrackingState extends State<Tracking> {
                   children: [
                     TextButton(
                       onPressed: (){
-                        if(timerTracking !=null){
-                          timerTracking!.cancel();
-                        }
+
                         _popupLayerController.hideAllPopups();
                         if(selectedDevices.isEmpty){
                           EasyLoading.showError("No device selected");
@@ -541,33 +550,9 @@ class _TrackingState extends State<Tracking> {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
-
-                              isPause =false;
-                              try{
-                                if(timerTracking == null){
-                                  timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
-                                    if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                      _popupLayerController.hideAllPopups();
-                                      context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
-                                    }
-                                  } );
-                                }else{
-                                  if(timerTracking!.isActive){
-                                    timerTracking!.cancel();
-                                  }else{
-                                    timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
-                                      if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                        _popupLayerController.hideAllPopups();
-                                        context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
-                                      }
-                                    } );
-                                  }
-                                }
-                              }catch(e){
-                                //print(e);
-                              }
+                              play();
                             },
-                              icon: (timerTracking==null)?Icon(Icons.play_circle): (timerTracking!.isActive)? Icon(Icons.pause_circle): Icon(Icons.play_circle),
+                            icon: (isPause)?Icon(Icons.play_circle):Icon(Icons.pause_circle),
                             //icon: SizedBox(width: 40,height: 40, child: Image.asset("images/playpause.png")),
                           ),
                         ),
@@ -575,6 +560,10 @@ class _TrackingState extends State<Tracking> {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
+                              if(!isPause){
+                                trackingSpeedTime = (trackingSpeedTime/2) as int;
+                                return;
+                              }
                               if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
                                 context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
@@ -583,6 +572,7 @@ class _TrackingState extends State<Tracking> {
                             icon: const Icon(Icons.skip_next),
                           ),
                         ),
+
                         Spacer()
                       ],
                     ),
@@ -644,6 +634,11 @@ class _TrackingState extends State<Tracking> {
                           flex:2,
                           child: IconButton(
                             onPressed: (){
+                              if(!isPause){
+                                int newTime=trackingSpeedTime*2;
+                                trackingSpeedTime = newTime;
+                                return;
+                              }
                               if(currentSliderValue.roundToDouble()>0){
                                 _popupLayerController.hideAllPopups();
                                 context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()-1,currentTreeNode),);
@@ -659,38 +654,9 @@ class _TrackingState extends State<Tracking> {
 
                               return IconButton(
                                 onPressed: (){
-
-                                  try{
-                                    if(timerTracking == null){
-                                      timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
-                                        if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                          _popupLayerController.hideAllPopups();
-                                          context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
-                                        }
-                                      } );
-                                    }else{
-                                      if(timerTracking!.isActive){
-                                        timerTracking!.cancel();
-                                      }else{
-                                        timerTracking = Timer.periodic(const Duration(microseconds: 500),(Timer t){
-                                          if(currentSliderValue.roundToDouble() < sliderLength-1){
-                                            _popupLayerController.hideAllPopups();
-                                            context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
-                                          }
-                                        } );
-                                      }
-                                    }
+                                    play();
                                     setState((){
-                                      if(isPause){
-                                        isPause =false;
-                                      }else{
-                                        isPause = true;
-                                      }
-
                                     });
-                                  }catch(e){
-                                    //print(e);
-                                  }
                                 },
 
                                 icon: (isPause)?Icon(Icons.play_circle):Icon(Icons.pause_circle),
@@ -706,6 +672,11 @@ class _TrackingState extends State<Tracking> {
                           flex: 2,
                           child: IconButton(
                             onPressed: (){
+                              if(!isPause){
+                                int newTime=(trackingSpeedTime/2).round();
+                                trackingSpeedTime = newTime;
+                                return;
+                              }
                               if(currentSliderValue.roundToDouble()< sliderLength-1){
                                 _popupLayerController.hideAllPopups();
                                 context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
@@ -714,6 +685,11 @@ class _TrackingState extends State<Tracking> {
                             icon: const Icon(Icons.skip_next),
                           ),
                         ),
+                        Flexible(
+                            flex: 2,
+                            child: Text("${(1000/trackingSpeedTime).round().toString()}X")
+                        ),
+
                         const Spacer(),
                       ],
                     ),
@@ -796,7 +772,7 @@ class _TrackingState extends State<Tracking> {
           ),
           children: <Widget>[
             TileLayer(
-                urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                urlTemplate: "${Config.mapAddress}",
                 //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                 tileProvider: CancellableNetworkTileProvider()
             ),
@@ -828,6 +804,58 @@ class _TrackingState extends State<Tracking> {
           ],
         );
       },
+    );
+  }
+}
+
+class DateInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.length > 10) {
+      return oldValue;
+    }
+
+    final newText = newValue.text.replaceAll(RegExp(r'[^0-9/]'), '');
+    if (newText.length > 4 && newText[4] != '/') {
+      return TextEditingValue(
+        text: '${newText.substring(0, 4)}/${newText.substring(4)}',
+        selection: TextSelection.collapsed(offset: newText.length + 1),
+      );
+    }
+    if (newText.length > 7 && newText[7] != '/') {
+      return TextEditingValue(
+        text: '${newText.substring(0, 7)}/${newText.substring(7)}',
+        selection: TextSelection.collapsed(offset: newText.length + 1),
+      );
+    }
+
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
+  }
+}
+
+class TimeInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.length > 5) {
+      return oldValue;
+    }
+
+    final newText = newValue.text.replaceAll(RegExp(r'[^0-9:]'), '');
+    if (newText.length > 2 && newText[2] != ':') {
+      return TextEditingValue(
+        text: '${newText.substring(0, 2)}:${newText.substring(2)}',
+        selection: TextSelection.collapsed(offset: newText.length + 1),
+      );
+    }
+
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
     );
   }
 }

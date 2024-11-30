@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../models/group.dart';
 import '../utilities/util.dart';
 
@@ -14,7 +15,7 @@ class GroupAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('http://80.210.21.35:8082/api/groups'));
+      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/groups'));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -40,7 +41,7 @@ class GroupAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('PUT', Uri.parse('http://80.210.21.35:8082/api/groups/$id'));
+      var request = http.Request('PUT', Uri.parse('${Config.serverAddressTraccar}/api/groups/$id'));
       request.body = json.encode({
         "id": id,
         "name": newGroupName,
@@ -63,7 +64,7 @@ class GroupAPI{
       var headers = {
         'Authorization': auth
       };
-      var request = http.Request('DELETE', Uri.parse('http://80.210.21.35:8082/api/groups/$id'));
+      var request = http.Request('DELETE', Uri.parse('${Config.serverAddressTraccar}/api/groups/$id'));
       request.headers.addAll(headers);
       http.StreamedResponse response = await request.send();
       return response.statusCode;
@@ -81,7 +82,7 @@ class GroupAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('POST', Uri.parse('http://80.210.21.35:8082/api/groups'));
+      var request = http.Request('POST', Uri.parse('${Config.serverAddressTraccar}/api/groups'));
       request.body = json.encode({
         "id": null,
         "attributes": {},
