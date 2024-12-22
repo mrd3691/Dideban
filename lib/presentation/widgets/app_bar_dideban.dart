@@ -1,10 +1,12 @@
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
+import 'package:dideban/blocs/total_speed_report/total_speed_report_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/presentation/home.dart';
+import 'package:dideban/presentation/total_speed_report_ui.dart';
 import 'package:dideban/presentation/user_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -113,6 +115,47 @@ class _AppBarDidebanState extends State<AppBarDideban> {
 
           },
         ),
+        IconButton(
+          icon: MenuAnchor(
+            builder:
+                (BuildContext context, MenuController controller, Widget? child) {
+              return IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.report),
+                //tooltip: 'Reports',
+              );
+            },
+            menuChildren: List<MenuItemButton>.generate(1,
+                  (int index) => MenuItemButton(
+                onPressed: () {
+                  if(index == 0){
+                    EasyLoading.show(status: 'Please wait');
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) => TotalSpeedReportBloc()
+                                ..add(LoadDrawerTotalSpeedReport(),),
+                              child: const TotalSpeedReportUI(),
+                            ),
+                      ),
+                    );
+                  }
+                },
+                child: getReportButton(index),
+              ),
+            ),
+          ),
+          onPressed: () {},
+        ),
+
+
 
         FutureBuilder<String>(
             future: getUserName(),
@@ -134,7 +177,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                         tooltip: 'Management',
                       );
                     },
-                    menuChildren: List<MenuItemButton>.generate(5,
+                    menuChildren: List<MenuItemButton>.generate(4,
                           (int index) => MenuItemButton(
                         onPressed: () {
                           if(index == 0){
@@ -202,8 +245,6 @@ class _AppBarDidebanState extends State<AppBarDideban> {
               }
             }
         ),
-
-
         /*IconButton(
           tooltip: "account",
           icon: const Icon(
@@ -234,6 +275,13 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Drivers");
     }else if( index == 3){
       return const Text("Users");
+    }
+    return const Text("");
+  }
+
+  Text getReportButton(int index){
+    if(index == 0){
+      return const Text("Total Speed Report");
     }
     return const Text("");
   }

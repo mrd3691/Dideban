@@ -69,7 +69,7 @@ class IconMarker extends StatelessWidget {
   bool isNightMove(String speed){
     try{
       DateTime dtNow = DateTime.now();
-      if(dtNow.hour < 6 && int.parse(speed)>0){
+      if((dtNow.hour < 6  || dtNow.hour >= 22 )&& int.parse(speed)>0){
         return true;
       }
       return false;
@@ -102,7 +102,7 @@ class IconMarker extends StatelessWidget {
                   :(int.parse(speed)>105)
                     ?Colors.redAccent
                       : (isNightMove(speed)) ?
-                        Colors.deepPurple :
+                        Colors.yellowAccent :
                           Colors.blueAccent
 
             ),
@@ -122,7 +122,7 @@ class IconMarker extends StatelessWidget {
       }else{
         return Icon(
           Icons.navigation, // Directional arrow
-          color:(int.parse(speed)>105)? Colors.redAccent : (isNightMove(speed))? Colors.deepPurple :  Colors.blueAccent ,
+          color:(int.parse(speed)>105)? Colors.redAccent : (isNightMove(speed))? Colors.yellowAccent :  Colors.blueAccent ,
         );
       }
     }

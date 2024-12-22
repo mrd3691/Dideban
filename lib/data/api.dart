@@ -20,7 +20,7 @@ class API{
       req["userId"] = userId;
 
       final response = await http.post(
-          Uri.parse('${Config.serverAddress}/getAllUserDevices.php'),
+          Uri.parse('${Config.serverAddress}/API/getAllUserDevices.php'),
           body: req
       );
       if (response.statusCode == 200) {
@@ -45,7 +45,7 @@ class API{
       req["deviceName"] = deviceName;
 
       final response = await http.post(
-          Uri.parse('${Config.serverAddressTraccar}/getDeviceLocation.php'),
+          Uri.parse('${Config.serverAddressTraccar}/API/getDeviceLocation.php'),
           body: req
       );
       if (response.statusCode == 200) {
@@ -104,7 +104,7 @@ class API{
       req["endDateTime"] = endDateTime;
 
       final response = await http.post(
-          Uri.parse('${Config.serverAddress}/getTrackingPoints.php'),
+          Uri.parse('${Config.serverAddress}/API/getTrackingPoints.php'),
           body: req
       );
       if (response.statusCode == 200) {
