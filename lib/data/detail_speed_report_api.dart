@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'package:dideban/models/total_speed_report.dart';
 import 'package:http/http.dart' as http;
 import '../config.dart';
+import '../models/detail_speed_report.dart';
 import '../models/device.dart';
 import '../models/group.dart';
 import '../utilities/util.dart';
 
-class TotalSpeedReportApi{
+class DetailSpeedReportApi{
   static Future<List<Device>?> getAllDevices() async{
     try{
       String userName =await Util.getUserName();
@@ -59,7 +60,7 @@ class TotalSpeedReportApi{
     }
   }
 
-  static Future<TotalSpeedReport?> fetchTotalSpeedReport(String deviceName, String startDateTime,String endDateTime, int speedLimit) async{
+  static Future<DetailSpeedReport?> fetchDetailSpeedReport(String deviceName, String startDateTime,String endDateTime, int speedLimit) async{
     try {
 
       var req = Map<String , dynamic>();
@@ -69,13 +70,13 @@ class TotalSpeedReportApi{
       req["speedLimit"] = speedLimit.toString();
 
       final response = await http.post(
-          Uri.parse('${Config.serverAddress}/API/reports/totalSpeedReport.php'),
+          Uri.parse('${Config.serverAddress}/API/reports/detailSpeedReport.php'),
           body: req
       );
       if (response.statusCode == 200) {
         final parsed = json.decode(response.body);
-        TotalSpeedReport totalSpeedReport = TotalSpeedReport.fromMap(parsed);
-        return totalSpeedReport;
+        DetailSpeedReport detailSpeedReport = DetailSpeedReport.fromMap(parsed);
+        return detailSpeedReport;
       } else {
         return null;
       }

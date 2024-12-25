@@ -1,8 +1,10 @@
+import 'package:dideban/blocs/detail_speed_report/detail_speed_report_bloc.dart';
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
 import 'package:dideban/blocs/total_speed_report/total_speed_report_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
+import 'package:dideban/presentation/detail_speed_report_ui.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/presentation/home.dart';
@@ -131,11 +133,10 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                 //tooltip: 'Reports',
               );
             },
-            menuChildren: List<MenuItemButton>.generate(1,
+            menuChildren: List<MenuItemButton>.generate(2,
                   (int index) => MenuItemButton(
                 onPressed: () {
                   if(index == 0){
-                    EasyLoading.show(status: 'Please wait');
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) =>
@@ -143,6 +144,18 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               create: (context) => TotalSpeedReportBloc()
                                 ..add(LoadDrawerTotalSpeedReport(),),
                               child: const TotalSpeedReportUI(),
+                            ),
+                      ),
+                    );
+                  }
+                  if(index == 1){
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) => DetailSpeedReportBloc()
+                                ..add(LoadDrawerDetailSpeedReport(),),
+                              child: const DetailSpeedReportUi(),
                             ),
                       ),
                     );
@@ -282,6 +295,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
   Text getReportButton(int index){
     if(index == 0){
       return const Text("Total Speed Report");
+    }else if(index == 1){
+      return const Text("Detail Speed Report");
     }
     return const Text("");
   }

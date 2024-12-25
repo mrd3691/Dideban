@@ -362,7 +362,7 @@ class _TrackingState extends State<Tracking> {
       }else{
         isPause = true;
       }
-      while(!isPause){
+      while(!isPause && (currentSliderValue.roundToDouble()+1 < sliderLength-1)){
         await Future.delayed(Duration(milliseconds: trackingSpeedTime));
         _popupLayerController.hideAllPopups();
         context.read<TrackingBloc>().add(SliderChanged(markers, currentSliderValue.roundToDouble()+1,currentTreeNode),);
