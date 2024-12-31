@@ -1,6 +1,5 @@
 import 'dart:html' as html;
 import 'dart:io';
-import 'package:dideban/blocs/detail_speed_report/detail_speed_report_bloc.dart';
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:excel/excel.dart';
@@ -12,18 +11,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import '../blocs/continues_driving_report/continues_driving_report_bloc.dart';
 import '../config.dart';
-import '../models/detail_speed_report.dart';
+import '../models/continues_driving_report.dart';
 import '../utilities/util.dart';
 import 'package:latlong2/latlong.dart';
 
-class DetailSpeedReportUi extends StatefulWidget {
-  const DetailSpeedReportUi({super.key});
+class ContinuesDrivingReportUi extends StatefulWidget {
+  const ContinuesDrivingReportUi({super.key});
   @override
-  State<DetailSpeedReportUi> createState() => _DetailSpeedReportUiState();
+  State<ContinuesDrivingReportUi> createState() => _ContinuesDrivingReportUiState();
 }
 
-class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
+class _ContinuesDrivingReportUiState extends State<ContinuesDrivingReportUi> {
 
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> currentTreeNode = [];
@@ -31,13 +31,13 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
   bool rebuildDrawer=true;
   TextEditingController searchedValueController = TextEditingController();
 
-  DetailSpeedReport originalDetailSpeedReport =DetailSpeedReport(isSuccess: false, message: "", device: "", driver: "", group: "", overSpeedPoints: []);
+  List<ContinuesDrivingReport> originalContinuesDrivingReport =[];
 
   final _startDateController = TextEditingController();
   final _startTimeController = TextEditingController();
   final _endDateController = TextEditingController();
   final _endTimeController = TextEditingController();
-  final _speedLimitController = TextEditingController();
+  final _stopTresholdController = TextEditingController();
 
 
   @override
@@ -48,7 +48,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     _startTimeController.dispose();
     _endDateController.dispose();
     _endTimeController.dispose();
-    _speedLimitController.dispose();
+    _stopTresholdController.dispose();
 
 
   }
@@ -63,8 +63,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     String currentTimeJalali = "${dt.hour}:${dt.minute}";
     _startTimeController.text = currentTimeJalali;
     _endTimeController.text = currentTimeJalali;
-
-    _speedLimitController.text ="105";
+    _stopTresholdController.text ="10";
   }
   @override
   void initState() {
@@ -79,26 +78,31 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     var sheet = excel[sheetName];
     sheet.isRTL = true;
 
-    sheet.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('D1'), customValue: TextCellValue('${originalDetailSpeedReport.device}${originalDetailSpeedReport.driver}${originalDetailSpeedReport.group}'));
+    sheet.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('E1'), customValue: TextCellValue('گزارش زمان رانندگی مداوم'));
     sheet.cell(CellIndex.indexByString("A1")).cellStyle =CellStyle(bold: true,fontSize: 15,horizontalAlign: HorizontalAlign.Center);
 
-    sheet.cell(CellIndex.indexByString("A2")).value = TextCellValue("تاریخ");
-    sheet.cell(CellIndex.indexByString("A2")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-    sheet.cell(CellIndex.indexByString("B2")).value = TextCellValue("سرعت");
-    sheet.cell(CellIndex.indexByString("B2")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-    sheet.cell(CellIndex.indexByString("C2")).value = TextCellValue("طول جغرافیایی");
-    sheet.cell(CellIndex.indexByString("C2")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-    sheet.cell(CellIndex.indexByString("D2")).value = TextCellValue("عرض جغرافیایی");
-    sheet.cell(CellIndex.indexByString("D2")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-    for(int i=0; i<originalDetailSpeedReport.overSpeedPoints.length;i++){
-      sheet.cell(CellIndex.indexByString("A${i+3}")).value = TextCellValue(originalDetailSpeedReport.overSpeedPoints[i].fixTime);
+    sheet.cell(CellIndex.indexByString("A2")).value = TextCellValue("خودرو");
+    sheet.cell(CellIndex.indexByString("A2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("B2")).value = TextCellValue("شعبه");
+    sheet.cell(CellIndex.indexByString("B2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("C2")).value = TextCellValue("تاریخ شروع سفر");
+    sheet.cell(CellIndex.indexByString("C2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("D2")).value = TextCellValue("تاریخ پایان سفر");
+    sheet.cell(CellIndex.indexByString("D2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("E2")).value = TextCellValue("زمان");
+    sheet.cell(CellIndex.indexByString("E2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    for(int i=0; i<originalContinuesDrivingReport.length;i++){
+      sheet.cell(CellIndex.indexByString("A${i+3}")).value = TextCellValue(originalContinuesDrivingReport[i].device);
       sheet.cell(CellIndex.indexByString("A${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("B${i+3}")).value = TextCellValue(originalDetailSpeedReport.overSpeedPoints[i].speed.toString());
+      sheet.cell(CellIndex.indexByString("B${i+3}")).value = TextCellValue(originalContinuesDrivingReport[i].group);
       sheet.cell(CellIndex.indexByString("B${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("C${i+3}")).value = TextCellValue(originalDetailSpeedReport.overSpeedPoints[i].latitude);
+      sheet.cell(CellIndex.indexByString("C${i+3}")).value = TextCellValue(originalContinuesDrivingReport[i].start_date_max_driving);
       sheet.cell(CellIndex.indexByString("C${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("D${i+3}")).value = TextCellValue(originalDetailSpeedReport.overSpeedPoints[i].longitude);
+      sheet.cell(CellIndex.indexByString("D${i+3}")).value = TextCellValue(originalContinuesDrivingReport[i].end_date_max_driving);
       sheet.cell(CellIndex.indexByString("D${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("E${i+3}")).value = IntCellValue(((originalContinuesDrivingReport[i].max_driving_time)/60).round());
+      sheet.cell(CellIndex.indexByString("E${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+
     }
 
     // Convert the entire Excel document to a List of bytes.
@@ -129,6 +133,8 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     html.Url.revokeObjectUrl(url);
   }
 
+
+
   Future<void> createAndDownloadExcel() async {
     try {
       // 1. Generate the Excel bytes.
@@ -137,7 +143,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
       // 2. Check the platform.
       if (kIsWeb) {
         // Running in a Web environment.
-        downloadExcelWeb(fileBytes, fileName: 'Detail_Speed_Report.xlsx');
+        downloadExcelWeb(fileBytes, fileName: 'Continues_Driving_Report.xlsx');
       } else {
         // Likely running on mobile or desktop.
         if (Platform.isAndroid || Platform.isIOS) {
@@ -162,7 +168,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AppBarDideban(),
-      body: detailSpeedReportBody(context),
+      body: ContinuesDrivingReportBody(context),
       drawer: drawer(context),
       bottomNavigationBar: bottomBar(context),
     );
@@ -185,14 +191,14 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                 onChanged: (value) {
                   rebuildDrawer =true;
 
-                  context.read<DetailSpeedReportBloc>().add(SearchDrawerDevicesDetailSpeedReport(originalTreeNode, value),);
+                  context.read<ContinuesDrivingReportBloc>().add(SearchDrawerDevicesContinuesDrivingReport(originalTreeNode, value),);
 
 
                 },
               ),
             ),
           ),
-          BlocBuilder<DetailSpeedReportBloc, DetailSpeedReportState>(
+          BlocBuilder<ContinuesDrivingReportBloc, ContinuesDrivingReportState>(
               buildWhen: (previous, current) {
                 return rebuildDrawer;
               },
@@ -341,7 +347,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                     child: Text("Some Error occured in searching Devices list"),
                   );
                 }
-                if(state is DetailSpeedReportSuccess){
+                if(state is ContinuesDrivingReportSuccess){
                   //originalTreeNode =state.treeNode;
                   return Column(children: [
                     Container(
@@ -375,7 +381,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                     ),
                   ]);
                 }
-                if(state is SearchDetailSpeedReportSuccess){
+                if(state is SearchContinuesDrivingReportSuccess){
                   //originalTreeNode =state.treeNode;
                   return Column(children: [
                     Container(
@@ -440,8 +446,6 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                       Flexible(
                         flex: 14,
                         child: TextField(
-
-
                           inputFormatters: [DateInputFormatter()],
                           controller: _startDateController,
                           decoration: const InputDecoration(
@@ -522,12 +526,12 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                         inputFormatters: <TextInputFormatter>[
                           FilteringTextInputFormatter.digitsOnly
                         ],
-                        controller: _speedLimitController,
+                        controller: _stopTresholdController,
                         decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                            prefixIcon: Icon(Icons.speed),
-                            labelText: "speed limit"
+                            prefixIcon: Icon(Icons.timelapse),
+                            labelText: "stop treshold"
                         ),
                       ),
                     ),
@@ -536,19 +540,18 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                       flex: 1,
                       child: TextButton(
                         onPressed: (){
+
                           if(selectedDevices.isEmpty){
                             EasyLoading.showError("No device selected");
-                          }else if(selectedDevices.length > 1){
-                            EasyLoading.showError("More than one device is selected");
                           }else{
                             //EasyLoading.show(status: 'Please wait');
-                            context.read<DetailSpeedReportBloc>().add(FetchDetailSpeedReport(
-                                selectedDevices[0],
+                            context.read<ContinuesDrivingReportBloc>().add(FetchContinuesDrivingReport(
+                                selectedDevices,
                                 _startDateController.text,
                                 _startTimeController.text,
                                 _endDateController.text,
                                 _endTimeController.text,
-                                int.parse(_speedLimitController.text),
+                                int.parse(_stopTresholdController.text),
                                 currentTreeNode
                             ),);
                           }
@@ -563,6 +566,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                             elevation: 5),
                         child: const Text("Search"),),
                     ),
+
                   ],
                 )
             ),
@@ -574,26 +578,26 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     );
   }
 
-  Widget detailSpeedReportBody(BuildContext context){
-    return BlocBuilder<DetailSpeedReportBloc, DetailSpeedReportState>(
+  Widget ContinuesDrivingReportBody(BuildContext context){
+    return BlocBuilder<ContinuesDrivingReportBloc, ContinuesDrivingReportState>(
       builder: (context, state) {
-        DetailSpeedReport detailSpeedReport =DetailSpeedReport(isSuccess: false, message: "", device: "", driver: "", group: "", overSpeedPoints: []);;
-        if(state is DetailSpeedReportInProgress){
+        List<ContinuesDrivingReport> continuesDrivingReport =[];
+        if(state is ContinuesDrivingReportInProgress){
           return Center(
               child: CircularProgressIndicator()
           );
         }
-        if(state is DetailSpeedReportFailure){
+        if(state is ContinuesDrivingReportFailure){
           return Center(
             child:  Text(state.message!),
           );
         }
-        if(state is DetailSpeedReportSuccess){
-          detailSpeedReport = state.detailSpeedReport;
-          originalDetailSpeedReport = state.detailSpeedReport;
+        if(state is ContinuesDrivingReportSuccess){
+          continuesDrivingReport = state.continuesDrivingReport;
+          originalContinuesDrivingReport = state.continuesDrivingReport;
         }
-        if(state is SearchDetailSpeedReportSuccess){
-          detailSpeedReport = state.detailSpeedReport;
+        if(state is SearchContinuesDrivingReportSuccess){
+          continuesDrivingReport = state.continuesDrivingReport;
         }
         return Column(
           children: [
@@ -607,7 +611,6 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                     Flexible(flex: 1,
                         child: IconButton(
                             onPressed: (){
-
                               createAndDownloadExcel();
                             },
                             icon: Icon(Icons.download)
@@ -617,18 +620,15 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                       child: Directionality(
                         textDirection: TextDirection.rtl,
                         child: TextField(
-                          inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
                           decoration: const InputDecoration(
                               prefixIcon: Icon(Icons.search),
                               border: OutlineInputBorder()
                           ),
                           onChanged: (value) {
                             if(searchedValueController.text.isEmpty){
-                              context.read<DetailSpeedReportBloc>().add(SearchDetailSpeedReport(originalDetailSpeedReport, value,currentTreeNode),);
+                              context.read<ContinuesDrivingReportBloc>().add(SearchContinuesDrivingReport(originalContinuesDrivingReport, value,currentTreeNode),);
                             }else{
-                              context.read<DetailSpeedReportBloc>().add(SearchDetailSpeedReport(detailSpeedReport, value,currentTreeNode),);
+                              context.read<ContinuesDrivingReportBloc>().add(SearchContinuesDrivingReport(continuesDrivingReport, value,currentTreeNode),);
                             }
 
                           },
@@ -646,20 +646,38 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                 child: Row(
                   children: [
                     Flexible(
-                      flex: 1,
-                      child: const Center(child: Text("تاریخ",
+                      flex:1,
+                      child: const Center(child: Text("خودرو",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 15),)),
+                    ),
+                    Flexible(
+                      flex:1,
+                      child: const Center(child: Text("شعبه",
                         style: TextStyle(
                             color: Colors.white, fontSize: 15),)),
                     ),
                     Flexible(
                       flex: 1,
-                      child: const Center(child: Text("سرعت",
+                      child: const Center(child: Text("تاریخ شروع سفر",
                         style: TextStyle(
                             color: Colors.white, fontSize: 15),)),
                     ),
                     Flexible(
                       flex: 1,
-                      child: const Center(child: Text("موقعیت",
+                      child: const Center(child: Text("تاریخ پایان سفر",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 15),)),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: const Center(child: Text("زمان",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 15),)),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: const Center(child: Text("مسیر",
                         style: TextStyle(
                             color: Colors.white, fontSize: 15),)),
                     ),
@@ -674,7 +692,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                   const Divider(
                     color: Colors.black,
                   ),
-                  itemCount: detailSpeedReport.overSpeedPoints.length,
+                  itemCount: continuesDrivingReport.length,
                   itemBuilder: (context, index) {
                     return Directionality(
                       textDirection: TextDirection.rtl,
@@ -683,24 +701,43 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                           Flexible(
                               flex:1,
                               child: Center(
-                                  child: Text(detailSpeedReport!.overSpeedPoints[index].fixTime))
+                                  child: Text(continuesDrivingReport[index].device))
                           ),
                           Flexible(
                               flex:1,
                               child: Center(
-                                  child: Text(detailSpeedReport.overSpeedPoints[index].speed.toString()))
+                                  child: Text(continuesDrivingReport[index].group))
+                          ),
+                          Flexible(
+                              flex:1,
+                              child: Center(
+                                  child: Text(continuesDrivingReport[index].start_date_max_driving))
+                          ),
+                          Flexible(
+                              flex:1,
+                              child: Center(
+                                  child: Text(continuesDrivingReport[index].end_date_max_driving))
+                          ),
+                          Flexible(
+                              flex:1,
+                              child: Center(
+                                  child: Text(((continuesDrivingReport[index].max_driving_time)/60).round().toString()))
                           ),
                           Flexible(
                               flex:1,
                               child: Center(
                                   child: IconButton(
                                     onPressed: (){
-                                      _showOverSpeedPosition(
-                                          double.parse(detailSpeedReport!.overSpeedPoints[index].latitude),
-                                          double.parse(detailSpeedReport.overSpeedPoints[index].longitude),
-                                          detailSpeedReport.device,
-                                          detailSpeedReport.overSpeedPoints[index].speed,
-                                          detailSpeedReport.overSpeedPoints[index].fixTime);
+                                      _showRootContinuesDriving(
+                                          double.parse(continuesDrivingReport[index].start_lat_max_driving),
+                                          double.parse(continuesDrivingReport[index].start_long_max_driving),
+                                          double.parse(continuesDrivingReport[index].end_lat_max_driving),
+                                          double.parse(continuesDrivingReport[index].end_long_max_driving),
+                                          continuesDrivingReport[index].device,
+                                          ((continuesDrivingReport[index].max_driving_time)/60).round(),
+                                          continuesDrivingReport[index].start_date_max_driving,
+                                          continuesDrivingReport[index].end_date_max_driving
+                                      );
                                     },
                                     icon:Icon(Icons.location_on),
                                   )
@@ -721,10 +758,12 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     );
   }
 
-  void _showOverSpeedPosition(double lat, double long, String device, int speed, String dateTime)  {
-    LatLng point =LatLng(lat, long);
-    Marker marker = Marker(point: point, child: Icon(Icons.location_on,color: Colors.red,));
-    List<Marker> alarmMarkers = [marker];
+  void _showRootContinuesDriving(double startLat, double startLong,double endLat, double endLong, String device, int time, String startTime, String endTime )  {
+    LatLng startPoint =LatLng(startLat, startLong);
+    LatLng endPoint =LatLng(endLat, endLong);
+    Marker startMarker = Marker(point: startPoint, child: Icon(Icons.location_on,color: Colors.greenAccent,));
+    Marker endMarker = Marker(point: endPoint, child: Icon(Icons.location_on,color: Colors.red,));
+    List<Marker> alarmMarkers = [startMarker,endMarker];
     TextEditingController alarmDetailsController =TextEditingController();
     try{
       showDialog(
@@ -733,10 +772,10 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
             double initialZoom =  5.0;
             late LatLng initialCenter;
 
-            alarmDetailsController.text = device + "     سرعت:" + speed.toString() + "    " + dateTime;
-            initialCenter=  LatLng(marker.point.latitude, marker.point.longitude);
+            alarmDetailsController.text = device + "     زمان:" + time.toString() +"ساعت"+ "   "+ startTime+  "  ------->  " + endTime;
+            initialCenter=  LatLng(startMarker.point.latitude, startMarker.point.longitude);
             return AlertDialog(
-              title: const Text("Speed position"),
+              title: const Text("Continues driving route"),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
                 height: MediaQuery.of(context).size.height * 0.5,
@@ -756,6 +795,18 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
                         urlTemplate: "${Config.mapAddress}",
                         //urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
                         tileProvider: CancellableNetworkTileProvider(),
+                      ),
+                      PolylineLayer(
+                        polylines: [
+                          Polyline(
+                            points: [
+                              startPoint,
+                              endPoint,
+                            ],
+                            strokeWidth: 4.0,
+                            color: Colors.blue,
+                          ),
+                        ],
                       ),
                       MarkerLayer(markers: alarmMarkers),
                     ]
