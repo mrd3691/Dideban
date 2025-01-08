@@ -21,7 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
-  double _rightBarWidth = 250.0;
+  double _rightBarWidth = 350;
   List<TreeNode> originalTreeNode = [];
   List<TreeNode> searchedTreeNode = [];
   List<TreeNode> selectedTreeNode = [];

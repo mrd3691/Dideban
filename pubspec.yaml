@@ -54,6 +54,7 @@ dependencies:
   mask_text_input_formatter: ^2.9.0
   auto_size_text: ^3.0.0
   excel: ^4.0.6
+  xml: ^6.5.0
 
 
 
