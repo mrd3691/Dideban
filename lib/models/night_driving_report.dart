@@ -56,10 +56,10 @@ class NightDrivingReport{
     String device = (json["device"] ?? "");
     String driver = (json["driver"] ?? "");
     String group = (json["group"] ?? "");
-    String startDateTimeJalali ="";
-    String endDateTimeJalali ="";
-    String startDrivingDateTimeJalali = "";
-    String endDrivingDateTimeJalali = "";
+    String startDateTimeJalali ="----";
+    String endDateTimeJalali ="----";
+    String startDrivingDateTimeJalali = "----";
+    String endDrivingDateTimeJalali = "----";
     String start_lat_driving = "";
     String start_long_driving ="";
     String end_lat_driving ="";
@@ -133,8 +133,8 @@ class NightDrivingReport{
       driving_time: (driving_time),
       distance: (distance),
       max_speed: (max_speed),
-      start_address: "",
-      end_address: "",
+      start_address: "----",
+      end_address: "----",
     );
   }
 

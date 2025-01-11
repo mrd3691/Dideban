@@ -781,7 +781,7 @@ class _NightDrivingReportUiState extends State<NightDrivingReportUi> {
                               child: Center(
                                 child: Tooltip(
                                   message: nightDrivingReport[index].start_address,
-                                  child: Text((nightDrivingReport[index].start_address.isNotEmpty)?nightDrivingReport[index].start_address.substring(0,30):""),
+                                  child: Text((nightDrivingReport[index].start_address.isNotEmpty)?nightDrivingReport[index].start_address.substring(0,30):"----"),
                                 ),
                                 //child: Text(nightDrivingReport[index].start_address)
                               )
@@ -791,7 +791,7 @@ class _NightDrivingReportUiState extends State<NightDrivingReportUi> {
                               child: Center(
                                 child: Tooltip(
                                   message: nightDrivingReport[index].end_address,
-                                  child: Text((nightDrivingReport[index].end_address.isNotEmpty)?nightDrivingReport[index].end_address.substring(0,30):""),
+                                  child: Text((nightDrivingReport[index].end_address.isNotEmpty)?nightDrivingReport[index].end_address.substring(0,30):"----"),
                                 ),
                               )
                           ),

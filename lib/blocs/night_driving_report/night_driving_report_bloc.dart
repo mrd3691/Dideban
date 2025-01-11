@@ -53,7 +53,9 @@ class NightDrivingReportBloc extends Bloc<NightDrivingReportEvent, NightDrivingR
 
         if(nightDrivingReport != null) {
           String? start_add = await NightDrivingReportApi.ReverseGeocode(nightDrivingReport.start_lat_driving, nightDrivingReport.start_long_driving);
+
           nightDrivingReport.start_address=start_add!;
+
           String? end_add = await NightDrivingReportApi.ReverseGeocode(nightDrivingReport.end_lat_driving, nightDrivingReport.end_long_driving);
           nightDrivingReport.end_address=end_add!;
           nightDrivingReports.add(nightDrivingReport);
