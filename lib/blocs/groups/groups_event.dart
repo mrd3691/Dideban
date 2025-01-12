@@ -10,7 +10,8 @@ final class FetchAllGroups extends GroupsEvent{
 final class UpdateGroup extends GroupsEvent{
   final int id;
   final String newGroupName;
-  UpdateGroup(this.id, this.newGroupName);
+  final int parentId;
+  UpdateGroup(this.id, this.newGroupName,this.parentId);
 }
 
 final class DeleteGroup extends GroupsEvent{
@@ -20,7 +21,8 @@ final class DeleteGroup extends GroupsEvent{
 
 final class CreateGroup extends GroupsEvent{
   final String groupName;
-  CreateGroup( this.groupName);
+  final int parentId;
+  CreateGroup( this.groupName, this.parentId);
 }
 
 final class SearchGroup extends GroupsEvent{

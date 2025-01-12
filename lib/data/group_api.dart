@@ -32,7 +32,7 @@ class GroupAPI{
     }
   }
 
-  static Future<int> updateGroup(int id, String newGroupName) async{
+  static Future<int> updateGroup(int id, String newGroupName,int parentId) async{
     try {
       String userName =await Util.getUserName();
       String password =await Util.getPassword();
@@ -45,7 +45,7 @@ class GroupAPI{
       request.body = json.encode({
         "id": id,
         "name": newGroupName,
-        "groupId": 0,
+        "groupId": parentId,
         "attributes": {}
       });
       request.headers.addAll(headers);
@@ -73,7 +73,7 @@ class GroupAPI{
     }
   }
 
-  static Future<int> createGroup(String groupName) async{
+  static Future<int> createGroup(String groupName, int parentId) async{
     try {
       String userName =await Util.getUserName();
       String password =await Util.getPassword();
@@ -86,7 +86,7 @@ class GroupAPI{
       request.body = json.encode({
         "id": null,
         "attributes": {},
-        "groupId": 0,
+        "groupId": parentId,
         "name": groupName
       });
       request.headers.addAll(headers);

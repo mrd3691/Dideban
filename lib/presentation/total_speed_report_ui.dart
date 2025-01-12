@@ -75,37 +75,42 @@ class _TotalSpeedReportUIState extends State<TotalSpeedReportUI> {
     var sheet = excel[sheetName];
     sheet.isRTL = true;
 
+    sheet.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('H1'), customValue: TextCellValue('گزارش کلی سرعت'));
+    sheet.cell(CellIndex.indexByString("A1")).cellStyle =CellStyle(bold: true,fontSize: 15,horizontalAlign: HorizontalAlign.Center);
 
-
-    sheet.cell(CellIndex.indexByString("A1")).value = TextCellValue("خودرو");
-    sheet.cell(CellIndex.indexByString("A1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("B1")).value = TextCellValue("شعبه");
-    sheet.cell(CellIndex.indexByString("B1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("C1")).value = TextCellValue("تاریخ شروع");
-    sheet.cell(CellIndex.indexByString("C1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("D1")).value = TextCellValue("تاریخ پایان");
-    sheet.cell(CellIndex.indexByString("D1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("E1")).value = TextCellValue("مسافت طی شده");
-    sheet.cell(CellIndex.indexByString("E1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("F1")).value = TextCellValue("مسافت با سرعت غیر مجاز");
-    sheet.cell(CellIndex.indexByString("F1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
-    sheet.cell(CellIndex.indexByString("G1")).value = TextCellValue("بیشترین سرعت");
-    sheet.cell(CellIndex.indexByString("G1")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("A2")).value = TextCellValue("خودرو");
+    sheet.cell(CellIndex.indexByString("A2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("B2")).value = TextCellValue("شعبه");
+    sheet.cell(CellIndex.indexByString("B2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("C2")).value = TextCellValue("تاریخ شروع");
+    sheet.cell(CellIndex.indexByString("C2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("D2")).value = TextCellValue("تاریخ پایان");
+    sheet.cell(CellIndex.indexByString("D2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("E2")).value = TextCellValue("مسافت طی شده");
+    sheet.cell(CellIndex.indexByString("E2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("F2")).value = TextCellValue("مسافت با سرعت غیر مجاز");
+    sheet.cell(CellIndex.indexByString("F2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("G2")).value = TextCellValue("بیشترین سرعت");
+    sheet.cell(CellIndex.indexByString("G2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("H2")).value = TextCellValue("مدت زمان رانندگی");
+    sheet.cell(CellIndex.indexByString("H2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
     for(int i=0; i<originalTotalSpeedReport.length;i++){
-      sheet.cell(CellIndex.indexByString("A${i+2}")).value = TextCellValue(originalTotalSpeedReport[i].device);
-      sheet.cell(CellIndex.indexByString("A${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("B${i+2}")).value = TextCellValue(originalTotalSpeedReport[i].group);
-      sheet.cell(CellIndex.indexByString("B${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("C${i+2}")).value = TextCellValue(originalTotalSpeedReport[i].start_dateTime);
-      sheet.cell(CellIndex.indexByString("C${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("D${i+2}")).value = TextCellValue(originalTotalSpeedReport[i].end_dateTime);
-      sheet.cell(CellIndex.indexByString("D${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("E${i+2}")).value = IntCellValue(originalTotalSpeedReport[i].distance);
-      sheet.cell(CellIndex.indexByString("E${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("F${i+2}")).value = IntCellValue(originalTotalSpeedReport[i].over_speed_distance);
-      sheet.cell(CellIndex.indexByString("F${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
-      sheet.cell(CellIndex.indexByString("G${i+2}")).value = IntCellValue(originalTotalSpeedReport[i].max_speed);
-      sheet.cell(CellIndex.indexByString("G${i+2}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("A${i+3}")).value = TextCellValue(originalTotalSpeedReport[i].device);
+      sheet.cell(CellIndex.indexByString("A${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("B${i+3}")).value = TextCellValue(originalTotalSpeedReport[i].group);
+      sheet.cell(CellIndex.indexByString("B${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("C${i+3}")).value = TextCellValue(originalTotalSpeedReport[i].start_dateTime);
+      sheet.cell(CellIndex.indexByString("C${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("D${i+3}")).value = TextCellValue(originalTotalSpeedReport[i].end_dateTime);
+      sheet.cell(CellIndex.indexByString("D${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("E${i+3}")).value = IntCellValue(originalTotalSpeedReport[i].distance);
+      sheet.cell(CellIndex.indexByString("E${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("F${i+3}")).value = IntCellValue(originalTotalSpeedReport[i].over_speed_distance);
+      sheet.cell(CellIndex.indexByString("F${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("G${i+3}")).value = IntCellValue(originalTotalSpeedReport[i].max_speed);
+      sheet.cell(CellIndex.indexByString("G${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("H${i+3}")).value = IntCellValue(originalTotalSpeedReport[i].driving_time);
+      sheet.cell(CellIndex.indexByString("H${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
     }
 
     // Convert the entire Excel document to a List of bytes.

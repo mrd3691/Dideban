@@ -47,7 +47,8 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> {
       emit(UpdateGroupLoadingInProgress());
       int id = event.id;
       String newGroupName = event.newGroupName;
-      int statusCode = await GroupAPI.updateGroup(id, newGroupName);
+      int parenId = event.parentId;
+      int statusCode = await GroupAPI.updateGroup(id, newGroupName,parenId);
       List<Group>? groups  = await GroupAPI.fetchAllGroups();
       if(statusCode != 200){
         emit(UpdateGroupFailed());
@@ -79,7 +80,8 @@ class GroupsBloc extends Bloc<GroupsEvent, GroupsState> {
     try{
       emit(CreateGroupLoadingInProgress());
       String groupName = event.groupName;
-      int statusCode = await GroupAPI.createGroup(groupName);
+      int parentId = event.parentId;
+      int statusCode = await GroupAPI.createGroup(groupName,parentId);
       List<Group>? groups  = await GroupAPI.fetchAllGroups();
       if(statusCode != 200){
         emit(CreateGroupFailed());
