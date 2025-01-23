@@ -1,77 +1,74 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
-import 'package:dideban/data/total_speed_report_api.dart';
-import 'package:dideban/models/total_speed_report.dart';
+import 'package:dideban/models/offline_report.dart';
 import 'package:meta/meta.dart';
+
+import '../../data/offline_report_api.dart';
 import '../../models/device.dart';
 import '../../models/group.dart';
 import '../../presentation/widgets/treeview_checkbox.dart';
 import '../../utilities/util.dart';
 
-part 'total_speed_report_event.dart';
-part 'total_speed_report_state.dart';
+part 'offline_report_event.dart';
+part 'offline_report_state.dart';
 
-class TotalSpeedReportBloc extends Bloc<TotalSpeedReportEvent, TotalSpeedReportState> {
-  TotalSpeedReportBloc() : super(TotalSpeedReportInitial()) {
-    on<FetchTotalSpeedReport>(fetchTotalSpeedReport);
-    on<LoadDrawerTotalSpeedReport>(loadDrawerTotalSpeedReport);
-    on<SearchDrawerDevicesTotalSpeedReport>(searchDrawerDevicesTotalSpeedReport);
-
-    on<SearchTotalSpeedReport>(searchTotalSpeedReport);
+class OfflineReportBloc extends Bloc<OfflineReportEvent, OfflineReportState> {
+  OfflineReportBloc() : super(OfflineReportInitial()) {
+    on<FetchOfflineReport>(fetchOfflineReport);
+    on<LoadDrawerOfflineReport>(loadDrawerOfflineReport);
+    on<SearchDrawerDevicesOfflineReport>(searchDrawerDevicesOfflineReport);
+    on<SearchOfflineReport>(searchOfflineReport);
   }
 
-
-
-  FutureOr<void> searchTotalSpeedReport(SearchTotalSpeedReport event, Emitter<TotalSpeedReportState> emit,) async{
+  FutureOr<void> searchOfflineReport(SearchOfflineReport event, Emitter<OfflineReportState> emit,) async{
     try{
-      emit(SearchTotalSpeedReportIsLoading());
-      List<TotalSpeedReport> searchedTotalSpeedReport = [];
-      for(int i=0;i<event.totalSpeedReport!.length;i++){
-        String device = event.totalSpeedReport![i].device;
-        String driver = event.totalSpeedReport![i].driver;
+      emit(SearchOfflineReportIsLoading());
+      List<OfflineReport> searchedOfflineReport = [];
+      for(int i=0;i<event.offlineReport!.length;i++){
+        String device = event.offlineReport![i].device;
+        String driver = event.offlineReport![i].driver;
         if(device.contains(event.searchedString) || driver.contains(event.searchedString)){
-          searchedTotalSpeedReport.add(event.totalSpeedReport![i]);
+          searchedOfflineReport.add(event.offlineReport![i]);
         }
       }
-      emit(SearchTotalSpeedReportSuccess(totalSpeedReport: searchedTotalSpeedReport, treeNode: event.treeNode));
+      emit(SearchOfflineReportSuccess(offlineReport: searchedOfflineReport, treeNode: event.treeNode));
     }catch(e){
-      emit(SearchTotalSpeedReportFailed(e.toString()));
+      emit(SearchOfflineReportFailed(e.toString()));
     }
 
   }
 
-  FutureOr<void> fetchTotalSpeedReport(FetchTotalSpeedReport event, Emitter<TotalSpeedReportState> emit,) async{
+  FutureOr<void> fetchOfflineReport(FetchOfflineReport event, Emitter<OfflineReportState> emit,) async{
     try{
-      emit(TotalSpeedReportInProgress());
+      emit(OfflineReportInProgress());
 
       List<String> deviceNames = event.deviceNames;
-      String startDateTime =Util.jalaliToGeorgianGMTConvert(event.startDate,event.startTime);
-      String endDateTime =Util.jalaliToGeorgianGMTConvert(event.endDate,event.endTime);
-      int speedLimit = event.speedLimit;
+      int timeTreshold = event.timeTreshold;
 
-      List<TotalSpeedReport> totalSpeedReports = [];
+      List<OfflineReport> offlineReports = [];
       for(int i=0;i<deviceNames.length;i++){
-        final totalSpeedReport =await TotalSpeedReportApi.fetchTotalSpeedReport(deviceNames[i], startDateTime, endDateTime,speedLimit);
-        if(totalSpeedReport != null) {
-          if(totalSpeedReport.message!="no_data_available"){
-            totalSpeedReports.add(totalSpeedReport);
+        final offlineReport =await OfflineReportApi.fetchOfflineReport(deviceNames[i],timeTreshold);
+        if(offlineReport != null) {
+          if(offlineReport.message!="no_data_available" && offlineReport.message!="online"){
+            offlineReports.add(offlineReport);
           }
         }
       }
-      emit(TotalSpeedReportSuccess(treeNode: event.treeNode, totalSpeedReport: totalSpeedReports));
+      emit(OfflineReportSuccess(treeNode: event.treeNode, offlineReport: offlineReports));
     }catch(e){
-      emit(TotalSpeedReportFailure(e.toString()));
+      emit(OfflineReportFailure(e.toString()));
     }
   }
 
-  FutureOr<void> loadDrawerTotalSpeedReport(LoadDrawerTotalSpeedReport event, Emitter<TotalSpeedReportState> emit,) async {
+  FutureOr<void> loadDrawerOfflineReport(LoadDrawerOfflineReport event, Emitter<OfflineReportState> emit,) async {
     emit(DrawerIsLoading());
     try{
-      final devices  = await TotalSpeedReportApi.getAllDevices();
+      final devices  = await OfflineReportApi.getAllDevices();
       if(devices == null){
         emit(DrawerLoadFailed());
       }
-      final groups  = await TotalSpeedReportApi.getAllGroups();
+      final groups  = await OfflineReportApi.getAllGroups();
       List<TreeNode> totalNode = _makeNodes(devices!,groups!);
       emit(DrawerLoadSuccess(treeNode: totalNode));
     }catch(e){
@@ -79,7 +76,7 @@ class TotalSpeedReportBloc extends Bloc<TotalSpeedReportEvent, TotalSpeedReportS
     }
   }
 
-  FutureOr<void> searchDrawerDevicesTotalSpeedReport(SearchDrawerDevicesTotalSpeedReport event, Emitter<TotalSpeedReportState> emit,) async {
+  FutureOr<void> searchDrawerDevicesOfflineReport(SearchDrawerDevicesOfflineReport event, Emitter<OfflineReportState> emit,) async {
     emit(SearchDrawerDevicesIsLoading());
     try{
       List<TreeNode> totalNode = event.treeNode;
@@ -178,6 +175,4 @@ class TotalSpeedReportBloc extends Bloc<TotalSpeedReportEvent, TotalSpeedReportS
     }
     return "";
   }
-
-
 }

@@ -19,11 +19,13 @@ import '../../blocs/devices/devices_bloc.dart';
 import '../../blocs/groups/groups_bloc.dart';
 import '../../blocs/continues_driving_report/continues_driving_report_bloc.dart';
 import '../../blocs/night_driving_report/night_driving_report_bloc.dart';
+import '../../blocs/offline_report/offline_report_bloc.dart';
 import '../../blocs/tracking/tracking_bloc.dart';
 import '../groups_setting.dart';
 
 import '../login.dart';
 import '../night_driving_report_ui.dart';
+import '../offline_report_ui.dart';
 import '../tracking.dart';
 
 class AppBarDideban extends StatefulWidget implements  PreferredSizeWidget {
@@ -137,7 +139,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                 //tooltip: 'Reports',
               );
             },
-            menuChildren: List<MenuItemButton>.generate(4,
+            menuChildren: List<MenuItemButton>.generate(5,
                   (int index) => MenuItemButton(
                 onPressed: () {
                   if(index == 0){
@@ -184,6 +186,18 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               create: (context) => NightDrivingReportBloc()
                                 ..add(LoadDrawerNightDrivingReport(),),
                               child: const NightDrivingReportUi(),
+                            ),
+                      ),
+                    );
+                  }
+                  if(index == 4){
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) => OfflineReportBloc()
+                                ..add(LoadDrawerOfflineReport(),),
+                              child: const OfflineReportUi(),
                             ),
                       ),
                     );
@@ -329,6 +343,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Continues Driving Report");
     }else if(index == 3){
       return const Text("Night Driving Report");
+    } else if(index == 4){
+      return const Text("Offline Report");
     }
     return const Text("");
   }
