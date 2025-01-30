@@ -17,7 +17,8 @@ class TotalSpeedReport{
     required this.max_speed_longitude,
     required this.max_speed_course,
     required this.max_speed_dateTime,
-    required this.driving_time
+    required this.driving_time,
+    required this.unValid_records
 
   });
 
@@ -36,6 +37,7 @@ class TotalSpeedReport{
   String max_speed_course;
   String max_speed_dateTime;
   int driving_time;
+  int unValid_records;
 
 
   factory TotalSpeedReport.fromMap( Map<String , dynamic> json) {
@@ -58,6 +60,7 @@ class TotalSpeedReport{
     String maxSpeedLatitude="";
     String maxSpeedLongitude="";
     String maxSpeedCourse="";
+    int unValid_records=0;
 
     if(isSuccess) {
       if (message == "ok") {
@@ -93,6 +96,7 @@ class TotalSpeedReport{
         maxSpeedLatitude=json["max_speed_latitude"];
         maxSpeedLongitude=json["max_speed_longitude"];
         maxSpeedCourse=json["max_speed_course"];
+        unValid_records=json["unvalid_records"];
       } else {
         throw message;
       }
@@ -118,7 +122,8 @@ class TotalSpeedReport{
       max_speed_longitude: (maxSpeedLongitude),
       max_speed_course: (maxSpeedCourse),
       max_speed_dateTime: (maxSpeedDateTimeJalali),
-      driving_time:  drivingTime
+      driving_time:  drivingTime,
+      unValid_records: unValid_records
 
     );
   }

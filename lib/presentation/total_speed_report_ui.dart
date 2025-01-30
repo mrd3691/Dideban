@@ -685,6 +685,12 @@ class _TotalSpeedReportUIState extends State<TotalSpeedReportUI> {
                     ),
                     Flexible(
                       flex: 1,
+                      child: const Center(child: Text("خطا",
+                        style: TextStyle(
+                            color: Colors.white, fontSize: 15),)),
+                    ),
+                    Flexible(
+                      flex: 1,
                       child: const Center(child: Text("موقعیت بیشترین سرعت",
                         style: TextStyle(
                             color: Colors.white, fontSize: 15),)),
@@ -745,6 +751,11 @@ class _TotalSpeedReportUIState extends State<TotalSpeedReportUI> {
                               flex:1,
                               child: Center(
                                   child: Text(totalSpeedReport[index].driving_time.toString()))
+                          ),
+                          Flexible(
+                              flex:1,
+                              child: Center(
+                                  child: Text(totalSpeedReport[index].unValid_records.toString()))
                           ),
                           Flexible(
                               flex:1,
