@@ -101,7 +101,6 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-
       var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/drivers?deviceId=$deviceId'));
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();
@@ -127,7 +126,17 @@ class HomeAPI{
         'Content-Type': 'application/json',
         'Authorization': auth
       };
-      var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/positions'));
+      //var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/positions'));
+
+
+
+      String address ="";
+      if(userName == "admin"){
+        address = 'http://192.168.101.20:8082/api/positions';
+      }else{
+        address = '${Config.serverAddressTraccar}/api/positions';
+      }
+      var request = http.Request('GET', Uri.parse(address));
 
       request.headers.addAll(headers);
       http.StreamedResponse streamedResponse = await request.send();

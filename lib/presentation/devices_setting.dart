@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/models/driver.dart';
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
+import 'package:excel/excel.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../data/device_setting_api.dart';
 import '../models/device.dart';
 import '../models/group.dart';
+import 'dart:html' as html;
 
 class DevicesSetting extends StatefulWidget {
   const DevicesSetting({ super.key});
@@ -46,6 +51,94 @@ class _DevicesSettingState extends State<DevicesSetting> {
   }
 
 
+
+  Future<List<int>> createExcelFile() async {
+    final excel = Excel.createExcel();
+    final sheetName = "Sheet1";
+    var sheet = excel[sheetName];
+    sheet.isRTL = true;
+
+    sheet.merge(CellIndex.indexByString('A1'), CellIndex.indexByString('I1'), customValue: TextCellValue('Devices'));
+    sheet.cell(CellIndex.indexByString("A1")).cellStyle =CellStyle(bold: true,fontSize: 15,horizontalAlign: HorizontalAlign.Center);
+
+    sheet.cell(CellIndex.indexByString("A2")).value = TextCellValue("device");
+    sheet.cell(CellIndex.indexByString("A2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("B2")).value = TextCellValue("IMEI");
+    sheet.cell(CellIndex.indexByString("B2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("C2")).value = TextCellValue("phone");
+    sheet.cell(CellIndex.indexByString("C2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+    sheet.cell(CellIndex.indexByString("D2")).value = TextCellValue("model");
+    sheet.cell(CellIndex.indexByString("D2")).cellStyle =CellStyle(bold: true,fontSize: 10,);
+
+    for(int i=0; i<devices!.length;i++){
+      sheet.cell(CellIndex.indexByString("A${i+3}")).value = TextCellValue(devices![i].name);
+      sheet.cell(CellIndex.indexByString("A${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("B${i+3}")).value = TextCellValue(devices![i].uniqueId);
+      sheet.cell(CellIndex.indexByString("B${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("C${i+3}")).value = TextCellValue(devices![i].phone!);
+      sheet.cell(CellIndex.indexByString("C${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+      sheet.cell(CellIndex.indexByString("D${i+3}")).value = TextCellValue(devices![i].model!);
+      sheet.cell(CellIndex.indexByString("D${i+3}")).cellStyle =CellStyle(bold: true,fontSize: 10,horizontalAlign: HorizontalAlign.Center);
+
+    }
+
+    // Convert the entire Excel document to a List of bytes.
+    final List<int>? fileBytes = excel.encode();
+
+    if (fileBytes == null) {
+      throw Exception("Failed to encode Excel file.");
+    }
+    return fileBytes;
+  }
+
+  void downloadExcelWeb(List<int> bytes, {String fileName = 'example.xlsx'}) {
+    // Convert bytes to a blob
+    final blob = html.Blob([bytes], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // Generate a download link
+    final url = html.Url.createObjectUrlFromBlob(blob);
+    final anchor = html.document.createElement('a') as html.AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = fileName;
+    html.document.body?.children.add(anchor);
+
+    // Programmatically click the anchor to trigger download
+    anchor.click();
+
+    // Cleanup
+    html.document.body?.children.remove(anchor);
+    html.Url.revokeObjectUrl(url);
+  }
+
+  Future<void> createAndDownloadExcel() async {
+    try {
+      // 1. Generate the Excel bytes.
+      final fileBytes = await createExcelFile();
+
+      // 2. Check the platform.
+      if (kIsWeb) {
+        // Running in a Web environment.
+        downloadExcelWeb(fileBytes, fileName: 'devices.xlsx');
+      } else {
+        // Likely running on mobile or desktop.
+        if (Platform.isAndroid || Platform.isIOS) {
+          // Save to mobile device storage
+          /////await saveExcelFileMobile(fileBytes);
+          // Optionally open it
+          // final directory = await getApplicationDocumentsDirectory();
+          // final filePath = '${directory.path}/example.xlsx';
+          // await openExcelFile(filePath);
+        } else {
+          // For desktop, you can use a similar approach to mobile,
+          // but with different directory logic (e.g., using path_provider for desktop).
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,24 +170,39 @@ class _DevicesSettingState extends State<DevicesSetting> {
           EasyLoading.dismiss();
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
-                child: Container(
-                  color: Colors.white12,
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: TextField(
-                      decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder()
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(flex: 1,
+                      child: IconButton(
+                          onPressed: (){
+                            createAndDownloadExcel();
+                          },
+                          icon: Icon(Icons.download)
+                      )
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 5, bottom: 5, left: 5),
+                      child: Container(
+                        color: Colors.white12,
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: TextField(
+                            decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.search),
+                                border: OutlineInputBorder()
+                            ),
+                            onChanged: (value) {
+                              context.read<DevicesSettingBloc>().add(
+                                SearchDeviceSetting(state.devices, value),);
+                            },
+                          ),
+                        ),
                       ),
-                      onChanged: (value) {
-                        context.read<DevicesSettingBloc>().add(
-                          SearchDeviceSetting(state.devices, value),);
-                      },
                     ),
                   ),
-                ),
+                ],
               ),
               Container(
                 color: Colors.deepPurple,
@@ -187,6 +295,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                                 child: Center(
                                     child: Text(state.devices![index].phone!))
                             ),
+
 
                             SizedBox(
                               width: MediaQuery

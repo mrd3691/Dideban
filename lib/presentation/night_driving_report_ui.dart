@@ -150,8 +150,6 @@ class _NightDrivingReportUiState extends State<NightDrivingReportUi> {
     html.Url.revokeObjectUrl(url);
   }
 
-
-
   Future<void> createAndDownloadExcel() async {
     try {
       // 1. Generate the Excel bytes.
