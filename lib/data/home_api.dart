@@ -129,13 +129,14 @@ class HomeAPI{
       //var request = http.Request('GET', Uri.parse('${Config.serverAddressTraccar}/api/positions'));
 
 
+      String address ='${Config.serverAddressTraccar}/api/positions';
 
-      String address ="";
+      /*String address ="";
       if(userName == "admin"){
         address = 'http://192.168.101.20:8082/api/positions';
       }else{
         address = '${Config.serverAddressTraccar}/api/positions';
-      }
+      }*/
       var request = http.Request('GET', Uri.parse(address));
 
       request.headers.addAll(headers);

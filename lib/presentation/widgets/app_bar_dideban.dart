@@ -2,6 +2,7 @@ import 'package:dideban/blocs/detail_speed_report/detail_speed_report_bloc.dart'
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
+import 'package:dideban/blocs/long_stop_report/long_stop_report_bloc.dart';
 import 'package:dideban/blocs/total_speed_report/total_speed_report_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
 import 'package:dideban/presentation/detail_speed_report_ui.dart';
@@ -24,6 +25,7 @@ import '../../blocs/tracking/tracking_bloc.dart';
 import '../groups_setting.dart';
 
 import '../login.dart';
+import '../long_stop_report_ui.dart';
 import '../night_driving_report_ui.dart';
 import '../offline_report_ui.dart';
 import '../tracking.dart';
@@ -139,7 +141,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                 //tooltip: 'Reports',
               );
             },
-            menuChildren: List<MenuItemButton>.generate(5,
+            menuChildren: List<MenuItemButton>.generate(6,
                   (int index) => MenuItemButton(
                 onPressed: () {
                   if(index == 0){
@@ -198,6 +200,18 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               create: (context) => OfflineReportBloc()
                                 ..add(LoadDrawerOfflineReport(),),
                               child: const OfflineReportUi(),
+                            ),
+                      ),
+                    );
+                  }
+                  if(index == 5){
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) => LongStopReportBloc()
+                                ..add(LoadDrawerLongStopReport(),),
+                              child: const LongStopReportUi(),
                             ),
                       ),
                     );
@@ -345,6 +359,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Night Driving Report");
     } else if(index == 4){
       return const Text("Offline Report");
+    }else if(index == 5){
+      return const Text("long stop Report");
     }
     return const Text("");
   }
