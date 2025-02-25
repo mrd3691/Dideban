@@ -2,6 +2,7 @@ import 'package:dideban/blocs/detail_speed_report/detail_speed_report_bloc.dart'
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
+import 'package:dideban/blocs/last_status_report/last_status_report_bloc.dart';
 import 'package:dideban/blocs/long_stop_report/long_stop_report_bloc.dart';
 import 'package:dideban/blocs/total_speed_report/total_speed_report_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/presentation/home.dart';
 import 'package:dideban/presentation/continues_driving_report_ui.dart';
+import 'package:dideban/presentation/last_status_report_ui.dart';
 import 'package:dideban/presentation/total_speed_report_ui.dart';
 import 'package:dideban/presentation/user_setting.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +78,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      backgroundColor: Colors.white,
       //title: Text("user:$userName"),
       actions: [
         IconButton(
@@ -141,7 +144,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                 //tooltip: 'Reports',
               );
             },
-            menuChildren: List<MenuItemButton>.generate(6,
+            menuChildren: List<MenuItemButton>.generate(7,
                   (int index) => MenuItemButton(
                 onPressed: () {
                   if(index == 0){
@@ -216,7 +219,20 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                       ),
                     );
                   }
+                  if(index == 6){
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            BlocProvider(
+                              create: (context) => LastStatusReportBloc()
+                                ..add(LoadDrawerLastStatusReport(),),
+                              child: const LastStatusReportUi(),
+                            ),
+                      ),
+                    );
+                  }
                 },
+
                 child: getReportButton(index),
               ),
             ),
@@ -361,6 +377,8 @@ class _AppBarDidebanState extends State<AppBarDideban> {
       return const Text("Offline Report");
     }else if(index == 5){
       return const Text("long stop Report");
+    }else if(index == 6){
+      return const Text("last status Report");
     }
     return const Text("");
   }

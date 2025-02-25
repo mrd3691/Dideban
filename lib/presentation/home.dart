@@ -78,9 +78,6 @@ class _HomeState extends State<Home> {
           appBar: const AppBarDideban(),
           body: homeBody(context),
           drawer: drawer(context),
-
-
-
       ),
     );
   }
@@ -439,7 +436,7 @@ class _HomeState extends State<Home> {
             },
             child: Container(
               width: _rightBarWidth,
-              color: Colors.white,
+              color: Color(0xFF68548E),
               child: BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
                   if(state is UpdateSuccess){
@@ -523,6 +520,9 @@ class _HomeState extends State<Home> {
                               ChoiceChip(
                                 label: Text("Auto scroll"),
                                 selected: autoScrollSelect,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(0.0), // Change this value to your desired radius
+                                ),
                                 onSelected: (value){
                                   setState(() {
                                     if(value){
@@ -539,6 +539,9 @@ class _HomeState extends State<Home> {
                               ChoiceChip(
                                 label: Text("Clear"),
                                 selected: false,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(0.0), // Change this value to your desired radius
+                                ),
                                 onSelected: (value){
                                   _speedAlarmItems.clear();
                                   _idleAlarmItems.clear();
@@ -552,120 +555,132 @@ class _HomeState extends State<Home> {
                       Spacer(flex: 1,),
                       Flexible(
                           flex:2,
-                          child: Text("هشدار عدم ارسال اطلاعات")
+                          child: Text("Offline Alarms:",style: TextStyle(color: Colors.white),)
                       ),
 
                       Flexible(
                         flex:20,
-                        child: Card(
-                          child: ListView.builder(
-                            controller: idleAlarmListController,
-                            itemCount: _idleAlarmItems.length,
-                            itemBuilder: (context, index) {
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0), // Change this value to your desired radius
+                            ),
+                            child: ListView.builder(
+                              controller: idleAlarmListController,
+                              itemCount: _idleAlarmItems.length,
+                              itemBuilder: (context, index) {
 
-                              Marker marker = _idleAlarmItems[index];
-                              String alarmText="";
-                              String idleAlarmName ="";
-                              String idleAlarmDateTime ="";
-                              if(marker is CarMarkerLive){
-                                idleAlarmName = marker.car.name;
-                                idleAlarmDateTime = marker.car.dateTime;
-                                /*Duration? diff =  dateTimeDiffFromNow(marker);
-                                if(diff! > Duration(hours: 24)){
-                                  alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
-                                }else if(int.parse(marker.car.speed) > 100){
-                                  alarmText = " ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
-                                }*/
-                              }
-                              return Directionality(
-                                textDirection: TextDirection.rtl,
-                                child: Container(
-                                  color: index % 2 == 0 ? Colors.white70 : Colors.white10,
-                                  child: ListTile(
+                                Marker marker = _idleAlarmItems[index];
+                                String alarmText="";
+                                String idleAlarmName ="";
+                                String idleAlarmDateTime ="";
+                                if(marker is CarMarkerLive){
+                                  idleAlarmName = marker.car.name;
+                                  idleAlarmDateTime = marker.car.dateTime;
+                                  /*Duration? diff =  dateTimeDiffFromNow(marker);
+                                  if(diff! > Duration(hours: 24)){
+                                    alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
+                                  }else if(int.parse(marker.car.speed) > 100){
+                                    alarmText = " ${marker.car.name}  ${marker.car.speed} ${marker.car.dateTime}";
+                                  }*/
+                                }
+                                return Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: Container(
+                                    color: index % 2 == 0 ? Colors.white70 : Colors.white10,
+                                    child: ListTile(
 
-                                    title:Row(
-                                        children: [
-                                          Flexible(
-                                              flex:3,
-                                              child: Text(idleAlarmName)
-                                          ),
-                                          Spacer(),
-                                          Flexible(flex:3,child: Text(idleAlarmDateTime))
-                                        ],
+                                      title:Row(
+                                          children: [
+                                            Flexible(
+                                                flex:3,
+                                                child: Text(idleAlarmName)
+                                            ),
+                                            Spacer(),
+                                            Flexible(flex:3,child: Text(idleAlarmDateTime))
+                                          ],
+                                      ),
+                                      onTap: (){
+                                        _showAlarm(_idleAlarmItems[index]);
+
+                                      },
                                     ),
-                                    onTap: (){
-                                      _showAlarm(_idleAlarmItems[index]);
-
-                                    },
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Spacer(flex: 1,),
                       Flexible(
                         flex:2,
-                          child: Text("هشدار سرعت")),
+                          child: Text("Speed Alarms:", style:  TextStyle(color: Colors.white),)),
                       Flexible(
                         flex:20,
-                        child: Card(
-                          child: ListView.builder(
-                            controller: speedAlarmListController,
-                            itemCount: _speedAlarmItems.length,
-                            itemBuilder: (context, index) {
-                              Marker marker = _speedAlarmItems[index];
-                              String alarmText="";
-                              String speedAlarmName ="";
-                              String speedAlarmSpeed ="";
-                              String speedAlarmDateTime ="";
-                              if(marker is CarMarkerLive){
-                                /*Duration? diff =  dateTimeDiffFromNow(marker);
-                                if(diff! > Duration(hours: 24)){
-                                  alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
-                                }else*/
-                                speedAlarmName = marker.car.name;
-                                speedAlarmSpeed = marker.car.speed;
-                                speedAlarmDateTime = marker.car.dateTime;
-                              }
-                              return Directionality(
-                                textDirection: TextDirection.rtl,
-                                child: Container(
-                                  color: index % 2 == 0 ? Colors.white70 : Colors.white10,
-                                  child: ListTile(
-                                    title:Row(
-                                        children: [
-                                          Flexible(
-                                              flex:3,
-                                              child: Text(speedAlarmName)
-                                          ),
-                                          Spacer(),
-                                          Flexible(
-                                            flex: 1,
-                                              child: Text(
-                                                  speedAlarmSpeed,
-                                                  style: TextStyle(color: Colors.red),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(0.0), // Change this value to your desired radius
+                            ),
+                            child: ListView.builder(
+                              controller: speedAlarmListController,
+                              itemCount: _speedAlarmItems.length,
+                              itemBuilder: (context, index) {
+                                Marker marker = _speedAlarmItems[index];
+                                String alarmText="";
+                                String speedAlarmName ="";
+                                String speedAlarmSpeed ="";
+                                String speedAlarmDateTime ="";
+                                if(marker is CarMarkerLive){
+                                  /*Duration? diff =  dateTimeDiffFromNow(marker);
+                                  if(diff! > Duration(hours: 24)){
+                                    alarmText = " ${marker.car.name}  ${marker.car.dateTime}";
+                                  }else*/
+                                  speedAlarmName = marker.car.name;
+                                  speedAlarmSpeed = marker.car.speed;
+                                  speedAlarmDateTime = marker.car.dateTime;
+                                }
+                                return Directionality(
+                                  textDirection: TextDirection.rtl,
+                                  child: Container(
+                                    color: index % 2 == 0 ? Colors.white70 : Colors.white10,
+                                    child: ListTile(
+                                      title:Row(
+                                          children: [
+                                            Flexible(
+                                                flex:3,
+                                                child: Text(speedAlarmName)
+                                            ),
+                                            Spacer(),
+                                            Flexible(
+                                              flex: 1,
+                                                child: Text(
+                                                    speedAlarmSpeed,
+                                                    style: TextStyle(color: Colors.red),
 
-                                              )
-                                          ),
-                                          Spacer(),
-                                          Flexible(
-                                              flex: 3,
-                                              child: Text(speedAlarmDateTime)
-                                          )
-                                        ],
+                                                )
+                                            ),
+                                            Spacer(),
+                                            Flexible(
+                                                flex: 3,
+                                                child: Text(speedAlarmDateTime)
+                                            )
+                                          ],
+                                      ),
+                                      onTap: (){
+                                        _showAlarm(_speedAlarmItems[index]);
+                                        /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
+                                        double newZoom =12.0; // New zoom level
+                                        _mapController.move(newCenter, newZoom);*/
+                                      },
                                     ),
-                                    onTap: (){
-                                      _showAlarm(_speedAlarmItems[index]);
-                                      /*LatLng newCenter =LatLng(_alarmItems[index].point.latitude, _alarmItems[index].point.longitude);
-                                      double newZoom =12.0; // New zoom level
-                                      _mapController.move(newCenter, newZoom);*/
-                                    },
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -682,7 +697,7 @@ class _HomeState extends State<Home> {
           bottom: 0,
           right: _rightBarWidth,
           child: BottomAppBar(
-            //color: Colors.blue,
+            color: Colors.white,
             child:Directionality(
               textDirection: TextDirection.rtl,
               child: BlocBuilder<HomeBloc, HomeState>(
