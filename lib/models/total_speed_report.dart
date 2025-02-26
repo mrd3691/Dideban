@@ -63,33 +63,51 @@ class TotalSpeedReport{
     int unValid_records=0;
 
     if(isSuccess) {
-      if (message == "ok") {
-        DateTime startDateTime = DateTime.parse(json["start_dateTime"]);
-        startDateTime = startDateTime.add(Duration(hours: 3,minutes: 30));
-        final startJalaliDateTime =  startDateTime.toJalali();
-        startDateTimeJalali = "${startJalaliDateTime.year}/${startJalaliDateTime.month}/${startJalaliDateTime.day}  "
-            "${startJalaliDateTime.hour}:${startJalaliDateTime.minute}:${startJalaliDateTime.second}";
+        if(json["start_dateTime"] != ""){
+          DateTime startDateTime = DateTime.parse(json["start_dateTime"]);
+          startDateTime = startDateTime.add(Duration(hours: 3,minutes: 30));
+          final startJalaliDateTime =  startDateTime.toJalali();
+          startDateTimeJalali = "${startJalaliDateTime.year}/${startJalaliDateTime.month}/${startJalaliDateTime.day}  "
+              "${startJalaliDateTime.hour}:${startJalaliDateTime.minute}:${startJalaliDateTime.second}";
+        }
 
-        DateTime endDateTime = DateTime.parse(json["end_dateTime"]);
-        endDateTime = endDateTime.add(Duration(hours: 3,minutes: 30));
-        final endJalaliDateTime =  endDateTime.toJalali();
-        endDateTimeJalali = "${endJalaliDateTime.year}/${endJalaliDateTime.month}/${endJalaliDateTime.day}  "
-            "${endJalaliDateTime.hour}:${endJalaliDateTime.minute}:${endJalaliDateTime.second}";
 
-        DateTime maxSpeedDateTime = DateTime.parse(json["max_speed_dateTime"]);
-        maxSpeedDateTime = maxSpeedDateTime.add(Duration(hours: 3,minutes: 30));
-        final maxSpeedJalaliDateTime =  maxSpeedDateTime.toJalali();
-        maxSpeedDateTimeJalali = "${maxSpeedJalaliDateTime.year}/${maxSpeedJalaliDateTime.month}/${maxSpeedJalaliDateTime.day}  "
-            "${maxSpeedJalaliDateTime.hour}:${maxSpeedJalaliDateTime.minute}:${maxSpeedJalaliDateTime.second}";
+        if(json["end_dateTime"] != ""){
+          DateTime endDateTime = DateTime.parse(json["end_dateTime"]);
+          endDateTime = endDateTime.add(Duration(hours: 3,minutes: 30));
+          final endJalaliDateTime =  endDateTime.toJalali();
+          endDateTimeJalali = "${endJalaliDateTime.year}/${endJalaliDateTime.month}/${endJalaliDateTime.day}  "
+              "${endJalaliDateTime.hour}:${endJalaliDateTime.minute}:${endJalaliDateTime.second}";
+        }
+
+
+        if(json["max_speed_dateTime"] != ""){
+          DateTime maxSpeedDateTime = DateTime.parse(json["max_speed_dateTime"]);
+          maxSpeedDateTime = maxSpeedDateTime.add(Duration(hours: 3,minutes: 30));
+          final maxSpeedJalaliDateTime =  maxSpeedDateTime.toJalali();
+          maxSpeedDateTimeJalali = "${maxSpeedJalaliDateTime.year}/${maxSpeedJalaliDateTime.month}/${maxSpeedJalaliDateTime.day}  "
+              "${maxSpeedJalaliDateTime.hour}:${maxSpeedJalaliDateTime.minute}:${maxSpeedJalaliDateTime.second}";
+        }
+
+
 
         distance = json["distance"];
-        distance = (distance/1000).round();
+        if(distance>0){
+          distance = (distance/1000).round();
+        }
+
 
         overSpeedDistance = json["over_speed_distance"];
-        overSpeedDistance = (overSpeedDistance/1000).round();
+        if(overSpeedDistance>0){
+          overSpeedDistance = (overSpeedDistance/1000).round();
+        }
+
 
         drivingTime = json["driving_time"];
-        drivingTime = (drivingTime/60).round();
+        if(drivingTime >0){
+          drivingTime = (drivingTime/60).round();
+        }
+
 
         maxSpeed = json["max_speed"];
 
@@ -97,9 +115,7 @@ class TotalSpeedReport{
         maxSpeedLongitude=json["max_speed_longitude"];
         maxSpeedCourse=json["max_speed_course"];
         unValid_records=json["unvalid_records"];
-      } else {
-        throw message;
-      }
+
     }
 
 

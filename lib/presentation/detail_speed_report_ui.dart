@@ -64,7 +64,7 @@ class _DetailSpeedReportUiState extends State<DetailSpeedReportUi> {
     _startTimeController.text = currentTimeJalali;
     _endTimeController.text = currentTimeJalali;
 
-    _speedLimitController.text ="105";
+    _speedLimitController.text ="110";
   }
   @override
   void initState() {

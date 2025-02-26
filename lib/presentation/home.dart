@@ -468,7 +468,7 @@ class _HomeState extends State<Home> {
                             continue;
                           }
                           int speed = int.parse(newMarker.car.speed);
-                          if (speed > 105) {
+                          if (speed > 110) {
                             bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
                             if(!alarmAlreadyExist){
                               _speedAlarmItems.add(state.markers![i]);

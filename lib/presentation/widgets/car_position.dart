@@ -99,7 +99,7 @@ class IconMarker extends StatelessWidget {
               Icons.navigation, // Directional arrow
               color: (isIdle(dateTime))
                   ? Colors.black
-                  :(int.parse(speed)>105)
+                  :(int.parse(speed)>110)
                     ?Colors.redAccent
                       : (isNightMove(speed)) ?
                         Colors.yellowAccent :
@@ -122,7 +122,7 @@ class IconMarker extends StatelessWidget {
       }else{
         return Icon(
           Icons.navigation, // Directional arrow
-          color:(int.parse(speed)>105)? Colors.redAccent : (isNightMove(speed))? Colors.yellowAccent :  Colors.blueAccent ,
+          color:(int.parse(speed)>110)? Colors.redAccent : (isNightMove(speed))? Colors.yellowAccent :  Colors.blueAccent ,
         );
       }
     }
@@ -205,7 +205,7 @@ class CarMarkerTracking extends Marker {
       width: Car.size,
       point: LatLng(car.lat, car.long),
       //child: Icon(Icons.fire_truck, color: Colors.redAccent,),
-      child: (int.parse(car.speed)>105)?// substring remove speed: from the first
+      child: (int.parse(car.speed)>110)?// substring remove speed: from the first
       Icon(Icons.location_on_rounded, color: Colors.redAccent,):
       Icon(Icons.location_on_rounded, color: Colors.deepPurple,)
     /*Transform.rotate(

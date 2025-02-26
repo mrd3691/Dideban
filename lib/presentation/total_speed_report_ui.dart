@@ -542,7 +542,7 @@ class _TotalSpeedReportUIState extends State<TotalSpeedReportUI> {
                               _startTimeController.text,
                               _endDateController.text,
                               _endTimeController.text,
-                              105,
+                              110,
                               currentTreeNode
                           ),);
                         }

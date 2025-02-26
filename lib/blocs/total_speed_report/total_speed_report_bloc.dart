@@ -53,9 +53,10 @@ class TotalSpeedReportBloc extends Bloc<TotalSpeedReportEvent, TotalSpeedReportS
       for(int i=0;i<deviceNames.length;i++){
         final totalSpeedReport =await TotalSpeedReportApi.fetchTotalSpeedReport(deviceNames[i], startDateTime, endDateTime,speedLimit);
         if(totalSpeedReport != null) {
-          if(totalSpeedReport.message!="no_data_available"){
+          totalSpeedReports.add(totalSpeedReport);
+          /*if(totalSpeedReport.message!="no_data_available"){
             totalSpeedReports.add(totalSpeedReport);
-          }
+          }*/
         }
       }
       emit(TotalSpeedReportSuccess(treeNode: event.treeNode, totalSpeedReport: totalSpeedReports));
