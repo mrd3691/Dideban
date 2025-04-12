@@ -1,5 +1,8 @@
+
+
 import 'package:dideban/blocs/home/home_bloc.dart';
 import 'package:dideban/config.dart';
+import 'package:flutter/foundation.dart';
 import '../../utilities/util.dart';
 import 'package:dideban/presentation/widgets/app_bar_dideban.dart';
 import 'package:flutter/material.dart';
@@ -309,27 +312,54 @@ class _HomeState extends State<Home> {
                 selectedTreeNode = state.treeNode;
               }
               if(state is UpdateSuccess){
-
                 EasyLoading.dismiss();
                 markers = state.markers;
+                if(state.markers != null){
+                  for(int i=0;i<state.markers!.length;i++){
+                    Marker newMarker = markers![i];
+                    if(newMarker is CarMarkerLive) {
+                      if(newMarker.car.name == clickedDeviceName){
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          clickedDeviceSpeed =" سرعت: ${newMarker.car.speed}";
 
-
-
-                /*LatLng newCenter =const LatLng(33.81275, 51.52094);
-                double newZoom =5.0;
-                _popupLayerController.hideAllPopups();
-                if(markers != null){
-                  if(markers!.length==1){
-                    newCenter = LatLng(markers![0].point.latitude, markers![0].point.longitude); // New center (e.g., Paris)
-                    newZoom = 12.0; // New zoom level
-                    //_mapController.move(newCenter, newZoom);
+                          var dtArray = newMarker.car.dateTime.split(" ");
+                          clickedDeviceDate = "تاریخ: ${dtArray[1]}";
+                          clickedDeviceTime ="ساعت: ${dtArray[0]}";
+                        });
+                      }
+                      Duration? diff=dateTimeDiffFromNow(newMarker);
+                      if(diff == null){
+                        continue;
+                      }
+                      if(diff>Duration(hours: 24)){
+                        bool alarmAlreadyExist = checkIdleAlarmExistence(newMarker);
+                        if(!alarmAlreadyExist){
+                          _idleAlarmItems.add(state.markers![i]);
+                        }
+                        continue;
+                      }
+                      if(diff>Duration(minutes: 10)){
+                        continue;
+                      }
+                      int speed = int.parse(newMarker.car.speed);
+                      if (speed > 110) {
+                        bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
+                        if(!alarmAlreadyExist){
+                          _speedAlarmItems.add(state.markers![i]);
+                        }
+                        continue;
+                      }
+                    }
                   }
-                  _mapController.move(newCenter, newZoom);
-                  if(markers!.isEmpty){
-                    EasyLoading.showError("No data available");
-                  }
-                }*/
+                }
               }
+
+              if(searchedValueController.text.isEmpty){
+                context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
+              }else{
+                context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
+              }
+
               return FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
@@ -421,8 +451,9 @@ class _HomeState extends State<Home> {
                   )
                 ],
               );
+
             }),
-        Positioned(
+        (!kIsWeb)?Container():Positioned(
           top: 0,
           bottom: 0,
           right: 0,
@@ -441,43 +472,6 @@ class _HomeState extends State<Home> {
                 builder: (context, state) {
                   if(state is UpdateSuccess){
                     if(state.markers != null){
-                      for(int i=0;i<state.markers!.length;i++){
-                        Marker newMarker = markers![i];
-                        if(newMarker is CarMarkerLive) {
-                          if(newMarker.car.name == clickedDeviceName){
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              clickedDeviceSpeed =" سرعت: ${newMarker.car.speed}";
-
-                              var dtArray = newMarker.car.dateTime.split(" ");
-                              clickedDeviceDate = "تاریخ: ${dtArray[1]}";
-                              clickedDeviceTime ="ساعت: ${dtArray[0]}";
-                            });
-                          }
-                          Duration? diff=dateTimeDiffFromNow(newMarker);
-                          if(diff == null){
-                            continue;
-                          }
-                          if(diff>Duration(hours: 24)){
-                            bool alarmAlreadyExist = checkIdleAlarmExistence(newMarker);
-                            if(!alarmAlreadyExist){
-                              _idleAlarmItems.add(state.markers![i]);
-                            }
-                            continue;
-                          }
-                          if(diff>Duration(minutes: 10)){
-                            continue;
-                          }
-                          int speed = int.parse(newMarker.car.speed);
-                          if (speed > 110) {
-                            bool alarmAlreadyExist = checkSpeedAlarmExistence(newMarker);
-                            if(!alarmAlreadyExist){
-                              _speedAlarmItems.add(state.markers![i]);
-                            }
-                            continue;
-                          }
-                        }
-                      }
-
 
                       if(autoScrollSelect){
                         speedAlarmListController.animateTo(
@@ -491,21 +485,8 @@ class _HomeState extends State<Home> {
                           curve: Curves.easeOut,
                         );
                       }
-
-
-
-
                     }
                   }
-
-                  if(searchedValueController.text.isEmpty){
-                    context.read<HomeBloc>().add(Update(selectedTreeNode,true,clickedTreeNode),);
-                  }else{
-                    context.read<HomeBloc>().add(Update(selectedTreeNode,false,clickedTreeNode),);
-                  }
-
-
-
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -695,7 +676,7 @@ class _HomeState extends State<Home> {
         Positioned(
           left: 0,
           bottom: 0,
-          right: _rightBarWidth,
+          right: (!kIsWeb)?0:_rightBarWidth,
           child: BottomAppBar(
             color: Colors.white,
             child:Directionality(
