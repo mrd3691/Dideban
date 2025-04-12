@@ -10,7 +10,6 @@ import 'package:dideban/presentation/detail_speed_report_ui.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/presentation/home.dart';
-import 'package:dideban/presentation/continues_driving_report_ui.dart';
 import 'package:dideban/presentation/last_status_report_ui.dart';
 import 'package:dideban/presentation/total_speed_report_ui.dart';
 import 'package:dideban/presentation/user_setting.dart';
@@ -172,7 +171,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                     );
                   }
                   if(index == 2){
-                    Navigator.of(context).pushReplacement(
+                    /*Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) =>
                             BlocProvider(
@@ -181,7 +180,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
                               child: const ContinuesDrivingReportUi(),
                             ),
                       ),
-                    );
+                    );*/
                   }
                   if(index == 3){
                     Navigator.of(context).pushReplacement(
