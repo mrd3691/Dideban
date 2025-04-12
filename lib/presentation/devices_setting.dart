@@ -11,7 +11,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import '../data/device_setting_api.dart';
 import '../models/device.dart';
 import '../models/group.dart';
-import 'dart:html' as html;
+//import 'dart:html' as html;
 
 class DevicesSetting extends StatefulWidget {
   const DevicesSetting({ super.key});
@@ -52,7 +52,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
 
 
 
-  Future<List<int>> createExcelFile() async {
+  /*Future<List<int>> createExcelFile() async {
     final excel = Excel.createExcel();
     final sheetName = "Sheet1";
     var sheet = excel[sheetName];
@@ -136,7 +136,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
     } catch (e) {
       print("Error: $e");
     }
-  }
+  }*/
 
 
   @override
@@ -176,7 +176,7 @@ class _DevicesSettingState extends State<DevicesSetting> {
                   Flexible(flex: 1,
                       child: IconButton(
                           onPressed: (){
-                            createAndDownloadExcel();
+                            //createAndDownloadExcel();
                           },
                           icon: Icon(Icons.download)
                       )

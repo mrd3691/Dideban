@@ -1,17 +1,10 @@
-import 'package:dideban/blocs/detail_speed_report/detail_speed_report_bloc.dart';
 import 'package:dideban/blocs/devices_setting/devices_setting_bloc.dart';
 import 'package:dideban/blocs/drivers/drivers_bloc.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
-import 'package:dideban/blocs/last_status_report/last_status_report_bloc.dart';
-import 'package:dideban/blocs/long_stop_report/long_stop_report_bloc.dart';
-import 'package:dideban/blocs/total_speed_report/total_speed_report_bloc.dart';
 import 'package:dideban/blocs/users/users_bloc.dart';
-import 'package:dideban/presentation/detail_speed_report_ui.dart';
 import 'package:dideban/presentation/devices_setting.dart';
 import 'package:dideban/presentation/drivers_setting.dart';
 import 'package:dideban/presentation/home.dart';
-import 'package:dideban/presentation/last_status_report_ui.dart';
-import 'package:dideban/presentation/total_speed_report_ui.dart';
 import 'package:dideban/presentation/user_setting.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,16 +12,10 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../blocs/devices/devices_bloc.dart';
 import '../../blocs/groups/groups_bloc.dart';
-import '../../blocs/continues_driving_report/continues_driving_report_bloc.dart';
-import '../../blocs/night_driving_report/night_driving_report_bloc.dart';
-import '../../blocs/offline_report/offline_report_bloc.dart';
 import '../../blocs/tracking/tracking_bloc.dart';
 import '../groups_setting.dart';
 
 import '../login.dart';
-import '../long_stop_report_ui.dart';
-import '../night_driving_report_ui.dart';
-import '../offline_report_ui.dart';
 import '../tracking.dart';
 
 class AppBarDideban extends StatefulWidget implements  PreferredSizeWidget {
@@ -127,117 +114,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
 
           },
         ),
-        IconButton(
-          icon: MenuAnchor(
-            builder:
-                (BuildContext context, MenuController controller, Widget? child) {
-              return IconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const Icon(Icons.report),
-                //tooltip: 'Reports',
-              );
-            },
-            menuChildren: List<MenuItemButton>.generate(7,
-                  (int index) => MenuItemButton(
-                onPressed: () {
-                  if(index == 0){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => TotalSpeedReportBloc()
-                                ..add(LoadDrawerTotalSpeedReport(),),
-                              child: const TotalSpeedReportUI(),
-                            ),
-                      ),
-                    );
-                  }
-                  if(index == 1){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => DetailSpeedReportBloc()
-                                ..add(LoadDrawerDetailSpeedReport(),),
-                              child: const DetailSpeedReportUi(),
-                            ),
-                      ),
-                    );
-                  }
-                  if(index == 2){
-                    /*Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => ContinuesDrivingReportBloc()
-                                ..add(LoadDrawerContinuesDrivingReport(),),
-                              child: const ContinuesDrivingReportUi(),
-                            ),
-                      ),
-                    );*/
-                  }
-                  if(index == 3){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => NightDrivingReportBloc()
-                                ..add(LoadDrawerNightDrivingReport(),),
-                              child: const NightDrivingReportUi(),
-                            ),
-                      ),
-                    );
-                  }
-                  if(index == 4){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => OfflineReportBloc()
-                                ..add(LoadDrawerOfflineReport(),),
-                              child: const OfflineReportUi(),
-                            ),
-                      ),
-                    );
-                  }
-                  if(index == 5){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => LongStopReportBloc()
-                                ..add(LoadDrawerLongStopReport(),),
-                              child: const LongStopReportUi(),
-                            ),
-                      ),
-                    );
-                  }
-                  if(index == 6){
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            BlocProvider(
-                              create: (context) => LastStatusReportBloc()
-                                ..add(LoadDrawerLastStatusReport(),),
-                              child: const LastStatusReportUi(),
-                            ),
-                      ),
-                    );
-                  }
-                },
 
-                child: getReportButton(index),
-              ),
-            ),
-          ),
-          onPressed: () {},
-        ),
 
 
 

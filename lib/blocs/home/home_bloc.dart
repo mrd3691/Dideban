@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+import '../../config.dart';
 import '../../models/device.dart';
 import '../../presentation/widgets/car_position.dart';
 import '../../presentation/widgets/treeview_checkbox.dart';
@@ -169,7 +170,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
 
       List<TreeNode> totalNode1 =[];
-      TreeNode organNode = TreeNode(title: "آزادگان");
+      TreeNode organNode = TreeNode(title: "${Config.organ}");
       organNode.children = totalNode;
       totalNode1.add(organNode);
       return totalNode1;
