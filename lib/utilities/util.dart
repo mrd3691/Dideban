@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -193,7 +194,7 @@ class Util{
     return secretKeyBytes.toString();
   }
 
-  static Future<String>  getUserName()async{
+  static Future<String>  getUserNameOld()async{
     try{
       final SharedPreferences prefs = await _prefs;
       String userName =  prefs.getString('userName') ?? "";
@@ -203,11 +204,35 @@ class Util{
     }
   }
 
-  static Future<String>  getPassword()async{
+  static Future<String>  getUserName()async{
+    try{
+      await EncryptedSharedPreferences.initialize( "${Config.authEncryptionKey}");
+      var sharedPref = EncryptedSharedPreferences.getInstance();
+      String? userName = sharedPref.getString('encrypted_username');
+      return userName ?? "";
+
+    }catch(e){
+      return "";
+    }
+  }
+
+  static Future<String>  getPasswordOld()async{
     try{
       final SharedPreferences prefs = await _prefs;
       String password =  prefs.getString('password') ?? "";
       return password;
+    }catch(e){
+      return "";
+    }
+  }
+
+  static Future<String>  getPassword()async{
+    try{
+      await EncryptedSharedPreferences.initialize( "${Config.authEncryptionKey}");
+      var sharedPref = EncryptedSharedPreferences.getInstance();
+      String? password = sharedPref.getString('encrypted_password');
+      return password ?? "";
+
     }catch(e){
       return "";
     }
