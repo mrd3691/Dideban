@@ -14,6 +14,7 @@ import 'package:dideban/presentation/continues_driving_report_ui.dart';
 import 'package:dideban/presentation/last_status_report_ui.dart';
 import 'package:dideban/presentation/total_speed_report_ui.dart';
 import 'package:dideban/presentation/user_setting.dart';
+import 'package:dideban/utilities/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -57,15 +58,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
     }
   }
 
-  Future<String>  getUserName()async{
-    try{
-      final SharedPreferences prefs = await _prefs;
-      String userName =  prefs.getString('userName') ?? "";
-      return userName;
-    }catch(e){
-      return "";
-    }
-  }
+
 
   @override
   void initState() {
@@ -243,7 +236,7 @@ class _AppBarDidebanState extends State<AppBarDideban> {
 
 
         FutureBuilder<String>(
-            future: getUserName(),
+            future: Util.getUserName(),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if(snapshot.hasData){
                 if(snapshot.data == "admin"){
