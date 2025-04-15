@@ -13,4 +13,5 @@ class Config {
 
 
   static const String organ ="آزادگان";
+  static const String authEncryptionKey ="1234567890123456";
 }

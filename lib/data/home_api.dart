@@ -6,6 +6,7 @@ import '../models/device.dart';
 import '../models/driver.dart';
 import '../models/group.dart';
 import '../utilities/util.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 
 class HomeAPI{
 
