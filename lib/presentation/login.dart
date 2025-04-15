@@ -1,9 +1,11 @@
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_login/flutter_login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../blocs/devices/devices_bloc.dart';
 import '../blocs/home/home_bloc.dart';
+import '../config.dart';
 import '../data/api.dart';
 import 'home.dart';
 
@@ -49,10 +51,16 @@ class LoginScreen extends StatelessWidget {
         if(authResult != null){
             final Future<SharedPreferences> prefs0 = SharedPreferences.getInstance();
             final SharedPreferences prefs = await prefs0;
-            prefs.setString('userName', data.name);
+            //prefs.setString('userName', data.name);
             prefs.setString('userId', authResult.id.toString());
-            prefs.setString('password', data.password);
+            //prefs.setString('password', data.password);
 
+            final key = "${Config.authEncryptionKey}";
+            await EncryptedSharedPreferences.initialize(key);
+            var sharedPref = EncryptedSharedPreferences.getInstance();
+
+            await sharedPref.setString('encrypted_username', data.name, notify: true);
+            await sharedPref.setString('encrypted_password', data.password, notify: true);
 
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
