@@ -11,6 +11,7 @@ class Config {
   static const String mapAddress ="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
   //static const String mapAddress ="map1/tiles/{z}/{x}/{y}.png";
 
-  static const String organ ="آزادگان";
 
+  static const String organ ="آزادگان";
+  static const String authEncryptionKey ="1234567890123456";
 }
