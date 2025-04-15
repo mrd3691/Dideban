@@ -1,8 +1,10 @@
 import 'dart:convert';
-import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
+import 'package:encrypt_shared_preferences/provider.dart';
 import 'package:shamsi_date/shamsi_date.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../config.dart';
 
 class Util{
 
