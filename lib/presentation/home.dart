@@ -1,5 +1,6 @@
 
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:dideban/blocs/home/home_bloc.dart';
 import 'package:dideban/config.dart';
 import 'package:flutter/foundation.dart';
@@ -48,8 +49,9 @@ class _HomeState extends State<Home> {
   String clickedDeviceDate = "";
   String clickedDeviceTime = "";
   String clickedDeviceFuelLevel = "";
+  String clickedDeviceMileage = "";
 
-  Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,fuelLevel: 0), clickedTreeNode: TreeNode(title: ""));
+  Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,fuelLevel: 0,mileage: 0), clickedTreeNode: TreeNode(title: ""));
   TreeNode clickedTreeNode = TreeNode(title: "");
 
   @override
@@ -217,6 +219,7 @@ class _HomeState extends State<Home> {
                           clickedDeviceDate = "تاریخ: ${dtArray[1]}";
                           clickedDeviceTime ="ساعت: ${dtArray[0]}";
                           clickedDeviceFuelLevel = "  سوخت:  ${marker.car.fuelLevel}";
+                          clickedDeviceMileage = "  کیلومتر:  ${marker.car.mileage}";
                           break;
                         }
                       }
@@ -328,6 +331,7 @@ class _HomeState extends State<Home> {
                           clickedDeviceDate = "تاریخ: ${dtArray[1]}";
                           clickedDeviceTime ="ساعت: ${dtArray[0]}";
                           clickedDeviceFuelLevel = "  سوخت:  ${newMarker.car.fuelLevel}";
+                          clickedDeviceMileage = "  کیلومتر:  ${newMarker.car.mileage}";
                         });
                       }
                       Duration? diff=dateTimeDiffFromNow(newMarker);
@@ -377,6 +381,8 @@ class _HomeState extends State<Home> {
                     clickedDeviceSpeed = "";
                     clickedDeviceName = "";
                     clickedDeviceFuelLevel ="";
+                    clickedDeviceMileage = "";
+
                     //_popupLayerController.hideAllPopups();
                   }
                 ),
@@ -437,6 +443,7 @@ class _HomeState extends State<Home> {
                                 clickedDeviceTime ="ساعت: ${dtArray[0]}";
                                 clickedDeviceSpeed = "  سرعت: ${marker.car.speed}" ;
                                 clickedDeviceFuelLevel ="  سوخت: ${marker.car.fuelLevel}" ;
+                                clickedDeviceMileage ="  کیلومتر: ${marker.car.mileage}" ;
                                 clickedDeviceName = marker.car.name;
                               }
 
@@ -688,33 +695,47 @@ class _HomeState extends State<Home> {
               textDirection: TextDirection.rtl,
               child: BlocBuilder<HomeBloc, HomeState>(
                 builder: (context, state) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  return Column(
                     children: [
-                      Flexible(
-                        flex: 2,
-                        child: Text(clickedDeviceName
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceName
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceDate
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceTime
+                            ),
+                          ),
+                        ],
                       ),
-                      Flexible(
-                        flex: 2,
-                        child: Text(clickedDeviceSpeed
-                        ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: Text(clickedDeviceDate
-                        ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: Text(clickedDeviceTime
-                        ),
-                      ),
-                      Flexible(
-                        flex: 2,
-                        child: Text(clickedDeviceFuelLevel
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceSpeed
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceFuelLevel
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: AutoSizeText(clickedDeviceMileage
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   );

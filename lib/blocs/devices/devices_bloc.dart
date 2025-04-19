@@ -77,7 +77,8 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                     lat: double.parse(deviceLocation[0].latitude),
                     long: double.parse(deviceLocation[0].longitude),
                     course: -1,
-                    fuelLevel: 0
+                    fuelLevel: 0,
+                    mileage: 0
                   )
                   ));
             }else{
@@ -112,7 +113,8 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                       lat: double.parse(deviceLocation[0].latitude),
                       long: double.parse(deviceLocation[0].longitude),
                       course: -1,
-                      fuelLevel: 0
+                      fuelLevel: 0,
+                      mileage: 0
                     )
                 )
             );

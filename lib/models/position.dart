@@ -70,7 +70,8 @@ class PositionAttributes {
   double? totalDistance;
   bool? motion;
   bool? ignition;
-  int? fuelLevel;
+  double? fuelLevel;
+  double? mileage;
 
   PositionAttributes({
     required this.priority,
@@ -81,6 +82,7 @@ class PositionAttributes {
     required this.motion,
     required this.ignition,
     required this.fuelLevel,
+    required this.mileage,
   });
 
   factory PositionAttributes.fromJson(Map<String, dynamic> json) {
@@ -92,7 +94,8 @@ class PositionAttributes {
       totalDistance: json['totalDistance'].toDouble(),
       motion: json['motion'],
       ignition: json['ignition'],
-      fuelLevel: (json['io89'] ?? 0)
+      fuelLevel: (json['io89'] ?? 0),
+      mileage: (json['io87'] ?? 0)
     );
   }
 
