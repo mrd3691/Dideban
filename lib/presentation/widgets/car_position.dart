@@ -17,7 +17,9 @@ class Car {
     required this.driver,
     required this.lat,
     required this.long,
-    required this.course
+    required this.course,
+    required this.fuelLevel,
+    required this.mileage
   });
 
   final String name;
@@ -28,6 +30,8 @@ class Car {
   final double lat;
   final double long;
   final double course;
+  final double fuelLevel;
+  final int mileage;
 }
 
 

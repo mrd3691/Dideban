@@ -76,7 +76,9 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                     driver: "driver: ${deviceLocation[0].driver}",
                     lat: double.parse(deviceLocation[0].latitude),
                     long: double.parse(deviceLocation[0].longitude),
-                    course: -1
+                    course: -1,
+                    fuelLevel: 0,
+                    mileage: 0
                   )
                   ));
             }else{
@@ -110,7 +112,9 @@ class DevicesBloc extends Bloc<DevicesEvent, DevicesState> {
                       driver: "driver: ${deviceLocation[0].driver}",
                       lat: double.parse(deviceLocation[0].latitude),
                       long: double.parse(deviceLocation[0].longitude),
-                      course: -1
+                      course: -1,
+                      fuelLevel: 0,
+                      mileage: 0
                     )
                 )
             );

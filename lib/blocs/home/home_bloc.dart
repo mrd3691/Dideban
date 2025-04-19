@@ -235,7 +235,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                             driver: "",
                             lat: positions[m].latitude!,
                             long: positions[m].longitude!,
-                            course: positions[m].course!
+                            course: positions[m].course!,
+                            fuelLevel: positions[m].attributes!.fuelLevel!,
+                            mileage: (positions[m].attributes!.mileage!/1000).round()
+
                         ), clickedTreeNode: clickedTreeNode
                         )
                     );
@@ -264,7 +267,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                         driver: "",
                         lat: positions[m].latitude!,
                         long: positions[m].longitude!,
-                        course: positions[m].course!
+                        course: positions[m].course!,
+                        fuelLevel: positions[m].attributes!.fuelLevel!,
+                        mileage: (positions[m].attributes!.mileage!/1000).round()
                     ), clickedTreeNode: clickedTreeNode
                     )
                 );
