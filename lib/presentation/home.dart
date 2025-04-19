@@ -47,8 +47,9 @@ class _HomeState extends State<Home> {
   String clickedDeviceSpeed ="";
   String clickedDeviceDate = "";
   String clickedDeviceTime = "";
+  String clickedDeviceFuelLevel = "";
 
-  Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,), clickedTreeNode: TreeNode(title: ""));
+  Marker clickedMarker =CarMarkerLive(car: Car(name: "", speed: "0", dateTime: "2024-10-16", acc: "", driver: "", lat: 0, long: 0,course: -1,fuelLevel: 0), clickedTreeNode: TreeNode(title: ""));
   TreeNode clickedTreeNode = TreeNode(title: "");
 
   @override
@@ -215,6 +216,7 @@ class _HomeState extends State<Home> {
                           var dtArray = marker.car.dateTime.split(" ");
                           clickedDeviceDate = "تاریخ: ${dtArray[1]}";
                           clickedDeviceTime ="ساعت: ${dtArray[0]}";
+                          clickedDeviceFuelLevel = "  سوخت:  ${marker.car.fuelLevel}";
                           break;
                         }
                       }
@@ -325,6 +327,7 @@ class _HomeState extends State<Home> {
                           var dtArray = newMarker.car.dateTime.split(" ");
                           clickedDeviceDate = "تاریخ: ${dtArray[1]}";
                           clickedDeviceTime ="ساعت: ${dtArray[0]}";
+                          clickedDeviceFuelLevel = "  سوخت:  ${newMarker.car.fuelLevel}";
                         });
                       }
                       Duration? diff=dateTimeDiffFromNow(newMarker);
@@ -373,6 +376,7 @@ class _HomeState extends State<Home> {
                     clickedDeviceTime ="";
                     clickedDeviceSpeed = "";
                     clickedDeviceName = "";
+                    clickedDeviceFuelLevel ="";
                     //_popupLayerController.hideAllPopups();
                   }
                 ),
@@ -432,6 +436,7 @@ class _HomeState extends State<Home> {
                                 clickedDeviceDate = "تاریخ: ${dtArray[1]}";
                                 clickedDeviceTime ="ساعت: ${dtArray[0]}";
                                 clickedDeviceSpeed = "  سرعت: ${marker.car.speed}" ;
+                                clickedDeviceFuelLevel ="  سوخت: ${marker.car.fuelLevel}" ;
                                 clickedDeviceName = marker.car.name;
                               }
 
@@ -704,6 +709,11 @@ class _HomeState extends State<Home> {
                       Flexible(
                         flex: 2,
                         child: Text(clickedDeviceTime
+                        ),
+                      ),
+                      Flexible(
+                        flex: 2,
+                        child: Text(clickedDeviceFuelLevel
                         ),
                       ),
                     ],
