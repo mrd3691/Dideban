@@ -37,6 +37,7 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
   final _startTimeController = TextEditingController();
   final _endDateController = TextEditingController();
   final _endTimeController = TextEditingController();
+  final _drivingTresholdController = TextEditingController();
 
 
 
@@ -48,6 +49,7 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
     _startTimeController.dispose();
     _endDateController.dispose();
     _endTimeController.dispose();
+    _drivingTresholdController.dispose();
 
 
   }
@@ -56,12 +58,12 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
     DateTime dt = DateTime.now();
     String currentDateJalali = Util.georgianToJalali("${dt.year}-${dt.month}-${dt.day}");
     _endDateController.text = currentDateJalali;
-
     String yesterdayDateJalali = Util.georgianToJalali("${dt.year}-${dt.month}-${dt.day-1}");
     _startDateController.text = yesterdayDateJalali;
     String currentTimeJalali = "${dt.hour}:${dt.minute}";
     _startTimeController.text = currentTimeJalali;
     _endTimeController.text = currentTimeJalali;
+    _drivingTresholdController.text ="10";
   }
   @override
   void initState() {
@@ -431,8 +433,6 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
                       Flexible(
                         flex: 14,
                         child: TextField(
-
-
                           inputFormatters: [DateInputFormatter()],
                           controller: _startDateController,
                           decoration: const InputDecoration(
@@ -462,6 +462,42 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
                     ],
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      const Spacer(),
+                      Flexible(
+                        flex: 14,
+                        child: TextField(
+                          inputFormatters: [DateInputFormatter()],
+                          controller: _endDateController,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              prefixIcon: Icon(Icons.date_range),
+                              labelText: "End Date"
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Flexible(
+                        flex: 9,
+                        child: TextField(
+                          inputFormatters: [TimeInputFormatter()],
+                          controller: _endTimeController,
+                          style: const TextStyle(fontSize: 15, fontFamily: 'irs',),
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.timer),
+                              contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                              labelText: "End Time"
+                          ),
+                        ),
+                      ),
+                      const Spacer()
+                    ],
+                  ),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
 
 
                 ],
@@ -472,33 +508,52 @@ class _LongStopReportUiState extends State<LongStopReportUi> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextButton(
-                      onPressed: (){
-
-                        if(selectedDevices.isEmpty){
-                          EasyLoading.showError("No device selected");
-                        }else{
-                          //EasyLoading.show(status: 'Please wait');
-                          context.read<LongStopReportBloc>().add(FetchLongStopReport(
-                              selectedDevices,
-                              _startDateController.text,
-                              _startTimeController.text,
-                              _endDateController.text,
-                              _endTimeController.text,
-                              10,
-                              currentTreeNode
-                          ),);
-                        }
-                      },
-                      style: TextButton.styleFrom(
-                          foregroundColor: Colors.white, shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    Flexible(
+                      flex: 1,
+                      child: TextField(
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        controller: _drivingTresholdController,
+                        decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            prefixIcon: Icon(Icons.timelapse),
+                            labelText: "driving treshold"
+                        ),
                       ),
-                          fixedSize: Size(MediaQuery.of(context).size.width * 0.4,
-                              MediaQuery.of(context).size.height * 0.075),
-                          backgroundColor: Colors.deepPurple,
-                          elevation: 5),
-                      child: const Text("Search"),),
+                    ),
+                    SizedBox(height: 5,),
+                    Flexible(
+                      flex: 1,
+                      child: TextButton(
+                        onPressed: (){
+
+                          if(selectedDevices.isEmpty){
+                            EasyLoading.showError("No device selected");
+                          }else{
+                            //EasyLoading.show(status: 'Please wait');
+                            context.read<LongStopReportBloc>().add(FetchLongStopReport(
+                                selectedDevices,
+                                _startDateController.text,
+                                _startTimeController.text,
+                                _endDateController.text,
+                                _endTimeController.text,
+                                int.parse(_drivingTresholdController.text),
+                                currentTreeNode
+                            ),);
+                          }
+                        },
+                        style: TextButton.styleFrom(
+                            foregroundColor: Colors.white, shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                            fixedSize: Size(MediaQuery.of(context).size.width * 0.4,
+                                MediaQuery.of(context).size.height * 0.075),
+                            backgroundColor: Colors.deepPurple,
+                            elevation: 5),
+                        child: const Text("Search"),),
+                    ),
 
                   ],
                 )),
