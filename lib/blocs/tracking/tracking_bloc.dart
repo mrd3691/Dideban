@@ -69,8 +69,8 @@ class TrackingBloc extends Bloc<TrackingEvent, TrackingState> {
                   lat: double.parse(element.latitude),
                   long: double.parse(element.longitude),
                   course: -1,
-                  fuelLevel: 0,
-                  mileage: 0
+                  //fuelLevel: 0,
+                  //mileage: 0
 
                 )
             ));
