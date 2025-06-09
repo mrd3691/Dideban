@@ -86,6 +86,23 @@ class PositionAttributes {
   });
 
   factory PositionAttributes.fromJson(Map<String, dynamic> json) {
+
+    double fl=0;
+    fl = json['io89'] ?? 0;
+    if(fl == 0){
+      fl = json['fuelLevelPercentage'] ?? 0;
+    }
+
+    double td=0;
+    td = (json['io87']) ?? 0;
+    if(td == 0){
+      td = json['obdOdometer'] ?? 0;
+
+    }else{
+      td = td/1000;
+    }
+
+
     return PositionAttributes(
       priority: json['priority'],
       sat: json['sat'],
@@ -94,8 +111,8 @@ class PositionAttributes {
       totalDistance: json['totalDistance'].toDouble(),
       motion: json['motion'],
       ignition: json['ignition'],
-      fuelLevel: (json['io89'] ?? 0),
-      mileage: (json['io87'] ?? 0)
+      fuelLevel: fl,
+      mileage: td
     );
   }
 

@@ -237,7 +237,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                             long: positions[m].longitude!,
                             course: positions[m].course!,
                             fuelLevel: positions[m].attributes!.fuelLevel!,
-                            mileage: (positions[m].attributes!.mileage!/1000).round()
+                            mileage: (positions[m].attributes!.mileage!).round()
 
                         ), clickedTreeNode: clickedTreeNode
                         )
@@ -269,7 +269,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                         long: positions[m].longitude!,
                         course: positions[m].course!,
                         fuelLevel: positions[m].attributes!.fuelLevel!,
-                        mileage: (positions[m].attributes!.mileage!/1000).round()
+                        mileage: (positions[m].attributes!.mileage!).round()
                     ), clickedTreeNode: clickedTreeNode
                     )
                 );
