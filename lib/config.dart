@@ -7,8 +7,8 @@ class Config {
 
 
   static const String organ ="آزادگان";
-  static const String serverAddress ="http://80.210.21.35";
-  static const String serverAddressTraccar ="http://80.210.21.35:8082";
+  static  String serverAddress ="http://80.210.21.35";
+  static  String serverAddressTraccar ="http://80.210.21.35:8082";
 
 
   /*static const String organ ="نیروی زمینی";

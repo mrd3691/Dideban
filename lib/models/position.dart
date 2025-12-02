@@ -73,6 +73,7 @@ class PositionAttributes {
   double? fuelLevel;
   double? mileage;
 
+
   PositionAttributes({
     required this.priority,
     required this.sat,
@@ -81,6 +82,8 @@ class PositionAttributes {
     required this.totalDistance,
     required this.motion,
     required this.ignition,
+
+
     //required this.fuelLevel,
     //required this.mileage,
   });
@@ -94,6 +97,7 @@ class PositionAttributes {
       totalDistance: json['totalDistance'].toDouble(),
       motion: json['motion'],
       ignition: json['ignition'],
+
       //fuelLevel: (json['io89'] ?? 0),
       //mileage: (json['io87'] ?? 0)
     );

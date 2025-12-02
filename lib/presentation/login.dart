@@ -54,6 +54,10 @@ class LoginScreen extends StatelessWidget {
             //prefs.setString('userName', data.name);
             prefs.setString('userId', authResult.id.toString());
             //prefs.setString('password', data.password);
+            if(authResult.id == 2){
+              Config.serverAddressTraccar = "http://192.168.101.20:8082";
+              Config.serverAddress = "http://192.168.101.20";
+            }
 
             final key = "${Config.authEncryptionKey}";
             await EncryptedSharedPreferences.initialize(key);
